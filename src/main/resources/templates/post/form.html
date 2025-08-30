@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goorm Board - 글쓰기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <!-- ✅ HEADER -->
+    <header class="bg-white shadow sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="board.html" class="text-2xl font-bold text-blue-600">goorm board</a>
+      </div>
+    </header>
+
+    <!-- ✅ WRITE PAGE -->
+    <main class="flex-1">
+      <section class="max-w-3xl mx-auto px-4 py-12">
+        <form onsubmit="handleSubmit(event)" class="bg-white p-6 rounded shadow space-y-6">
+          <h1 class="text-2xl font-bold">글쓰기</h1>
+
+          <div>
+            <label class="block text-sm font-medium mb-1" for="title">제목</label>
+            <input type="text" id="title" name="title" required class="w-full border rounded px-4 py-2" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1" for="author">작성자</label>
+            <input type="text" id="author" name="author" required class="w-full border rounded px-4 py-2" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1" for="content">내용</label>
+            <textarea id="content" name="content" rows="8" required class="w-full border rounded px-4 py-2"></textarea>
+          </div>
+
+          <div class="flex justify-between">
+            <a href="board.html" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">취소</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">등록</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <!-- ✅ FOOTER -->
+    <footer class="bg-white shadow-inner mt-auto py-4">
+      <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+        © 2025 Goorm Board. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      function handleSubmit(event) {
+        event.preventDefault();
+        alert("글이 등록되었습니다!");
+        window.location.href = "board.html";
+      }
+    </script>
+  </body>
+</html>

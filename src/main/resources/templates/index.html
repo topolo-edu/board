@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goorm Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+<!-- HEADER -->
+<header class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="/" class="text-2xl font-bold text-blue-600">goorm board</a>
+    </div>
+</header>
+
+<!-- MAIN PAGE -->
+<main class="flex-1">
+    <section class="max-w-7xl mx-auto px-4 py-12 text-center">
+        <h1 class="text-4xl font-bold mb-6">Goorm Board에 오신 것을 환영합니다!</h1>
+        <p class="text-xl text-gray-600 mb-8">Spring Boot로 만든 게시판입니다.</p>
+        <a href="/posts" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium">
+            게시판 보러가기
+        </a>
+    </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-white shadow-inner mt-auto py-4">
+    <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+        © 2025 Goorm Board. All rights reserved.
+    </div>
+</footer>
+</body>
+</html>

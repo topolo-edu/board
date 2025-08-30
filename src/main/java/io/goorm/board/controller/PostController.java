@@ -1,0 +1,78 @@
+package io.goorm.board.controller;
+
+import io.goorm.board.entity.Post;
+import io.goorm.board.service.PostService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@Controller
+@RequiredArgsConstructor
+public class PostController {
+
+    private final PostService postService;
+
+    // 메인 페이지
+    @GetMapping("/")
+    public String home() {
+        return "index";
+    }
+
+    // 게시글 목록 (기본)
+    @GetMapping("/posts")
+    public String list(Model model) {
+        List<Post> posts = postService.findAll();
+        model.addAttribute("posts", posts);
+        return "post/list";
+    }
+
+    // 게시글 상세 조회
+    @GetMapping("/posts/{seq}")
+    public String show(@PathVariable Long seq, Model model) {
+        Post post = postService.findBySeq(seq);
+        model.addAttribute("post", post);
+        return "post/show";
+    }
+
+    // 게시글 작성 폼
+    @GetMapping("/posts/new")
+    public String createForm(Model model) {
+        model.addAttribute("post", new Post());
+        return "post/form";
+    }
+
+    // 게시글 저장 → 목록으로
+    @PostMapping("/posts")
+    public String create(@ModelAttribute Post post) {
+        postService.save(post);
+        return "redirect:/posts";
+    }
+
+    // 게시글 수정 폼
+    @GetMapping("/posts/{seq}/edit")
+    public String editForm(@PathVariable Long seq, Model model) {
+        Post post = postService.findBySeq(seq);
+        model.addAttribute("post", post);
+        return "post/form";
+    }
+
+    // 게시글 수정 → 상세보기로
+    @PostMapping("/posts/{seq}")
+    public String update(@PathVariable Long seq, @ModelAttribute Post post) {
+        postService.update(seq, post);
+        return "redirect:/posts/" + seq;
+    }
+
+    // 게시글 삭제 → 목록으로
+    @PostMapping("/posts/{seq}/delete")
+    public String delete(@PathVariable Long seq) {
+        postService.delete(seq);
+
+        return "redirect:/posts";
+
+    }
+
+}

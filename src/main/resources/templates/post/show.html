@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goorm Board - 글 상세</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <!-- ✅ HEADER -->
+    <header class="bg-white shadow sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="board.html" class="text-2xl font-bold text-blue-600">goorm board</a>
+      </div>
+    </header>
+
+    <!-- ✅ POST DETAIL PAGE -->
+    <main class="flex-1">
+      <section class="max-w-3xl mx-auto px-4 py-12">
+        <article class="bg-white p-6 rounded shadow">
+          <h1 class="text-2xl font-bold mb-2">TailwindCSS 사용법 정리</h1>
+          <div class="text-sm text-gray-500 mb-4">
+            작성자: 홍길동 · 작성일: 2025-07-22 · 조회수: 15
+          </div>
+          <div class="prose max-w-none">
+            <p>
+              TailwindCSS는 유틸리티 클래스 기반의 CSS 프레임워크로, 빠르게 UI를 만들 수 있도록 도와줍니다.<br />
+              <strong>핵심 개념</strong>은 클래스 조합을 통해 컴포넌트를 직접 조립하는 것입니다.
+            </p>
+            <ul>
+              <li>모바일 퍼스트 설계</li>
+              <li>반응형 디자인 클래스 제공</li>
+              <li>JIT 모드로 빠른 빌드</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- ✅ ACTIONS -->
+        <div class="mt-6 flex justify-between">
+          <a href="board.html" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
+          <div class="space-x-2">
+            <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
+            <a href="#" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ✅ FOOTER -->
+    <footer class="bg-white shadow-inner mt-auto py-4">
+      <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+        © 2025 Goorm Board. All rights reserved.
+      </div>
+    </footer>
+  </body>
+</html>
