@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,46 +12,47 @@
     </style>
   </head>
   <body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
-    <!-- ✅ HEADER -->
+    <!-- HEADER -->
     <header class="bg-white shadow sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <a href="/posts" class="text-2xl font-bold text-blue-600">goorm board</a>
+        <a th:href="@{/}" class="text-2xl font-bold text-blue-600">goorm board</a>
+        <nav>
+          <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">게시판</a>
+        </nav>
       </div>
     </header>
 
-    <!-- ✅ POST DETAIL PAGE -->
+    <!-- POST DETAIL PAGE -->
     <main class="flex-1">
       <section class="max-w-3xl mx-auto px-4 py-12">
         <article class="bg-white p-6 rounded shadow">
-          <h1 class="text-2xl font-bold mb-2">TailwindCSS 사용법 정리</h1>
+          <h1 th:text="${post.title}" class="text-2xl font-bold mb-2">게시글 제목</h1>
           <div class="text-sm text-gray-500 mb-4">
-            작성자: 홍길동 · 작성일: 2025-07-22 · 조회수: 15
+            <span>작성자: </span><span th:text="${post.author}">작성자</span>
+            <span> · 작성일: </span><span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2025-01-01</span>
+            <span> · 조회수: </span><span th:text="${post.viewCount}">0</span>
           </div>
           <div class="prose max-w-none">
-            <p>
-              TailwindCSS는 유틸리티 클래스 기반의 CSS 프레임워크로, 빠르게 UI를 만들 수 있도록 도와줍니다.<br />
-              <strong>핵심 개념</strong>은 클래스 조합을 통해 컴포넌트를 직접 조립하는 것입니다.
-            </p>
-            <ul>
-              <li>모바일 퍼스트 설계</li>
-              <li>반응형 디자인 클래스 제공</li>
-              <li>JIT 모드로 빠른 빌드</li>
-            </ul>
+            <div th:utext="${#strings.replace(post.content, T(java.lang.System).lineSeparator(), '&lt;br&gt;')}" class="whitespace-pre-wrap">
+              게시글 내용
+            </div>
           </div>
         </article>
 
-        <!-- ✅ ACTIONS -->
+        <!-- ACTIONS -->
         <div class="mt-6 flex justify-between">
-          <a href="/posts" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
+          <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
           <div class="space-x-2">
-            <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
-            <a href="#" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</a>
+            <a th:href="@{/posts/{id}/edit(id=${post.id})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
+            <form th:action="@{/posts/{id}/delete(id=${post.id})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+              <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</button>
+            </form>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- ✅ FOOTER -->
+    <!-- FOOTER -->
     <footer class="bg-white shadow-inner mt-auto py-4">
       <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
         © 2025 Goorm Board. All rights reserved.

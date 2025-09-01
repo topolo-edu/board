@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,19 +12,22 @@
     </style>
   </head>
   <body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
-    <!-- ✅ HEADER -->
+    <!-- HEADER -->
     <header class="bg-white shadow sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-blue-600">goorm board</h1>
+        <a th:href="@{/}" class="text-2xl font-bold text-blue-600">goorm board</a>
+        <nav>
+          <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">게시판</a>
+        </nav>
       </div>
     </header>
 
-    <!-- ✅ BOARD PAGE -->
+    <!-- BOARD PAGE -->
     <main class="flex-1">
       <section class="max-w-7xl mx-auto px-4 py-12">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-3xl font-bold">게시판</h2>
-          <a href="/posts/new" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">글쓰기</a>
+          <a th:href="@{/posts/new}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">글쓰기</a>
         </div>
 
         <div class="overflow-x-auto bg-white shadow rounded-lg">
@@ -39,36 +42,34 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">10</td>
-                <td class="px-6 py-4 whitespace-nowrap"><a href="#" class="text-blue-600 hover:underline">TailwindCSS 사용법 정리</a></td>
-                <td class="px-6 py-4 whitespace-nowrap">홍길동</td>
-                <td class="px-6 py-4 whitespace-nowrap">2025-07-22</td>
-                <td class="px-6 py-4 whitespace-nowrap">15</td>
+              <!-- 게시글이 있을 때 -->
+              <tr th:each="post, status : ${posts}" th:if="${posts != null and !posts.empty}">
+                <td th:text="${status.count}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <a th:href="@{/posts/{id}(id=${post.id})}" 
+                     th:text="${post.title}" 
+                     class="text-blue-600 hover:underline font-medium">
+                    게시글 제목
+                  </a>
+                </td>
+                <td th:text="${post.author}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">작성자</td>
+                <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-01-01</td>
+                <td th:text="${post.viewCount}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0</td>
               </tr>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">9</td>
-                <td class="px-6 py-4 whitespace-nowrap"><a href="#" class="text-blue-600 hover:underline">Tailwind 템플릿 비교</a></td>
-                <td class="px-6 py-4 whitespace-nowrap">김코딩</td>
-                <td class="px-6 py-4 whitespace-nowrap">2025-07-21</td>
-                <td class="px-6 py-4 whitespace-nowrap">32</td>
+              
+              <!-- 게시글이 없을 때 -->
+              <tr th:if="${posts == null or posts.empty}">
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                  등록된 게시글이 없습니다.
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-
-        <!-- ✅ PAGINATION -->
-        <div class="mt-8 flex justify-center space-x-1">
-          <button class="px-3 py-1 text-sm border rounded hover:bg-gray-200">«</button>
-          <button class="px-3 py-1 text-sm border rounded bg-blue-600 text-white">1</button>
-          <button class="px-3 py-1 text-sm border rounded hover:bg-gray-200">2</button>
-          <button class="px-3 py-1 text-sm border rounded hover:bg-gray-200">3</button>
-          <button class="px-3 py-1 text-sm border rounded hover:bg-gray-200">»</button>
-        </div>
       </section>
     </main>
 
-    <!-- ✅ FOOTER -->
+    <!-- FOOTER -->
     <footer class="bg-white shadow-inner mt-auto py-4">
       <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
         © 2025 Goorm Board. All rights reserved.

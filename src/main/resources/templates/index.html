@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,10 @@
 <!-- HEADER -->
 <header class="bg-white shadow sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <a href="/" class="text-2xl font-bold text-blue-600">goorm board</a>
+        <a th:href="@{/}" class="text-2xl font-bold text-blue-600">goorm board</a>
+        <nav>
+            <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">게시판</a>
+        </nav>
     </div>
 </header>
 
@@ -21,8 +24,12 @@
 <main class="flex-1">
     <section class="max-w-7xl mx-auto px-4 py-12 text-center">
         <h1 class="text-4xl font-bold mb-6">Goorm Board에 오신 것을 환영합니다!</h1>
-        <p class="text-xl text-gray-600 mb-8">Spring Boot로 만든 게시판입니다.</p>
-        <a href="/posts" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium">
+        <p class="text-xl text-gray-600 mb-8">Spring Boot + Thymeleaf로 만든 게시판입니다.</p>
+        <div class="space-y-4 mb-8">
+            <p class="text-lg" th:if="${username}" th:text="|안녕하세요, ${username}님!|">환영 메시지</p>
+            <p class="text-lg" th:unless="${username}">로그인하여 더 많은 기능을 이용하세요!</p>
+        </div>
+        <a th:href="@{/posts}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium">
             게시판 보러가기
         </a>
     </section>
