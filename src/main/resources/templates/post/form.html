@@ -1,43 +1,37 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <th:block th:replace="~{fragments/head :: common-head}"></th:block>
-    <title>Goorm Board - 글쓰기</title>
-  </head>
-  <body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
-    <!-- HEADER -->
-    <th:block th:replace="~{fragments/header :: header}"></th:block>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>글쓰기</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <section class="max-w-3xl mx-auto px-4 py-12">
+            <form th:action="@{${post.seq != null ? '/posts/' + post.seq : '/posts'}}" th:object="${post}" th:method="${post.seq != null ? 'put' : 'post'}" class="bg-white p-6 rounded shadow space-y-6">
+                <h1 class="text-2xl font-bold" th:text="${post.seq != null ? '글 수정' : '글쓰기'}">글쓰기</h1>
 
-    <!-- WRITE PAGE -->
-    <main class="flex-1">
-      <section class="max-w-3xl mx-auto px-4 py-12">
-        <form th:action="@{${post.seq != null ? '/posts/' + post.seq : '/posts'}}" th:object="${post}" th:method="${post.seq != null ? 'put' : 'post'}" class="bg-white p-6 rounded shadow space-y-6">
-          <h1 class="text-2xl font-bold" th:text="${post.seq != null ? '글 수정' : '글쓰기'}">글쓰기</h1>
+                <div>
+                    <label class="block text-sm font-medium mb-1" for="title">제목</label>
+                    <input type="text" th:field="*{title}"  required class="w-full border rounded px-4 py-2"  />
+                </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1" for="title">제목</label>
-            <input type="text" th:field="*{title}"  required class="w-full border rounded px-4 py-2"  />
-          </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1" for="author">작성자</label>
+                    <input type="text" th:field="*{author}" required class="w-full border rounded px-4 py-2" />
+                </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1" for="author">작성자</label>
-            <input type="text" th:field="*{author}" required class="w-full border rounded px-4 py-2" />
-          </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1" for="content">내용</label>
+                    <textarea th:field="*{content}" rows="8" required class="w-full border rounded px-4 py-2"></textarea>
+                </div>
 
-          <div>
-            <label class="block text-sm font-medium mb-1" for="content">내용</label>
-            <textarea th:field="*{content}" rows="8" required class="w-full border rounded px-4 py-2"></textarea>
-          </div>
-
-          <div class="flex justify-between">
-            <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">취소</a>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" th:text="${post.seq != null ? '수정' : '등록'}">등록</button>
-          </div>
-        </form>
-      </section>
-    </main>
-
-    <!-- FOOTER -->
-    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
-  </body>
+                <div class="flex justify-between">
+                    <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">취소</a>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" th:text="${post.seq != null ? '수정' : '등록'}">등록</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
 </html>

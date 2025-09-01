@@ -1,28 +1,23 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <th:block th:replace="~{fragments/head :: common-head}"></th:block>
+    <title>Goorm Board</title>
 </head>
-<body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
-<!-- HEADER -->
-<th:block th:replace="~{fragments/header :: header}"></th:block>
-
-<!-- MAIN PAGE -->
-<main class="flex-1">
-    <section class="max-w-7xl mx-auto px-4 py-12 text-center">
-        <h1 class="text-4xl font-bold mb-6">Goorm Board에 오신 것을 환영합니다!</h1>
-        <p class="text-xl text-gray-600 mb-8">Spring Boot + Thymeleaf로 만든 게시판입니다.</p>
-        <div class="space-y-4 mb-8">
-            <p class="text-lg" th:if="${username}" th:text="|안녕하세요, ${username}님!|">환영 메시지</p>
-            <p class="text-lg" th:unless="${username}">로그인하여 더 많은 기능을 이용하세요!</p>
-        </div>
-        <a th:href="@{/posts}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium">
-            게시판 보러가기
-        </a>
-    </section>
-</main>
-
-<!-- FOOTER -->
-<th:block th:replace="~{fragments/footer :: footer}"></th:block>
+<body>
+    <div layout:fragment="content">
+        <section class="max-w-7xl mx-auto px-4 py-12 text-center">
+            <h1 class="text-4xl font-bold mb-6">Goorm Board에 오신 것을 환영합니다!</h1>
+            <p class="text-xl text-gray-600 mb-8">Spring Boot + Thymeleaf로 만든 게시판입니다.</p>
+            <div class="space-y-4 mb-8">
+                <p class="text-lg" th:if="${username}" th:text="|안녕하세요, ${username}님!|">환영 메시지</p>
+                <p class="text-lg" th:unless="${username}">로그인하여 더 많은 기능을 이용하세요!</p>
+            </div>
+            <a th:href="@{/posts}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium">
+                게시판 보러가기
+            </a>
+        </section>
+    </div>
 </body>
 </html>

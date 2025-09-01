@@ -1,44 +1,38 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <th:block th:replace="~{fragments/head :: common-head}"></th:block>
-    <title>Goorm Board - 글 상세</title>
-  </head>
-  <body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
-    <!-- HEADER -->
-    <th:block th:replace="~{fragments/header :: header}"></th:block>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>글 상세</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <section class="max-w-3xl mx-auto px-4 py-12">
+            <article class="bg-white p-6 rounded shadow">
+                <h1 th:text="${post.title}" class="text-2xl font-bold mb-2">게시글 제목</h1>
+                <div class="text-sm text-gray-500 mb-4">
+                    <span>작성자: </span><span th:text="${post.author}">작성자</span>
+                    <span> · 작성일: </span><span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2025-01-01</span>
+                    <span> · 조회수: </span><span th:text="${post.viewCount}">0</span>
+                </div>
+                <div class="prose max-w-none">
+                    <div th:text="${post.content}" class="whitespace-pre-wrap">
+                        게시글 내용
+                    </div>
+                </div>
+            </article>
 
-    <!-- POST DETAIL PAGE -->
-    <main class="flex-1">
-      <section class="max-w-3xl mx-auto px-4 py-12">
-        <article class="bg-white p-6 rounded shadow">
-          <h1 th:text="${post.title}" class="text-2xl font-bold mb-2">게시글 제목</h1>
-          <div class="text-sm text-gray-500 mb-4">
-            <span>작성자: </span><span th:text="${post.author}">작성자</span>
-            <span> · 작성일: </span><span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2025-01-01</span>
-            <span> · 조회수: </span><span th:text="${post.viewCount}">0</span>
-          </div>
-          <div class="prose max-w-none">
-            <div th:text="${post.content}" class="whitespace-pre-wrap">
-              게시글 내용
+            <!-- ACTIONS -->
+            <div class="mt-6 flex justify-between">
+                <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
+                <div class="space-x-2">
+                    <a th:href="@{/posts/{id}/edit(id=${post.seq})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
+                    <form th:action="@{/posts/{id}/delete(id=${post.seq})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</button>
+                    </form>
+                </div>
             </div>
-          </div>
-        </article>
-
-        <!-- ACTIONS -->
-        <div class="mt-6 flex justify-between">
-          <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
-          <div class="space-x-2">
-            <a th:href="@{/posts/{id}/edit(id=${post.seq})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
-            <form th:action="@{/posts/{id}/delete(id=${post.seq})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
-              <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</button>
-            </form>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- FOOTER -->
-    <th:block th:replace="~{fragments/footer :: footer}"></th:block>
-  </body>
+        </section>
+    </div>
+</body>
 </html>

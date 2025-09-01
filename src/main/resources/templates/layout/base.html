@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title layout:title-pattern="$LAYOUT_TITLE - Goorm Board">Goorm Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 text-gray-800">
+    <!-- HEADER -->
+    <header class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <a th:href="@{/}" class="text-2xl font-bold text-blue-600">goorm board</a>
+            <nav>
+                <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">게시판</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1">
+        <div layout:fragment="content">
+            <!-- 페이지별 내용이 여기에 들어갑니다 -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white shadow-inner mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+            © 2025 Goorm Board. All rights reserved.
+        </div>
+    </footer>
+</body>
+</html>
