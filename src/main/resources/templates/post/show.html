@@ -33,7 +33,7 @@
             <span> · 조회수: </span><span th:text="${post.viewCount}">0</span>
           </div>
           <div class="prose max-w-none">
-            <div th:utext="${#strings.replace(post.content, T(java.lang.System).lineSeparator(), '&lt;br&gt;')}" class="whitespace-pre-wrap">
+            <div th:text="${post.content}" class="whitespace-pre-wrap">
               게시글 내용
             </div>
           </div>
@@ -43,8 +43,8 @@
         <div class="mt-6 flex justify-between">
           <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
           <div class="space-x-2">
-            <a th:href="@{/posts/{id}/edit(id=${post.id})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
-            <form th:action="@{/posts/{id}/delete(id=${post.id})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+            <a th:href="@{/posts/{id}/edit(id=${post.seq})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
+            <form th:action="@{/posts/{id}/delete(id=${post.seq})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
               <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</button>
             </form>
           </div>

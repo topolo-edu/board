@@ -25,8 +25,8 @@
     <!-- WRITE PAGE -->
     <main class="flex-1">
       <section class="max-w-3xl mx-auto px-4 py-12">
-        <form th:action="@{/posts}" th:object="${post}" method="post" class="bg-white p-6 rounded shadow space-y-6">
-          <h1 class="text-2xl font-bold">글쓰기</h1>
+        <form th:action="@{${post.seq != null ? '/posts/' + post.seq : '/posts'}}" th:object="${post}" th:method="${post.seq != null ? 'put' : 'post'}" class="bg-white p-6 rounded shadow space-y-6">
+          <h1 class="text-2xl font-bold" th:text="${post.seq != null ? '글 수정' : '글쓰기'}">글쓰기</h1>
 
           <div>
             <label class="block text-sm font-medium mb-1" for="title">제목</label>
@@ -45,7 +45,7 @@
 
           <div class="flex justify-between">
             <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">취소</a>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">등록</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" th:text="${post.seq != null ? '수정' : '등록'}">등록</button>
           </div>
         </form>
       </section>

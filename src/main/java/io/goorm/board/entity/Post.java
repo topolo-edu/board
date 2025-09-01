@@ -27,6 +27,9 @@ public class Post {
     @Column(nullable = false, length = 50)
     private String author;  // 작성자
 
+    @Column(columnDefinition = "BIGINT DEFAULT 0")
+    private Long viewCount  = 0L;  //조회수
+
     @CreationTimestamp  // 자동으로 현재 시간 입력
     @Column(updatable = false)  // 수정 불가
     private LocalDateTime createdAt;  // 작성일시
