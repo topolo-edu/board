@@ -2,9 +2,11 @@ package io.goorm.board.controller;
 
 import io.goorm.board.entity.Post;
 import io.goorm.board.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,7 +48,16 @@ public class PostController {
 
     // 게시글 저장 → 목록으로
     @PostMapping("/posts")
-    public String create(@ModelAttribute Post post) {
+    public String create(@Valid @ModelAttribute Post post, 
+                        BindingResult bindingResult, 
+                        Model model) {
+        
+        // 검증 오류가 있으면 폼으로 다시 이동
+        if (bindingResult.hasErrors()) {
+            return "post/form";
+        }
+        
+        // 검증 통과 시에만 저장
         postService.save(post);
         return "redirect:/posts";
     }
@@ -61,7 +72,18 @@ public class PostController {
 
     // 게시글 수정 → 상세보기로
     @PostMapping("/posts/{seq}")
-    public String update(@PathVariable Long seq, @ModelAttribute Post post) {
+    public String update(@PathVariable Long seq, 
+                        @Valid @ModelAttribute Post post, 
+                        BindingResult bindingResult, 
+                        Model model) {
+        
+        // 검증 오류가 있으면 폼으로 다시 이동
+        if (bindingResult.hasErrors()) {
+            post.setSeq(seq); // seq 값 설정 (수정 폼에서 필요)
+            return "post/form";
+        }
+        
+        // 검증 통과 시에만 수정
         postService.update(seq, post);
         return "redirect:/posts/" + seq;
     }
