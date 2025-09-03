@@ -16,6 +16,10 @@ spring:
   thymeleaf:
     cache: false
 
+  messages:
+    basename: messages/ValidationMessages
+    encoding: UTF-8
+
 logging:
   level:
     org.thymeleaf: DEBUG
