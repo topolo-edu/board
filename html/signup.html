@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    회원가입
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    이미 계정이 있으신가요?
+                    <a href="login.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        로그인
+                    </a>
+                </p>
+            </div>
+            
+            <!-- 에러 메시지 표시 영역 -->
+            <div id="error-messages" class="hidden">
+                <!-- 동적으로 에러 메시지들이 추가됩니다 -->
+            </div>
+
+            <form class="mt-8 space-y-6" action="/auth/signup" method="POST">
+                <div class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700">아이디</label>
+                        <input id="username" name="username" type="text" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                               placeholder="4자 이상 20자 이하">
+                        <p class="mt-1 text-sm text-gray-500">영문, 숫자, 언더스코어만 사용 가능</p>
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">비밀번호</label>
+                        <input id="password" name="password" type="password" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                               placeholder="8자 이상">
+                        <p class="mt-1 text-sm text-gray-500">영문, 숫자, 특수문자 포함</p>
+                    </div>
+                    
+                    <div>
+                        <label for="passwordConfirm" class="block text-sm font-medium text-gray-700">비밀번호 확인</label>
+                        <input id="passwordConfirm" name="passwordConfirm" type="password" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                               placeholder="비밀번호를 다시 입력하세요">
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
+                        <input id="email" name="email" type="email" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                               placeholder="example@domain.com">
+                    </div>
+                    
+                    <div>
+                        <label for="displayName" class="block text-sm font-medium text-gray-700">닉네임</label>
+                        <input id="displayName" name="displayName" type="text" required 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                               placeholder="2자 이상 20자 이하">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        회원가입
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <a href="/" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        메인 페이지로 돌아가기
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 비밀번호 확인 실시간 검증
+        document.getElementById('passwordConfirm').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const passwordConfirm = this.value;
+            
+            if (password && passwordConfirm && password !== passwordConfirm) {
+                this.style.borderColor = '#ef4444';
+            } else {
+                this.style.borderColor = '#d1d5db';
+            }
+        });
+    </script>
+</body>
+</html>

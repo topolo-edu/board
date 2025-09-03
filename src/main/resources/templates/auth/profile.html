@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 - Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- 네비게이션 -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-6">프로필 정보</h3>
+                
+                <!-- 성공 메시지 표시 -->
+                <div th:if="${message}" class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+                    <span class="block sm:inline" th:text="${message}">성공 메시지</span>
+                </div>
+                
+                <!-- 에러 메시지 표시 -->
+                <div th:if="${error}" class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    <span class="block sm:inline" th:text="${error}">에러 메시지</span>
+                </div>
+                
+                <form th:action="@{/auth/profile}" th:object="${profileUpdateDto}" method="POST" class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700">아이디</label>
+                            <input type="text" th:value="${user.username}" readonly
+                                   class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-500 cursor-not-allowed sm:text-sm">
+                            <p class="mt-1 text-sm text-gray-500">아이디는 변경할 수 없습니다.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
+                            <input th:field="*{email}" type="email" required
+                                   class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   th:classappend="${#fields.hasErrors('email')} ? 'border-red-300' : 'border-gray-300'">
+                            <div th:if="${#fields.hasErrors('email')}" class="text-red-500 text-sm mt-1">
+                                <span th:errors="*{email}">Email error</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="displayName" class="block text-sm font-medium text-gray-700">닉네임</label>
+                            <input th:field="*{displayName}" type="text" required
+                                   class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   th:classappend="${#fields.hasErrors('displayName')} ? 'border-red-300' : 'border-gray-300'">
+                            <div th:if="${#fields.hasErrors('displayName')}" class="text-red-500 text-sm mt-1">
+                                <span th:errors="*{displayName}">Display name error</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="createdAt" class="block text-sm font-medium text-gray-700">가입일</label>
+                            <input type="text" th:value="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}" readonly
+                                   class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-500 cursor-not-allowed sm:text-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-6">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">비밀번호 변경</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="currentPassword" class="block text-sm font-medium text-gray-700">현재 비밀번호</label>
+                                <input th:field="*{currentPassword}" type="password"
+                                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <p class="mt-1 text-sm text-gray-500">비밀번호를 변경하려면 현재 비밀번호를 입력하세요.</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label for="newPassword" class="block text-sm font-medium text-gray-700">새 비밀번호</label>
+                                    <input th:field="*{newPassword}" type="password"
+                                           class="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                           th:classappend="${#fields.hasErrors('newPassword')} ? 'border-red-300' : 'border-gray-300'">
+                                    <div th:if="${#fields.hasErrors('newPassword')}" class="text-red-500 text-sm mt-1">
+                                        <span th:errors="*{newPassword}">New password error</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="newPasswordConfirm" class="block text-sm font-medium text-gray-700">새 비밀번호 확인</label>
+                                    <input th:field="*{newPasswordConfirm}" type="password"
+                                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <a th:href="@{/}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            취소
+                        </a>
+                        <button type="submit" class="bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            저장
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 새 비밀번호 확인 실시간 검증
+        document.getElementById('newPasswordConfirm').addEventListener('input', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const newPasswordConfirm = this.value;
+            
+            if (newPassword && newPasswordConfirm && newPassword !== newPasswordConfirm) {
+                this.style.borderColor = '#ef4444';
+            } else {
+                this.style.borderColor = '#d1d5db';
+            }
+        });
+    </script>
+    
+    <script th:src="@{/js/flash-messages.js}"></script>
+</body>
+</html>

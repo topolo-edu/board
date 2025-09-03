@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    로그인
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    계정이 없으신가요?
+                    <a href="signup.html" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        회원가입
+                    </a>
+                </p>
+            </div>
+            
+            <!-- 에러 메시지 표시 영역 -->
+            <div id="error-message" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+                <span class="block sm:inline">아이디 또는 비밀번호가 올바르지 않습니다.</span>
+            </div>
+            
+            <!-- 성공 메시지 표시 영역 -->
+            <div id="success-message" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative">
+                <span class="block sm:inline">회원가입이 완료되었습니다. 로그인해주세요.</span>
+            </div>
+
+            <form class="mt-8 space-y-6" action="/auth/login" method="POST">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="username" class="sr-only">아이디</label>
+                        <input id="username" name="username" type="text" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                               placeholder="아이디">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">비밀번호</label>
+                        <input id="password" name="password" type="password" required 
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                               placeholder="비밀번호">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" 
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        로그인
+                    </button>
+                </div>
+                
+                <div class="text-center">
+                    <a href="/" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        메인 페이지로 돌아가기
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
