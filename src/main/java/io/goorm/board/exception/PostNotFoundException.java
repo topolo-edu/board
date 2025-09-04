@@ -5,15 +5,19 @@ package io.goorm.board.exception;
  */
 public class PostNotFoundException extends RuntimeException {
     
+    private final Long postId;
+    
+    public PostNotFoundException(Long postId) {
+        super("Post not found with id: " + postId);
+        this.postId = postId;
+    }
+    
     public PostNotFoundException(String message) {
         super(message);
+        this.postId = null;
     }
     
-    public PostNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-    
-    public PostNotFoundException(Long seq) {
-        super("게시글을 찾을 수 없습니다. seq: " + seq);
+    public Long getPostId() {
+        return postId;
     }
 }

@@ -1,66 +1,55 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/base}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>페이지를 찾을 수 없습니다</title>
+    <div th:replace="~{fragments/head :: head}"></div>
+    <title th:text="#{error.page.title.404}">페이지를 찾을 수 없습니다</title>
 </head>
 <body>
-    <div layout:fragment="content">
-        <section class="max-w-3xl mx-auto px-4 py-12 text-center">
-            <!-- 404 아이콘 -->
-            <div class="mb-8">
-                <svg class="w-24 h-24 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/>
-                </svg>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-md mx-auto text-center">
+        <div class="mb-8">
+            <div class="text-9xl font-bold text-gray-300 mb-4">404</div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-4" th:text="#{error.page.title.404}">
+                페이지를 찾을 수 없습니다
+            </h1>
+        </div>
+        
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+            <div class="text-red-700">
+                <p class="mb-2" th:text="${error ?: '요청하신 페이지를 찾을 수 없습니다.'}">요청하신 페이지를 찾을 수 없습니다.</p>
+                <p class="text-sm text-gray-600" th:text="#{error.page.message.404}">
+                    입력하신 주소가 정확한지 다시 한번 확인해 주시기 바랍니다.
+                </p>
             </div>
-
-            <!-- 제목 -->
-            <h1 class="text-4xl font-bold text-gray-900 mb-4">404</h1>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-6">페이지를 찾을 수 없습니다</h2>
-
-            <!-- 오류 메시지 -->
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
-                <p class="text-red-800" th:text="${errorMessage}">요청하신 페이지를 찾을 수 없습니다.</p>
-            </div>
-
-            <!-- 안내 문구 -->
-            <p class="text-gray-600 mb-8 text-lg">
-                죄송합니다. 요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다.
-            </p>
-
-            <!-- 액션 버튼들 -->
-            <div class="space-x-4">
-                <a th:href="@{/}" 
-                   class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                    </svg>
-                    홈으로 가기
-                </a>
-                
-                <a th:href="@{/posts}" 
-                   class="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6-4h6m-6 4h6m-3-8V4m0 16v-4"/>
-                    </svg>
-                    게시글 목록
-                </a>
-                
-                <button onclick="history.back()" 
-                        class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    이전 페이지
-                </button>
-            </div>
-
-            <!-- 도움말 -->
-            <div class="mt-12 text-sm text-gray-500">
-                <p>계속해서 문제가 발생한다면 관리자에게 문의해주세요.</p>
-            </div>
-        </section>
+        </div>
+        
+        <div class="space-y-3">
+            <a th:href="@{/}" 
+               class="block w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
+               th:text="#{error.actions.home}">
+                메인으로
+            </a>
+            <a th:href="@{/posts}" 
+               class="block w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition duration-200"
+               th:text="#{error.actions.posts}">
+                게시글 목록
+            </a>
+            <button onclick="history.back()" 
+                    class="block w-full bg-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-400 transition duration-200"
+                    th:text="#{error.actions.back}">
+                이전 페이지
+            </button>
+        </div>
+        
+        <!-- 디버그 정보 (개발 환경에서만) -->
+        <div th:if="${postId}" class="mt-8 text-sm text-gray-500">
+            <p>Post ID: <span th:text="${postId}"></span></p>
+        </div>
     </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 </html>

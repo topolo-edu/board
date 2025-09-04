@@ -28,6 +28,7 @@ public class PostController {
     @GetMapping("/posts")
     public String list(Model model) {
         List<Post> posts = postService.findAll();
+
         model.addAttribute("posts", posts);
         return "post/list";
     }
@@ -97,6 +98,12 @@ public class PostController {
         postService.delete(seq);
         redirectAttributes.addFlashAttribute("message", "flash.post.deleted");
         return "redirect:/posts";
+    }
+    
+    // 에러 테스트용 엔드포인트 (강의 시연용, 실제 서비스에서는 제거)
+    @GetMapping("/posts/error-test")
+    public String testError() {
+        throw new RuntimeException("This is a test error for demonstration");
     }
 
 }

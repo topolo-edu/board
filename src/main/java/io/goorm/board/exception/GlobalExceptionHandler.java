@@ -1,43 +1,70 @@
 package io.goorm.board.exception;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
- * 전역 예외 처리 클래스
+ * 전역 예외 처리기
+ * 모든 컨트롤러에서 발생하는 예외를 한 곳에서 처리
  */
 @ControllerAdvice
-@Slf4j
 public class GlobalExceptionHandler {
+    
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    
+    @Autowired
+    private MessageSource messageSource;
 
     /**
-     * 게시글을 찾을 수 없을 때 (404 에러)
+     * PostNotFoundException 처리
+     * 게시글을 찾을 수 없을 때 404 페이지로 이동
      */
     @ExceptionHandler(PostNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ModelAndView handlePostNotFound(PostNotFoundException e) {
-        log.error("게시글을 찾을 수 없습니다: {}", e.getMessage());
-        
-        ModelAndView mav = new ModelAndView("error/404");
-        mav.addObject("errorMessage", e.getMessage());
-        return mav;
+    public String handlePostNotFoundException(PostNotFoundException e, Model model) {
+        logger.warn("Post not found: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.post.notfound",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        model.addAttribute("postId", e.getPostId());
+
+        return "error/404";
     }
 
     /**
-     * 일반적인 서버 오류 (500 에러)
+     * 기타 모든 예외 처리
+     * 예상하지 못한 예외가 발생할 때 500 페이지로 이동
      */
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ModelAndView handleGenericError(Exception e) {
-        log.error("서버 오류 발생: ", e);
+    public String handleGeneralException(Exception e, Model model) {
+        logger.error("Unexpected error occurred", e);
         
-        ModelAndView mav = new ModelAndView("error/500");
-        mav.addObject("errorMessage", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-        return mav;
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.server.internal",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+        
+        model.addAttribute("error", errorMessage);
+        
+        // 개발 환경에서는 상세 에러 정보 표시
+        if (logger.isDebugEnabled()) {
+            model.addAttribute("exception", e.getClass().getSimpleName());
+            model.addAttribute("message", e.getMessage());
+        }
+        
+        return "error/500";
     }
 }
