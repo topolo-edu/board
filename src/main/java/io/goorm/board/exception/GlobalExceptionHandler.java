@@ -65,6 +65,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * InvalidCredentialsException 처리
+     * 로그인 실패 시 로그인 폼으로 리다이렉트
+     */
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public String handleInvalidCredentialsException(InvalidCredentialsException e, Model model) {
+        logger.warn("Invalid credentials: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.login.invalid",
+            null,
+            "이메일 또는 비밀번호가 올바르지 않습니다.",
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        model.addAttribute("loginDto", new io.goorm.board.dto.LoginDto());
+
+        return "auth/login";
+    }
+
+    /**
      * 기타 모든 예외 처리
      * 예상하지 못한 예외가 발생할 때 500 페이지로 이동
      */
