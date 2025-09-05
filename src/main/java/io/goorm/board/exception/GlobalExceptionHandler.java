@@ -43,6 +43,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * DuplicateEmailException 처리
+     * 이메일 중복 시 회원가입 폼으로 리다이렉트
+     */
+    @ExceptionHandler(DuplicateEmailException.class)
+    public String handleDuplicateEmailException(DuplicateEmailException e, Model model) {
+        logger.warn("Duplicate email: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.email.duplicate",
+            null,
+            "이미 사용 중인 이메일입니다.",
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        model.addAttribute("signupDto", new io.goorm.board.dto.SignupDto());
+
+        return "auth/signup";
+    }
+
+    /**
      * 기타 모든 예외 처리
      * 예상하지 못한 예외가 발생할 때 500 페이지로 이동
      */
