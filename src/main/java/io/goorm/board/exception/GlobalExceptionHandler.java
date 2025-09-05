@@ -108,6 +108,27 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * AccessDeniedException 처리
+     * 권한 없는 접근 시 게시글 상세 페이지로 리다이렉트
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public String handleAccessDeniedException(AccessDeniedException e, Model model) {
+        logger.warn("Access denied: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.post.access.denied",
+            null,
+            "본인이 작성한 글만 수정/삭제할 수 있습니다.",
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+
+        return "error/403";
+    }
+
+    /**
      * 기타 모든 예외 처리
      * 예상하지 못한 예외가 발생할 때 500 페이지로 이동
      */

@@ -10,7 +10,7 @@
         <section class="max-w-7xl mx-auto px-4 py-12">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">게시판</h2>
-                <a th:href="@{/posts/new}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">글쓰기</a>
+                <a th:if="${session.user}" th:href="@{/posts/new}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">글쓰기</a>
             </div>
 
             <div class="overflow-x-auto bg-white shadow rounded-lg">
@@ -35,7 +35,7 @@
                                     게시글 제목
                                 </a>
                             </td>
-                            <td th:text="${post.author}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">작성자</td>
+                            <td th:text="${post.author.nickname}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">작성자</td>
                             <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2025-01-01</td>
                             <td th:text="${post.viewCount}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0</td>
                         </tr>

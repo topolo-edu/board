@@ -38,7 +38,7 @@ public class PostService {
         Post post = findBySeq(seq);
         post.setTitle(updatePost.getTitle());
         post.setContent(updatePost.getContent());
-        post.setAuthor(updatePost.getAuthor());
+        // 작성자는 수정하지 않음 (본인 글만 수정 가능하므로)
         return post;  // @Transactional에 의해 자동으로 UPDATE 쿼리 실행
     }
 

@@ -7,6 +7,9 @@
         <nav class="space-x-4 flex items-center">
             <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">게시판</a>
             
+            <!-- 로그인된 사용자만 글쓰기 버튼 표시 -->
+            <a th:if="${session.user}" th:href="@{/posts/new}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium">글쓰기</a>
+            
             <!-- 로그인하지 않은 경우 -->
             <div th:unless="${session.user}" class="space-x-4">
                 <a th:href="@{/auth/signup}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">회원가입</a>
