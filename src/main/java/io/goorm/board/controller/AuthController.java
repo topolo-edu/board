@@ -1,6 +1,7 @@
 package io.goorm.board.controller;
 
 import io.goorm.board.dto.LoginDto;
+import io.goorm.board.dto.ProfileUpdateDto;
 import io.goorm.board.dto.SignupDto;
 import io.goorm.board.entity.User;
 import io.goorm.board.service.UserService;
@@ -96,5 +97,61 @@ public class AuthController {
         String message = messageSource.getMessage("flash.logout.success", null, "로그아웃되었습니다.", locale);
         redirectAttributes.addFlashAttribute("successMessage", message);
         return "redirect:/";
+    }
+    
+    @GetMapping("/profile")
+    public String profileForm(HttpSession session, Model model) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/auth/login";
+        }
+        
+        // 최신 사용자 정보 조회
+        User currentUser = userService.findById(user.getId());
+        
+        // 프로필 DTO 생성 및 기본값 설정
+        ProfileUpdateDto profileUpdateDto = new ProfileUpdateDto();
+        profileUpdateDto.setNickname(currentUser.getNickname());
+        
+        model.addAttribute("profileUpdateDto", profileUpdateDto);
+        model.addAttribute("currentUser", currentUser);
+        
+        return "auth/profile";
+    }
+    
+    @PostMapping("/profile")
+    public String updateProfile(@Valid @ModelAttribute ProfileUpdateDto profileUpdateDto,
+                               BindingResult result,
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes,
+                               Model model,
+                               Locale locale) {
+        
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            return "redirect:/auth/login";
+        }
+        
+        if (result.hasErrors()) {
+            User currentUser = userService.findById(user.getId());
+            model.addAttribute("currentUser", currentUser);
+            return "auth/profile";
+        }
+        
+        try {
+            User updatedUser = userService.updateProfile(user.getId(), profileUpdateDto);
+            
+            // 세션의 사용자 정보 업데이트
+            session.setAttribute("user", updatedUser);
+            
+            String message = messageSource.getMessage("flash.profile.updated", null, "프로필이 수정되었습니다.", locale);
+            redirectAttributes.addFlashAttribute("successMessage", message);
+            return "redirect:/auth/profile";
+        } catch (Exception e) {
+            result.reject("profile.update.failed", e.getMessage());
+            User currentUser = userService.findById(user.getId());
+            model.addAttribute("currentUser", currentUser);
+            return "auth/profile";
+        }
     }
 }
