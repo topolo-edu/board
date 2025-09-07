@@ -7,6 +7,7 @@ import io.goorm.board.service.PostService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -55,10 +56,10 @@ public class PostController {
     @PostMapping("/posts")
     public String create(@Valid @ModelAttribute Post post, 
                         BindingResult bindingResult,
-                        HttpSession session,
+                        Authentication authentication,
                         RedirectAttributes redirectAttributes) {
         
-        User user = (User) session.getAttribute("user");
+        User user = (User) authentication.getPrincipal();
         
         // 검증 오류가 있으면 폼으로 다시 이동
         if (bindingResult.hasErrors()) {
@@ -76,8 +77,8 @@ public class PostController {
 
     // 게시글 수정 폼
     @GetMapping("/posts/{seq}/edit")
-    public String editForm(@PathVariable Long seq, HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
+    public String editForm(@PathVariable Long seq, Authentication authentication, Model model) {
+        User user = (User) authentication.getPrincipal();
         Post post = postService.findBySeq(seq);
         
         // 본인 글이 아니면 접근 거부
@@ -94,10 +95,10 @@ public class PostController {
     public String update(@PathVariable Long seq, 
                         @Valid @ModelAttribute Post post, 
                         BindingResult bindingResult,
-                        HttpSession session,
+                        Authentication authentication,
                         RedirectAttributes redirectAttributes) {
         
-        User user = (User) session.getAttribute("user");
+        User user = (User) authentication.getPrincipal();
         
         // 기존 게시글 조회
         Post existingPost = postService.findBySeq(seq);
@@ -121,8 +122,8 @@ public class PostController {
 
     // 게시글 삭제 → 목록으로
     @PostMapping("/posts/{seq}/delete")
-    public String delete(@PathVariable Long seq, HttpSession session, RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
+    public String delete(@PathVariable Long seq, Authentication authentication, RedirectAttributes redirectAttributes) {
+        User user = (User) authentication.getPrincipal();
         
         // 기존 게시글 조회
         Post existingPost = postService.findBySeq(seq);

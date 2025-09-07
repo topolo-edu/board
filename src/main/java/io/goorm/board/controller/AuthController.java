@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -61,47 +62,13 @@ public class AuthController {
         return "auth/login";
     }
     
-    @PostMapping("/login")
-    public String login(@Valid @ModelAttribute LoginDto loginDto,
-                       BindingResult result,
-                       HttpSession session,
-                       RedirectAttributes redirectAttributes,
-                       Locale locale) {
-        
-        if (result.hasErrors()) {
-            return "auth/login";
-        }
-        
-        try {
-            User user = userService.authenticate(loginDto);
-            
-            // 세션에 사용자 정보 저장
-            session.setAttribute("user", user);
-            
-            String message = messageSource.getMessage("flash.login.success", null, "로그인되었습니다.", locale);
-            redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/";
-        } catch (Exception e) {
-            result.reject("login.failed", e.getMessage());
-            return "auth/login";
-        }
-    }
+    // Spring Security가 자동으로 로그인을 처리합니다
     
-    @PostMapping("/logout")
-    public String logout(HttpSession session,
-                        RedirectAttributes redirectAttributes,
-                        Locale locale) {
-        
-        session.invalidate();
-        
-        String message = messageSource.getMessage("flash.logout.success", null, "로그아웃되었습니다.", locale);
-        redirectAttributes.addFlashAttribute("successMessage", message);
-        return "redirect:/";
-    }
+    // Spring Security가 자동으로 로그아웃을 처리합니다
     
     @GetMapping("/profile")
-    public String profileForm(HttpSession session, Model model) {
-        User user = (User) session.getAttribute("user");
+    public String profileForm(Authentication authentication, Model model) {
+        User user = (User) authentication.getPrincipal();
         
         // 최신 사용자 정보 조회
         User currentUser = userService.findById(user.getId());
@@ -119,12 +86,12 @@ public class AuthController {
     @PostMapping("/profile")
     public String updateProfile(@Valid @ModelAttribute ProfileUpdateDto profileUpdateDto,
                                BindingResult result,
-                               HttpSession session,
+                               Authentication authentication,
                                RedirectAttributes redirectAttributes,
                                Model model,
                                Locale locale) {
         
-        User user = (User) session.getAttribute("user");
+        User user = (User) authentication.getPrincipal();
         
         if (result.hasErrors()) {
             User currentUser = userService.findById(user.getId());
@@ -133,10 +100,7 @@ public class AuthController {
         }
         
         try {
-            User updatedUser = userService.updateProfile(user.getId(), profileUpdateDto);
-            
-            // 세션의 사용자 정보 업데이트
-            session.setAttribute("user", updatedUser);
+            userService.updateProfile(user.getId(), profileUpdateDto);
             
             String message = messageSource.getMessage("flash.profile.updated", null, "프로필이 수정되었습니다.", locale);
             redirectAttributes.addFlashAttribute("successMessage", message);

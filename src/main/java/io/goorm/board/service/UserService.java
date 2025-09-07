@@ -11,15 +11,20 @@ import io.goorm.board.repository.UserRepository;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserService {
+public class UserService implements UserDetailsService {
     
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     public User signup(SignupDto signupDto) {
         // 이메일 중복 검사
@@ -35,7 +40,7 @@ public class UserService {
         // 사용자 엔티티 생성
         User user = new User();
         user.setEmail(signupDto.getEmail());
-        user.setPassword(signupDto.getPassword()); // 평문 저장 (추후 암호화 예정)
+        user.setPassword(passwordEncoder.encode(signupDto.getPassword())); // BCrypt 암호화
         user.setNickname(signupDto.getNickname());
         
         return userRepository.save(user);
@@ -63,8 +68,8 @@ public class UserService {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
         
-        // 현재 비밀번호 확인 (평문 비교)
-        if (!user.getPassword().equals(profileUpdateDto.getCurrentPassword())) {
+        // 현재 비밀번호 확인 (BCrypt 비교)
+        if (!passwordEncoder.matches(profileUpdateDto.getCurrentPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("현재 비밀번호가 일치하지 않습니다.");
         }
         
@@ -78,8 +83,8 @@ public class UserService {
                 throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
             }
             
-            // 평문으로 저장 (추후 암호화 예정)
-            user.setPassword(profileUpdateDto.getNewPassword());
+            // BCrypt로 암호화하여 저장
+            user.setPassword(passwordEncoder.encode(profileUpdateDto.getNewPassword()));
         }
         
         return userRepository.save(user);
@@ -89,5 +94,13 @@ public class UserService {
     public User findById(Long userId) {
         return userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+    }
+    
+    // UserDetailsService 구현 - Spring Security에서 사용
+    @Override
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
     }
 }
