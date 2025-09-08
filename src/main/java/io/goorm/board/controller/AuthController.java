@@ -5,11 +5,11 @@ import io.goorm.board.dto.ProfileUpdateDto;
 import io.goorm.board.dto.SignupDto;
 import io.goorm.board.entity.User;
 import io.goorm.board.service.UserService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -67,8 +67,8 @@ public class AuthController {
     // Spring Security가 자동으로 로그아웃을 처리합니다
     
     @GetMapping("/profile")
-    public String profileForm(Authentication authentication, Model model) {
-        User user = (User) authentication.getPrincipal();
+    @PreAuthorize("isAuthenticated()")
+    public String profileForm(@AuthenticationPrincipal User user, Model model) {
         
         // 최신 사용자 정보 조회
         User currentUser = userService.findById(user.getId());
@@ -84,14 +84,13 @@ public class AuthController {
     }
     
     @PostMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
     public String updateProfile(@Valid @ModelAttribute ProfileUpdateDto profileUpdateDto,
                                BindingResult result,
-                               Authentication authentication,
+                               @AuthenticationPrincipal User user,
                                RedirectAttributes redirectAttributes,
                                Model model,
                                Locale locale) {
-        
-        User user = (User) authentication.getPrincipal();
         
         if (result.hasErrors()) {
             User currentUser = userService.findById(user.getId());

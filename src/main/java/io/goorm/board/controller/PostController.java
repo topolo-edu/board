@@ -4,10 +4,10 @@ import io.goorm.board.entity.Post;
 import io.goorm.board.entity.User;
 import io.goorm.board.exception.AccessDeniedException;
 import io.goorm.board.service.PostService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,6 +47,7 @@ public class PostController {
 
     // 게시글 작성 폼
     @GetMapping("/posts/new")
+    @PreAuthorize("isAuthenticated()")
     public String createForm(Model model) {
         model.addAttribute("post", new Post());
         return "post/form";
@@ -54,12 +55,11 @@ public class PostController {
 
     // 게시글 저장 → 목록으로
     @PostMapping("/posts")
+    @PreAuthorize("isAuthenticated()")
     public String create(@Valid @ModelAttribute Post post, 
                         BindingResult bindingResult,
-                        Authentication authentication,
+                        @AuthenticationPrincipal User user,
                         RedirectAttributes redirectAttributes) {
-        
-        User user = (User) authentication.getPrincipal();
         
         // 검증 오류가 있으면 폼으로 다시 이동
         if (bindingResult.hasErrors()) {
@@ -77,15 +77,9 @@ public class PostController {
 
     // 게시글 수정 폼
     @GetMapping("/posts/{seq}/edit")
-    public String editForm(@PathVariable Long seq, Authentication authentication, Model model) {
-        User user = (User) authentication.getPrincipal();
+    @PreAuthorize("hasPermission(#seq, 'Post', 'WRITE')")
+    public String editForm(@PathVariable Long seq, Model model) {
         Post post = postService.findBySeq(seq);
-        
-        // 본인 글이 아니면 접근 거부
-        if (!post.getAuthor().getId().equals(user.getId())) {
-            throw new AccessDeniedException("본인이 작성한 글만 수정할 수 있습니다.");
-        }
-        
         model.addAttribute("post", post);
         return "post/form";
     }
@@ -95,18 +89,7 @@ public class PostController {
     public String update(@PathVariable Long seq, 
                         @Valid @ModelAttribute Post post, 
                         BindingResult bindingResult,
-                        Authentication authentication,
                         RedirectAttributes redirectAttributes) {
-        
-        User user = (User) authentication.getPrincipal();
-        
-        // 기존 게시글 조회
-        Post existingPost = postService.findBySeq(seq);
-        
-        // 본인 글이 아니면 접근 거부
-        if (!existingPost.getAuthor().getId().equals(user.getId())) {
-            throw new AccessDeniedException("본인이 작성한 글만 수정할 수 있습니다.");
-        }
         
         // 검증 오류가 있으면 폼으로 다시 이동
         if (bindingResult.hasErrors()) {
@@ -114,7 +97,7 @@ public class PostController {
             return "post/form";
         }
         
-        // 검증 통과 시에만 수정
+        // 서비스에서 @PreAuthorize로 권한 체크
         postService.update(seq, post);
         redirectAttributes.addFlashAttribute("message", "flash.post.updated");
         return "redirect:/posts/" + seq;
@@ -122,26 +105,13 @@ public class PostController {
 
     // 게시글 삭제 → 목록으로
     @PostMapping("/posts/{seq}/delete")
-    public String delete(@PathVariable Long seq, Authentication authentication, RedirectAttributes redirectAttributes) {
-        User user = (User) authentication.getPrincipal();
+    public String delete(@PathVariable Long seq, RedirectAttributes redirectAttributes) {
         
-        // 기존 게시글 조회
-        Post existingPost = postService.findBySeq(seq);
-        
-        // 본인 글이 아니면 접근 거부
-        if (!existingPost.getAuthor().getId().equals(user.getId())) {
-            throw new AccessDeniedException("본인이 작성한 글만 삭제할 수 있습니다.");
-        }
-        
+        // 서비스에서 @PreAuthorize로 권한 체크
         postService.delete(seq);
         redirectAttributes.addFlashAttribute("message", "flash.post.deleted");
         return "redirect:/posts";
     }
-    
-    // 에러 테스트용 엔드포인트 (강의 시연용, 실제 서비스에서는 제거)
-    @GetMapping("/posts/error-test")
-    public String testError() {
-        throw new RuntimeException("This is a test error for demonstration");
-    }
+
 
 }

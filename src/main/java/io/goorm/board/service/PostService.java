@@ -4,6 +4,7 @@ import io.goorm.board.entity.Post;
 import io.goorm.board.exception.PostNotFoundException;
 import io.goorm.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,21 +33,22 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    // 게시글 수정
+    // 게시글 수정 (PermissionEvaluator 사용 - 깔끔!)
     @Transactional
+    @PreAuthorize("hasPermission(#seq, 'Post', 'WRITE')")
     public Post update(Long seq, Post updatePost) {
         Post post = findBySeq(seq);
+        
         post.setTitle(updatePost.getTitle());
         post.setContent(updatePost.getContent());
-        // 작성자는 수정하지 않음 (본인 글만 수정 가능하므로)
         return post;  // @Transactional에 의해 자동으로 UPDATE 쿼리 실행
     }
 
-    // 게시글 삭제
+    // 게시글 삭제 (PermissionEvaluator 사용 - 깔끔!)
     @Transactional
+    @PreAuthorize("hasPermission(#seq, 'Post', 'DELETE')")
     public void delete(Long seq) {
-        // 삭제 전 게시글 존재 여부 확인
-        Post post = findBySeq(seq);  // 없으면 PostNotFoundException 발생
+        Post post = findBySeq(seq);  // 존재 확인
         postRepository.deleteById(seq);
     }
 }

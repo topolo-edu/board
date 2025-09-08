@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
@@ -10,7 +11,7 @@
         <section class="max-w-7xl mx-auto px-4 py-12">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-bold">게시판</h2>
-                <a th:if="${session.user}" th:href="@{/posts/new}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">글쓰기</a>
+                <a sec:authorize="isAuthenticated()" th:href="@{/posts/new}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium">글쓰기</a>
             </div>
 
             <div class="overflow-x-auto bg-white shadow rounded-lg">
