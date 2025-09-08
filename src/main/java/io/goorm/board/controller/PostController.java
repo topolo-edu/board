@@ -2,11 +2,9 @@ package io.goorm.board.controller;
 
 import io.goorm.board.entity.Post;
 import io.goorm.board.entity.User;
-import io.goorm.board.exception.AccessDeniedException;
 import io.goorm.board.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,7 +45,6 @@ public class PostController {
 
     // 게시글 작성 폼
     @GetMapping("/posts/new")
-    @PreAuthorize("isAuthenticated()")
     public String createForm(Model model) {
         model.addAttribute("post", new Post());
         return "post/form";
@@ -55,7 +52,6 @@ public class PostController {
 
     // 게시글 저장 → 목록으로
     @PostMapping("/posts")
-    @PreAuthorize("isAuthenticated()")
     public String create(@Valid @ModelAttribute Post post, 
                         BindingResult bindingResult,
                         @AuthenticationPrincipal User user,
@@ -75,11 +71,10 @@ public class PostController {
         return "redirect:/posts";
     }
 
-    // 게시글 수정 폼
+    // 게시글 수정 폼 (권한 체크는 서비스에서)
     @GetMapping("/posts/{seq}/edit")
-    @PreAuthorize("hasPermission(#seq, 'Post', 'WRITE')")
     public String editForm(@PathVariable Long seq, Model model) {
-        Post post = postService.findBySeq(seq);
+        Post post = postService.findForEdit(seq); // 서비스에서 권한 체크
         model.addAttribute("post", post);
         return "post/form";
     }

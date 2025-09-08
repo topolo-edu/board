@@ -17,7 +17,7 @@ spring:
     cache: false
 
   messages:
-    basename: messages/ValidationMessages,messages/i18n/messages
+    basename: messages/validation/ValidationMessages,messages/i18n/messages
     encoding: UTF-8
 
 logging:

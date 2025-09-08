@@ -21,34 +21,40 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    // SEQ로 게시글 조회
+    // SEQ로 게시글 조회 (읽기 전용)
     public Post findBySeq(Long seq) {
+        return postRepository.findById(seq)
+                .orElseThrow(() -> new PostNotFoundException(seq));
+    }
+    
+    // 수정용 게시글 조회 (권한 체크 포함)
+    @PreAuthorize("hasPermission(#seq, 'Post', 'WRITE')")
+    public Post findForEdit(Long seq) {
         return postRepository.findById(seq)
                 .orElseThrow(() -> new PostNotFoundException(seq));
     }
 
     // 게시글 저장
     @Transactional  // 쓰기 작업은 별도 트랜잭션
-    public Post save(Post post) {
-        return postRepository.save(post);
+    public void save(Post post) {
+        postRepository.save(post);
     }
 
     // 게시글 수정 (PermissionEvaluator 사용 - 깔끔!)
     @Transactional
     @PreAuthorize("hasPermission(#seq, 'Post', 'WRITE')")
-    public Post update(Long seq, Post updatePost) {
+    public void update(Long seq, Post updatePost) {
         Post post = findBySeq(seq);
         
         post.setTitle(updatePost.getTitle());
         post.setContent(updatePost.getContent());
-        return post;  // @Transactional에 의해 자동으로 UPDATE 쿼리 실행
+        // @Transactional에 의해 자동으로 UPDATE 쿼리 실행
     }
 
     // 게시글 삭제 (PermissionEvaluator 사용 - 깔끔!)
     @Transactional
     @PreAuthorize("hasPermission(#seq, 'Post', 'DELETE')")
     public void delete(Long seq) {
-        Post post = findBySeq(seq);  // 존재 확인
         postRepository.deleteById(seq);
     }
 }

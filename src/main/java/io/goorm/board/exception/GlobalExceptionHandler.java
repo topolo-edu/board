@@ -36,6 +36,7 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.post.notfound",
             null,
+            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -57,7 +58,7 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.email.duplicate",
             null,
-            "이미 사용 중인 이메일입니다.",
+            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -79,7 +80,7 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.login.invalid",
             null,
-            "이메일 또는 비밀번호가 올바르지 않습니다.",
+            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -101,7 +102,7 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.user.notfound",
             null,
-            "사용자를 찾을 수 없습니다.",
+            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -122,7 +123,7 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.post.access.denied",
             null,
-            "본인이 작성한 글만 수정/삭제할 수 있습니다.",
+            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -160,6 +161,7 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.server.internal",
             null,
+            "Default message",
             LocaleContextHolder.getLocale()
         );
         

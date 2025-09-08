@@ -8,7 +8,6 @@ import io.goorm.board.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -67,7 +66,6 @@ public class AuthController {
     // Spring Security가 자동으로 로그아웃을 처리합니다
     
     @GetMapping("/profile")
-    @PreAuthorize("isAuthenticated()")
     public String profileForm(@AuthenticationPrincipal User user, Model model) {
         
         // 최신 사용자 정보 조회
@@ -84,7 +82,6 @@ public class AuthController {
     }
     
     @PostMapping("/profile")
-    @PreAuthorize("isAuthenticated()")
     public String updateProfile(@Valid @ModelAttribute ProfileUpdateDto profileUpdateDto,
                                BindingResult result,
                                @AuthenticationPrincipal User user,

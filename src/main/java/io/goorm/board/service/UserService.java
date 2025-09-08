@@ -29,12 +29,12 @@ public class UserService implements UserDetailsService {
     public User signup(SignupDto signupDto) {
         // 이메일 중복 검사
         if (userRepository.existsByEmail(signupDto.getEmail())) {
-            throw new DuplicateEmailException("이미 사용 중인 이메일입니다.");
+            throw new DuplicateEmailException(signupDto.getEmail());
         }
         
         // 비밀번호 확인 검사
         if (!signupDto.getPassword().equals(signupDto.getPasswordConfirm())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("Password mismatch");
         }
         
         // 사용자 엔티티 생성
@@ -51,14 +51,14 @@ public class UserService implements UserDetailsService {
         Optional<User> userOptional = userRepository.findByEmail(loginDto.getEmail());
         
         if (userOptional.isEmpty()) {
-            throw new InvalidCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
+            throw new InvalidCredentialsException(loginDto.getEmail());
         }
         
         User user = userOptional.get();
         
         // 평문 비밀번호 검증 (추후 암호화 예정)
         if (!user.getPassword().equals(loginDto.getPassword())) {
-            throw new InvalidCredentialsException("이메일 또는 비밀번호가 올바르지 않습니다.");
+            throw new InvalidCredentialsException(loginDto.getEmail());
         }
         
         return user;
@@ -66,11 +66,11 @@ public class UserService implements UserDetailsService {
     
     public User updateProfile(Long userId, ProfileUpdateDto profileUpdateDto) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new UserNotFoundException(userId));
         
         // 현재 비밀번호 확인 (BCrypt 비교)
         if (!passwordEncoder.matches(profileUpdateDto.getCurrentPassword(), user.getPassword())) {
-            throw new InvalidCredentialsException("현재 비밀번호가 일치하지 않습니다.");
+            throw new InvalidCredentialsException(user.getEmail());
         }
         
         // 닉네임 업데이트
@@ -80,7 +80,7 @@ public class UserService implements UserDetailsService {
         if (profileUpdateDto.getNewPassword() != null && !profileUpdateDto.getNewPassword().isEmpty()) {
             // 새 비밀번호 확인 검사
             if (!profileUpdateDto.getNewPassword().equals(profileUpdateDto.getNewPasswordConfirm())) {
-                throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
+                throw new IllegalArgumentException("Password mismatch");
             }
             
             // BCrypt로 암호화하여 저장
@@ -93,7 +93,7 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public User findById(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
     
     // UserDetailsService 구현 - Spring Security에서 사용
@@ -101,6 +101,6 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 }

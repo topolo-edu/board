@@ -8,13 +8,8 @@ public class PostNotFoundException extends RuntimeException {
     private final Long postId;
     
     public PostNotFoundException(Long postId) {
-        super("Post not found with id: " + postId);
+        super();
         this.postId = postId;
-    }
-    
-    public PostNotFoundException(String message) {
-        super(message);
-        this.postId = null;
     }
     
     public Long getPostId() {

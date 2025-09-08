@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
@@ -27,7 +28,7 @@
                 <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
                 
                 <!-- 본인 글만 수정/삭제 버튼 표시 -->
-                <div th:if="${session.user != null and session.user.id == post.author.id}" class="space-x-2">
+                <div sec:authorize="isAuthenticated() and #post.author.email == authentication.name" class="space-x-2">
                     <a th:href="@{/posts/{id}/edit(id=${post.seq})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
                     <form th:action="@{/posts/{id}/delete(id=${post.seq})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
                         <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</button>
