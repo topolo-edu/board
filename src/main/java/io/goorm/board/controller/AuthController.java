@@ -7,6 +7,7 @@ import io.goorm.board.entity.User;
 import io.goorm.board.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Locale;
 
+@Slf4j
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -57,6 +59,7 @@ public class AuthController {
     
     @GetMapping("/login")
     public String loginForm(Model model) {
+        log.debug("로그인 폼 요청");
         model.addAttribute("loginDto", new LoginDto());
         return "auth/login";
     }

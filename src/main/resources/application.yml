@@ -22,5 +22,11 @@ spring:
 
 logging:
   level:
-    org.thymeleaf: DEBUG
-    web: DEBUG
+    org.springframework.security: DEBUG
+    io.goorm.board.service.UserService: DEBUG
+    io.goorm.board.controller.AuthController: DEBUG
+    org.springframework.security.authentication: TRACE
+    org.springframework.security.web: TRACE
+  charset:
+    console: UTF-8
+    file: UTF-8

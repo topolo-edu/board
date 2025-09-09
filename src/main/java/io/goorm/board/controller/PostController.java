@@ -5,6 +5,7 @@ import io.goorm.board.entity.User;
 import io.goorm.board.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class PostController {
@@ -29,7 +31,9 @@ public class PostController {
     // 게시글 목록 (기본)
     @GetMapping("/posts")
     public String list(Model model) {
+        log.debug("게시글 목록 요청 - /posts");
         List<Post> posts = postService.findAll();
+        log.debug("게시글 {} 개 조회 완료", posts.size());
 
         model.addAttribute("posts", posts);
         return "post/list";

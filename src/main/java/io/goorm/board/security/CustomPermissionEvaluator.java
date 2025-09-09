@@ -1,7 +1,6 @@
 package io.goorm.board.security;
 
 import io.goorm.board.entity.Post;
-import io.goorm.board.exception.PostNotFoundException;
 import io.goorm.board.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.PermissionEvaluator;
@@ -38,7 +37,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
             return false;
         }
         
-        if ("Post".equals(targetType) && "WRITE".equals(permission)) {
+        if ("Post".equals(targetType) && ("WRITE".equals(permission) || "DELETE".equals(permission))) {
             return hasPostWritePermission(authentication, (Long) targetId);
         }
         
