@@ -25,7 +25,8 @@ public class User implements UserDetails {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_seq")
+    private Long userSeq;
     
     @Email(message = "{validation.email.invalid}")
     @NotBlank(message = "{validation.email.required}")

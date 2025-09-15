@@ -32,6 +32,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
+    // MyBatis 의존성 추가
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+    // Flyway 의존성 추가
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 

@@ -31,7 +31,7 @@ public class Post {
     private String content;  // 내용
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_seq", nullable = false)
     private User author;  // 작성자
 
     @Column(columnDefinition = "BIGINT DEFAULT 0")

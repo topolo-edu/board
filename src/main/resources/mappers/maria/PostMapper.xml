@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.goorm.board.mapper.PostMapper">
+
+    <!-- Post Result Map -->
+    <resultMap id="PostResultMap" type="io.goorm.board.entity.Post">
+        <id property="seq" column="seq"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="createdAt" column="created_at"/>
+
+        <!-- User 연관관계 매핑 -->
+        <association property="author" javaType="io.goorm.board.entity.User">
+            <id property="userSeq" column="user_seq"/>
+            <result property="email" column="user_email"/>
+            <result property="nickname" column="user_nickname"/>
+            <result property="createdAt" column="user_created_at"/>
+            <result property="updatedAt" column="user_updated_at"/>
+        </association>
+    </resultMap>
+
+    <!-- 모든 게시글 조회 (작성자 정보 포함) -->
+    <select id="findAll" resultMap="PostResultMap">
+        SELECT
+            p.seq,
+            p.title,
+            p.content,
+            p.view_count,
+            p.created_at,
+            u.user_seq,
+            u.email as user_email,
+            u.nickname as user_nickname,
+            u.created_at as user_created_at,
+            u.updated_at as user_updated_at
+        FROM posts p
+        JOIN users u ON p.user_seq = u.user_seq
+        ORDER BY p.created_at DESC
+    </select>
+
+    <!-- ID로 게시글 조회 (작성자 정보 포함) -->
+    <select id="findBySeq" resultMap="PostResultMap">
+        SELECT
+            p.seq,
+            p.title,
+            p.content,
+            p.view_count,
+            p.created_at,
+            u.user_seq,
+            u.email as user_email,
+            u.nickname as user_nickname,
+            u.created_at as user_created_at,
+            u.updated_at as user_updated_at
+        FROM posts p
+        JOIN users u ON p.user_seq = u.user_seq
+        WHERE p.seq = #{seq}
+    </select>
+
+    <!-- 게시글 저장 -->
+    <insert id="save" parameterType="io.goorm.board.entity.Post" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO posts (title, content, user_seq, view_count, created_at)
+        VALUES (#{title}, #{content}, #{author.userSeq}, 0, NOW())
+    </insert>
+
+    <!-- 게시글 수정 -->
+    <update id="update" parameterType="io.goorm.board.entity.Post">
+        UPDATE posts
+        SET title = #{title},
+            content = #{content},
+            updated_at = NOW()
+        WHERE seq = #{seq}
+    </update>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deleteBySeq">
+        DELETE FROM posts WHERE seq = #{seq}
+    </delete>
+
+    <!-- 조회수 증가 -->
+    <update id="incrementViewCount">
+        UPDATE posts
+        SET view_count = view_count + 1,
+            updated_at = NOW()
+        WHERE seq = #{seq}
+    </update>
+
+</mapper>

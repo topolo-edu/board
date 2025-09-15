@@ -12,6 +12,7 @@ import io.goorm.board.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,8 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class UserService implements UserDetailsService {
-    
+
     private final UserRepository userRepository;
+    @Lazy
     private final PasswordEncoder passwordEncoder;
     
     public User signup(SignupDto signupDto) {
@@ -52,7 +54,7 @@ public class UserService implements UserDetailsService {
         user.setNickname(signupDto.getNickname());
         
         User savedUser = userRepository.save(user);
-        log.info("회원가입 성공: email={}, userId={}", signupDto.getEmail(), savedUser.getId());
+        log.info("회원가입 성공: email={}, userId={}", signupDto.getEmail(), savedUser.getUserSeq());
         return savedUser;
     }
     
@@ -79,7 +81,7 @@ public class UserService implements UserDetailsService {
             throw new InvalidCredentialsException(loginDto.getEmail());
         }
         
-        log.info("로그인 성공: email={}, userId={}", loginDto.getEmail(), user.getId());
+        log.info("로그인 성공: email={}, userId={}", loginDto.getEmail(), user.getUserSeq());
         return user;
     }
     

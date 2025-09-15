@@ -1,0 +1,18 @@
+# MyBatis 전용 설정
+mybatis:
+  type-aliases-package: io.goorm.board.entity
+  mapper-locations: classpath:mappers/maria/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 30
+
+# MyBatis 전용 로깅
+logging:
+  level:
+    io.goorm.board.service.UserService: DEBUG
+    io.goorm.board.controller.AuthController: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.authentication: TRACE
+    org.springframework.security.web: TRACE
+    io.goorm.board.mapper: DEBUG  # MyBatis 매퍼 SQL 로깅

@@ -72,7 +72,7 @@ public class AuthController {
     public String profileForm(@AuthenticationPrincipal User user, Model model) {
         
         // 최신 사용자 정보 조회
-        User currentUser = userService.findById(user.getId());
+        User currentUser = userService.findById(user.getUserSeq());
         
         // 프로필 DTO 생성 및 기본값 설정
         ProfileUpdateDto profileUpdateDto = new ProfileUpdateDto();
@@ -93,20 +93,20 @@ public class AuthController {
                                Locale locale) {
         
         if (result.hasErrors()) {
-            User currentUser = userService.findById(user.getId());
+            User currentUser = userService.findById(user.getUserSeq());
             model.addAttribute("currentUser", currentUser);
             return "auth/profile";
         }
         
         try {
-            userService.updateProfile(user.getId(), profileUpdateDto);
+            userService.updateProfile(user.getUserSeq(), profileUpdateDto);
             
             String message = messageSource.getMessage("flash.profile.updated", null, "프로필이 수정되었습니다.", locale);
             redirectAttributes.addFlashAttribute("successMessage", message);
             return "redirect:/auth/profile";
         } catch (Exception e) {
             result.reject("profile.update.failed", e.getMessage());
-            User currentUser = userService.findById(user.getId());
+            User currentUser = userService.findById(user.getUserSeq());
             model.addAttribute("currentUser", currentUser);
             return "auth/profile";
         }
