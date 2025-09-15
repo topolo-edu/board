@@ -12,9 +12,9 @@
             <article class="bg-white p-6 rounded shadow">
                 <h1 th:text="${post.title}" class="text-2xl font-bold mb-2">게시글 제목</h1>
                 <div class="text-sm text-gray-500 mb-4">
-                    <span>작성자: </span><span th:text="${post.author.nickname}">작성자</span>
-                    <span> · 작성일: </span><span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2025-01-01</span>
-                    <span> · 조회수: </span><span th:text="${post.viewCount}">0</span>
+                    <span th:text="#{board.author}">작성자</span><span>: </span><span th:text="${post.author.nickname}">작성자</span>
+                    <span> · </span><span th:text="#{board.created}">작성일</span><span>: </span><span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}">2025-01-01</span>
+                    <span> · </span><span th:text="#{board.viewcount}">조회수</span><span>: </span><span th:text="${post.viewCount}">0</span>
                 </div>
                 <div class="prose max-w-none">
                     <div th:text="${post.content}" class="whitespace-pre-wrap">
@@ -25,13 +25,13 @@
 
             <!-- ACTIONS -->
             <div class="mt-6 flex justify-between">
-                <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">목록</a>
-                
+                <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm" th:text="#{board.back.to.list}">목록</a>
+
                 <!-- 본인 글만 수정/삭제 버튼 표시 -->
                 <div sec:authorize="isAuthenticated()" th:if="${#authentication.name == post.author.email}" class="space-x-2">
-                    <a th:href="@{/posts/{id}/edit(id=${post.seq})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">수정</a>
-                    <form th:action="@{/posts/{id}/delete(id=${post.seq})}" method="post" class="inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
-                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">삭제</button>
+                    <a th:href="@{/posts/{id}/edit(id=${post.seq})}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" th:text="#{button.edit}">수정</a>
+                    <form th:action="@{/posts/{id}/delete(id=${post.seq})}" method="post" class="inline" th:onsubmit="|return confirm('#{board.confirm.delete}')|">
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm" th:text="#{button.delete}">삭제</button>
                     </form>
                 </div>
             </div>

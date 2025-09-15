@@ -36,7 +36,6 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.post.notfound",
             null,
-            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -58,7 +57,6 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.email.duplicate",
             null,
-            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -80,7 +78,6 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.login.invalid",
             null,
-            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -102,7 +99,6 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.user.notfound",
             null,
-            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -123,7 +119,6 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.post.access.denied",
             null,
-            "Default message",
             LocaleContextHolder.getLocale()
         );
 
@@ -161,7 +156,6 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.server.internal",
             null,
-            "Default message",
             LocaleContextHolder.getLocale()
         );
         

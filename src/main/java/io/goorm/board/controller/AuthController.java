@@ -101,7 +101,7 @@ public class AuthController {
         try {
             userService.updateProfile(user.getUserSeq(), profileUpdateDto);
             
-            String message = messageSource.getMessage("flash.profile.updated", null, "프로필이 수정되었습니다.", locale);
+            String message = messageSource.getMessage("flash.profile.updated", null, locale);
             redirectAttributes.addFlashAttribute("successMessage", message);
             return "redirect:/auth/profile";
         } catch (Exception e) {

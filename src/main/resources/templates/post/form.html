@@ -25,55 +25,55 @@
     <div layout:fragment="content">
         <section class="max-w-3xl mx-auto px-4 py-12">
             <form th:action="@{${post.seq != null ? '/posts/' + post.seq : '/posts'}}" th:object="${post}" th:method="${post.seq != null ? 'put' : 'post'}" class="bg-white p-6 rounded shadow space-y-6">
-                <h1 class="text-2xl font-bold" th:text="${post.seq != null ? '글 수정' : '글쓰기'}">글쓰기</h1>
+                <h1 class="text-2xl font-bold" th:text="${post.seq != null ? #{board.edit} : #{board.create}}"></h1>
 
                 <!-- 전체 오류 메시지 -->
                 <div th:if="${#fields.hasAnyErrors()}" class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h4 class="text-red-800 font-semibold mb-2">⚠️ 입력 오류가 있습니다</h4>
+                    <h4 class="text-red-800 font-semibold mb-2">⚠️ <span th:text="#{validation.form.error}"></span></h4>
                     <ul class="text-red-700 text-sm space-y-1">
-                        <li th:each="error : ${#fields.allErrors()}" th:text="${error}">오류 내용</li>
+                        <li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li>
                     </ul>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium mb-1" for="title">
-                        제목 <span class="text-red-500">*</span>
+                        <span th:text="#{board.title.label}">제목</span> <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" th:field="*{title}" 
+                    <input type="text" th:field="*{title}"
                            th:class="${#fields.hasErrors('title')} ? 'w-full border rounded px-4 py-2 error-input' : 'w-full border rounded px-4 py-2'"
-                           placeholder="제목을 입력하세요 (1~200자)" />
-                    
+                           th:placeholder="#{validation.title.placeholder}" />
+
                     <!-- 제목 오류 메시지 -->
                     <div th:if="${#fields.hasErrors('title')}" class="error-message">
-                        <div th:each="error : ${#fields.errors('title')}" th:text="${error}">오류 메시지</div>
+                        <div th:each="error : ${#fields.errors('title')}" th:text="${error}"></div>
                     </div>
                 </div>
 
                 <!-- 수정 시에만 작성자 정보 표시 (수정 불가) -->
                 <div th:if="${post.seq != null}">
-                    <label class="block text-sm font-medium mb-1">작성자</label>
-                    <input type="text" th:value="${post.author.nickname}" 
+                    <label class="block text-sm font-medium mb-1" th:text="#{board.author}">작성자</label>
+                    <input type="text" th:value="${post.author.nickname}"
                            class="w-full border rounded px-4 py-2 bg-gray-100" readonly />
-                    <p class="text-xs text-gray-500 mt-1">작성자는 수정할 수 없습니다.</p>
+                    <p class="text-xs text-gray-500 mt-1" th:text="#{validation.author.readonly}"></p>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium mb-1" for="content">
-                        내용 <span class="text-red-500">*</span>
+                        <span th:text="#{board.content.label}">내용</span> <span class="text-red-500">*</span>
                     </label>
-                    <textarea th:field="*{content}" rows="8" 
+                    <textarea th:field="*{content}" rows="8"
                               th:class="${#fields.hasErrors('content')} ? 'w-full border rounded px-4 py-2 error-input' : 'w-full border rounded px-4 py-2'"
-                              placeholder="내용을 입력하세요 (10~4000자)"></textarea>
-                    
+                              th:placeholder="#{validation.content.placeholder}"></textarea>
+
                     <!-- 내용 오류 메시지 -->
                     <div th:if="${#fields.hasErrors('content')}" class="error-message">
-                        <div th:each="error : ${#fields.errors('content')}" th:text="${error}">오류 메시지</div>
+                        <div th:each="error : ${#fields.errors('content')}" th:text="${error}"></div>
                     </div>
                 </div>
 
                 <div class="flex justify-between">
-                    <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">취소</a>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" th:text="${post.seq != null ? '수정' : '등록'}">등록</button>
+                    <a th:href="@{/posts}" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm" th:text="#{button.cancel}"></a>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm" th:text="${post.seq != null ? #{button.edit} : #{button.submit}}"></button>
                 </div>
             </form>
         </section>

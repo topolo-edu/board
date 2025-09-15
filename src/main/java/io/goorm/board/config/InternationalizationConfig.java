@@ -26,7 +26,7 @@ public class InternationalizationConfig implements WebMvcConfigurer {
 
         // 메시지 번들 파일들 설정
         messageSource.setBasenames(
-            "messages/validation/ValidationMessages",
+            "messages/validation/validation",
             "messages/i18n/messages",
             "messages/stock/stock"
         );

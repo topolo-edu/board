@@ -8,13 +8,16 @@
 <body>
     <div layout:fragment="content">
         <section class="max-w-7xl mx-auto px-4 py-12 text-center">
-            <h1 class="text-4xl font-bold mb-6">Goorm Board에 오신 것을 환영합니다!</h1>
-            <p class="text-xl text-gray-600 mb-8">Spring Boot + Thymeleaf로 만든 게시판입니다.</p>
+            <h1 class="text-4xl font-bold mb-6" th:text="#{main.welcome}">Goorm Board에 오신 것을 환영합니다!</h1>
+            <p class="text-xl text-gray-600 mb-8" th:text="#{main.description}">Spring Boot + Thymeleaf로 만든 게시판입니다.</p>
             <div class="space-y-4 mb-8">
-                <p class="text-lg" th:if="${username}" th:text="|안녕하세요, ${username}님!|">환영 메시지</p>
-                <p class="text-lg" th:unless="${username}">로그인하여 더 많은 기능을 이용하세요!</p>
+                <p class="text-lg" th:if="${username}">
+                    <span th:text="#{main.greeting.hello}">안녕하세요</span>,
+                    <span th:text="${username}">사용자</span><span th:text="#{nav.user.greeting}">님</span>!
+                </p>
+                <p class="text-lg" th:unless="${username}" th:text="#{main.login.message}">로그인하여 더 많은 기능을 이용하세요!</p>
             </div>
-            <a th:href="@{/posts}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium">
+            <a th:href="@{/posts}" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg font-medium" th:text="#{main.goto.posts}">
                 게시판 보러가기
             </a>
         </section>

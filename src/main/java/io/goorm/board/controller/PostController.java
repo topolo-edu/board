@@ -6,13 +6,16 @@ import io.goorm.board.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j
@@ -21,6 +24,8 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final MessageSource messageSource;
+    private final LocaleResolver localeResolver;
 
     // 메인 페이지
     @GetMapping("/")
@@ -56,22 +61,25 @@ public class PostController {
 
     // 게시글 저장 → 목록으로
     @PostMapping("/posts")
-    public String create(@Valid @ModelAttribute Post post, 
+    public String create(@Valid @ModelAttribute Post post,
                         BindingResult bindingResult,
                         @AuthenticationPrincipal User user,
-                        RedirectAttributes redirectAttributes) {
-        
+                        RedirectAttributes redirectAttributes,
+                        HttpServletRequest request) {
+
         // 검증 오류가 있으면 폼으로 다시 이동
         if (bindingResult.hasErrors()) {
             return "post/form";
         }
-        
+
         // 작성자 설정
         post.setAuthor(user);
-        
+
         // 검증 통과 시에만 저장
         postService.save(post);
-        redirectAttributes.addFlashAttribute("message", "flash.post.created");
+
+        String message = messageSource.getMessage("flash.post.created", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
         return "redirect:/posts";
     }
 
@@ -85,30 +93,35 @@ public class PostController {
 
     // 게시글 수정 → 상세보기로
     @PostMapping("/posts/{seq}")
-    public String update(@PathVariable Long seq, 
-                        @Valid @ModelAttribute Post post, 
+    public String update(@PathVariable Long seq,
+                        @Valid @ModelAttribute Post post,
                         BindingResult bindingResult,
-                        RedirectAttributes redirectAttributes) {
-        
+                        RedirectAttributes redirectAttributes,
+                        HttpServletRequest request) {
+
         // 검증 오류가 있으면 폼으로 다시 이동
         if (bindingResult.hasErrors()) {
             post.setSeq(seq); // seq 값 설정 (수정 폼에서 필요)
             return "post/form";
         }
-        
+
         // 서비스에서 @PreAuthorize로 권한 체크
         postService.update(seq, post);
-        redirectAttributes.addFlashAttribute("message", "flash.post.updated");
+
+        String message = messageSource.getMessage("flash.post.updated", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
         return "redirect:/posts/" + seq;
     }
 
     // 게시글 삭제 → 목록으로
     @PostMapping("/posts/{seq}/delete")
-    public String delete(@PathVariable Long seq, RedirectAttributes redirectAttributes) {
-        
+    public String delete(@PathVariable Long seq, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+
         // 서비스에서 @PreAuthorize로 권한 체크
         postService.delete(seq);
-        redirectAttributes.addFlashAttribute("message", "flash.post.deleted");
+
+        String message = messageSource.getMessage("flash.post.deleted", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
         return "redirect:/posts";
     }
 
