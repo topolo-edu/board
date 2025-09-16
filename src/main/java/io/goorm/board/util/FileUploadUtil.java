@@ -20,7 +20,7 @@ import java.util.UUID;
 @Component
 public class FileUploadUtil {
 
-    @Value("${app.upload.root:/src/main/resources/static/uploads}")
+    @Value("${app.upload.root}")
     private String uploadRoot;
 
     private static final String PRODUCT_PATH = "products";
