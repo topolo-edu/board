@@ -72,8 +72,8 @@
     <!-- DTO용 컬럼 (조인 정보 포함) -->
     <sql id="productDtoColumns">
         <include refid="productColumns"/>,
-        NULL as category_name,
-        NULL as supplier_name
+        c.name as category_name,
+        s.name as supplier_name
     </sql>
 
     <!-- 검색 조건 -->
@@ -194,6 +194,8 @@
     <select id="findDtoById" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN categories c ON p.category_seq = c.category_seq
+        LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
         WHERE p.product_seq = #{productSeq}
     </select>
 
@@ -201,6 +203,8 @@
     <select id="findAll" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN categories c ON p.category_seq = c.category_seq
+        LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
         <include refid="searchConditions"/>
         <include refid="orderBy"/>
         LIMIT #{search.offset}, #{search.size}
@@ -245,6 +249,8 @@
     <select id="findByStatus" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN categories c ON p.category_seq = c.category_seq
+        LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
         WHERE p.status = #{status}
         ORDER BY p.created_at DESC
     </select>
@@ -253,6 +259,8 @@
     <select id="findSellableProducts" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN categories c ON p.category_seq = c.category_seq
+        LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
         WHERE p.status = 'ACTIVE'
         ORDER BY p.created_at DESC
     </select>
@@ -261,6 +269,8 @@
     <select id="findRecentProducts" resultMap="productDtoResultMap">
         SELECT <include refid="productDtoColumns"/>
         FROM products p
+        LEFT JOIN categories c ON p.category_seq = c.category_seq
+        LEFT JOIN suppliers s ON p.supplier_seq = s.supplier_seq
         ORDER BY p.created_at DESC
         LIMIT #{limit}
     </select>
