@@ -1,6 +1,6 @@
 # MyBatis 전용 설정
 mybatis:
-  type-aliases-package: io.goorm.board.entity
+  type-aliases-package: io.goorm.board.entity, io.goorm.board.dto
   mapper-locations: classpath:mappers/maria/*.xml
   configuration:
     map-underscore-to-camel-case: true

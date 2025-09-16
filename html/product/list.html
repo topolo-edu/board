@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 관리 - 목록</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">상품 관리</h1>
+            <p class="mt-2 text-sm text-gray-600">상품을 등록하고 관리할 수 있습니다.</p>
+        </div>
+
+        <!-- 검색 및 필터 영역 -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <form class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- 검색어 -->
+                <div>
+                    <label for="keyword" class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
+                    <input type="text" id="keyword" name="keyword" placeholder="상품명, 코드 검색"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- 카테고리 -->
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+                    <select id="category" name="categorySeq"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">전체</option>
+                        <option value="1">전자제품</option>
+                        <option value="2">의류</option>
+                        <option value="3">도서</option>
+                    </select>
+                </div>
+
+                <!-- 상태 -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
+                    <select id="status" name="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">전체</option>
+                        <option value="ACTIVE">판매중</option>
+                        <option value="INACTIVE">비활성</option>
+                        <option value="DISCONTINUED">단종</option>
+                    </select>
+                </div>
+
+                <!-- 검색 버튼 -->
+                <div class="flex items-end">
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        검색
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 액션 버튼 영역 -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-500">총 <strong>127</strong>개의 상품</span>
+                <!-- 엑셀 다운로드 버튼 -->
+                <button class="flex items-center px-3 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    엑셀 다운로드
+                </button>
+            </div>
+            <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                + 상품 등록
+            </button>
+        </div>
+
+        <!-- 상품 테이블 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            상품정보
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            카테고리
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            가격정보
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            상태
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            등록일
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            관리
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- 샘플 데이터 1 -->
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12">
+                                    <div class="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <span class="text-gray-400 text-xs">이미지</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">MacBook Pro 16인치</div>
+                                    <div class="text-sm text-gray-500">코드: MBP-16-2024</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            전자제품
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">판매: ₩3,500,000</div>
+                            <div class="text-sm text-gray-500">원가: ₩3,200,000</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                판매중
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            2024-12-15
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- 샘플 데이터 2 -->
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12">
+                                    <div class="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <span class="text-gray-400 text-xs">이미지</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">Nike 에어맥스</div>
+                                    <div class="text-sm text-gray-500">코드: NIKE-AM-001</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            의류
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">판매: ₩180,000</div>
+                            <div class="text-sm text-gray-500">원가: ₩120,000</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                비활성
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            2024-12-14
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- 샘플 데이터 3 -->
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12">
+                                    <div class="h-12 w-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <span class="text-gray-400 text-xs">이미지</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">자바 프로그래밍 입문</div>
+                                    <div class="text-sm text-gray-500">코드: BOOK-JAVA-001</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            도서
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">판매: ₩35,000</div>
+                            <div class="text-sm text-gray-500">원가: ₩25,000</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                단종
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            2024-12-10
+                        </td>
+                        <td class="px-6 py-4 text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button class="text-blue-600 hover:text-blue-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900">삭제</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="bg-white px-4 py-3 rounded-lg shadow mt-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm text-gray-700">
+                            <span class="font-medium">1</span>
+                            -
+                            <span class="font-medium">10</span>
+                            of
+                            <span class="font-medium">127</span>
+                            results
+                        </p>
+                    </div>
+                    <div>
+                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                            <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                이전
+                            </button>
+                            <button class="bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                1
+                            </button>
+                            <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                2
+                            </button>
+                            <button class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                3
+                            </button>
+                            <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                다음
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

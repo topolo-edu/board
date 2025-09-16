@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.goorm.board.mapper.product.ProductMapper">
+
+    <!-- Entity Result Map -->
+    <resultMap id="productResultMap" type="io.goorm.board.entity.Product">
+        <id property="productSeq" column="product_seq"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="categorySeq" column="category_seq"/>
+        <result property="supplierSeq" column="supplier_seq"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="unitCost" column="unit_cost"/>
+        <result property="unit" column="unit"/>
+        <result property="sku" column="sku"/>
+        <result property="barcode" column="barcode"/>
+        <result property="weight" column="weight"/>
+        <result property="dimensions" column="dimensions"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- DTO Result Map -->
+    <resultMap id="productDtoResultMap" type="io.goorm.board.dto.product.ProductDto">
+        <id property="productSeq" column="product_seq"/>
+        <result property="code" column="code"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="categorySeq" column="category_seq"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="supplierSeq" column="supplier_seq"/>
+        <result property="supplierName" column="supplier_name"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="unitCost" column="unit_cost"/>
+        <result property="unit" column="unit"/>
+        <result property="sku" column="sku"/>
+        <result property="barcode" column="barcode"/>
+        <result property="weight" column="weight"/>
+        <result property="dimensions" column="dimensions"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 공통 컬럼 -->
+    <sql id="productColumns">
+        p.product_seq,
+        p.code,
+        p.name,
+        p.description,
+        p.category_seq,
+        p.supplier_seq,
+        p.unit_price,
+        p.unit_cost,
+        p.unit,
+        p.sku,
+        p.barcode,
+        p.weight,
+        p.dimensions,
+        p.image_url,
+        p.status,
+        p.created_at,
+        p.updated_at
+    </sql>
+
+    <!-- DTO용 컬럼 (조인 정보 포함) -->
+    <sql id="productDtoColumns">
+        <include refid="productColumns"/>,
+        NULL as category_name,
+        NULL as supplier_name
+    </sql>
+
+    <!-- 검색 조건 -->
+    <sql id="searchConditions">
+        <where>
+            <if test="search.hasKeyword()">
+                AND (p.name LIKE CONCAT('%', #{search.keyword}, '%')
+                     OR p.code LIKE CONCAT('%', #{search.keyword}, '%'))
+            </if>
+            <if test="search.hasName()">
+                AND p.name LIKE CONCAT('%', #{search.name}, '%')
+            </if>
+            <if test="search.hasCode()">
+                AND p.code LIKE CONCAT('%', #{search.code}, '%')
+            </if>
+            <if test="search.hasCategorySeq()">
+                AND p.category_seq = #{search.categorySeq}
+            </if>
+            <if test="search.status != null">
+                AND p.status = #{search.status}
+            </if>
+            <if test="search.unit != null">
+                AND p.unit = #{search.unit}
+            </if>
+            <if test="search.hasSupplierSeq()">
+                AND p.supplier_seq = #{search.supplierSeq}
+            </if>
+            <if test="search.hasPriceRange()">
+                <if test="search.minPrice != null">
+                    AND p.unit_price >= #{search.minPrice}
+                </if>
+                <if test="search.maxPrice != null">
+                    AND p.unit_price &lt;= #{search.maxPrice}
+                </if>
+            </if>
+            <if test="search.hasImage != null">
+                <if test="search.hasImage">
+                    AND p.image_url IS NOT NULL AND p.image_url != ''
+                </if>
+                <if test="!search.hasImage">
+                    AND (p.image_url IS NULL OR p.image_url = '')
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <!-- 정렬 조건 -->
+    <sql id="orderBy">
+        ORDER BY
+        <choose>
+            <when test="search.sortBy == 'name'">p.name</when>
+            <when test="search.sortBy == 'code'">p.code</when>
+            <when test="search.sortBy == 'unitPrice'">p.unit_price</when>
+            <when test="search.sortBy == 'status'">p.status</when>
+            <when test="search.sortBy == 'updated_at'">p.updated_at</when>
+            <otherwise>p.created_at</otherwise>
+        </choose>
+        <choose>
+            <when test="search.sortDirection == 'ASC'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
+    </sql>
+
+    <!-- 상품 등록 -->
+    <insert id="insert" parameterType="io.goorm.board.entity.Product"
+            useGeneratedKeys="true" keyProperty="productSeq">
+        INSERT INTO products (
+            code, name, description, category_seq, supplier_seq,
+            unit_price, unit_cost, unit, sku, barcode,
+            weight, dimensions, image_url, status
+        ) VALUES (
+            #{code}, #{name}, #{description}, #{categorySeq}, #{supplierSeq},
+            #{unitPrice}, #{unitCost}, #{unit}, #{sku}, #{barcode},
+            #{weight}, #{dimensions}, #{imageUrl}, #{status}
+        )
+    </insert>
+
+    <!-- 상품 수정 -->
+    <update id="update" parameterType="io.goorm.board.entity.Product">
+        UPDATE products SET
+            code = #{code},
+            name = #{name},
+            description = #{description},
+            category_seq = #{categorySeq},
+            supplier_seq = #{supplierSeq},
+            unit_price = #{unitPrice},
+            unit_cost = #{unitCost},
+            unit = #{unit},
+            sku = #{sku},
+            barcode = #{barcode},
+            weight = #{weight},
+            dimensions = #{dimensions},
+            image_url = #{imageUrl},
+            status = #{status}
+        WHERE product_seq = #{productSeq}
+    </update>
+
+    <!-- 상품 삭제 -->
+    <delete id="delete">
+        DELETE FROM products WHERE product_seq = #{productSeq}
+    </delete>
+
+    <!-- 상품 단건 조회 (Entity) -->
+    <select id="findById" resultMap="productResultMap">
+        SELECT <include refid="productColumns"/>
+        FROM products p
+        WHERE p.product_seq = #{productSeq}
+    </select>
+
+    <!-- 상품 코드로 조회 (Entity) -->
+    <select id="findByCode" resultMap="productResultMap">
+        SELECT <include refid="productColumns"/>
+        FROM products p
+        WHERE p.code = #{code}
+    </select>
+
+    <!-- 상품 단건 조회 (DTO) -->
+    <select id="findDtoById" resultMap="productDtoResultMap">
+        SELECT <include refid="productDtoColumns"/>
+        FROM products p
+        WHERE p.product_seq = #{productSeq}
+    </select>
+
+    <!-- 상품 목록 조회 -->
+    <select id="findAll" resultMap="productDtoResultMap">
+        SELECT <include refid="productDtoColumns"/>
+        FROM products p
+        <include refid="searchConditions"/>
+        <include refid="orderBy"/>
+        LIMIT #{search.offset}, #{search.size}
+    </select>
+
+    <!-- 상품 총 개수 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM products p
+        <include refid="searchConditions"/>
+    </select>
+
+    <!-- 상품 코드 중복 확인 -->
+    <select id="existsByCode" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM products
+        WHERE code = #{code}
+    </select>
+
+    <!-- 상품 코드 중복 확인 (수정 시, 자신 제외) -->
+    <select id="existsByCodeAndNotSeq" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM products
+        WHERE code = #{code} AND product_seq != #{productSeq}
+    </select>
+
+    <!-- 카테고리별 상품 개수 -->
+    <select id="countByCategory" resultType="int">
+        SELECT COUNT(*)
+        FROM products
+        WHERE category_seq = #{categorySeq}
+    </select>
+
+    <!-- 공급업체별 상품 개수 -->
+    <select id="countBySupplier" resultType="int">
+        SELECT COUNT(*)
+        FROM products
+        WHERE supplier_seq = #{supplierSeq}
+    </select>
+
+    <!-- 상태별 상품 목록 조회 -->
+    <select id="findByStatus" resultMap="productDtoResultMap">
+        SELECT <include refid="productDtoColumns"/>
+        FROM products p
+        WHERE p.status = #{status}
+        ORDER BY p.created_at DESC
+    </select>
+
+    <!-- 판매 가능한 상품 목록 조회 -->
+    <select id="findSellableProducts" resultMap="productDtoResultMap">
+        SELECT <include refid="productDtoColumns"/>
+        FROM products p
+        WHERE p.status = 'ACTIVE'
+        ORDER BY p.created_at DESC
+    </select>
+
+    <!-- 최근 등록된 상품 목록 조회 -->
+    <select id="findRecentProducts" resultMap="productDtoResultMap">
+        SELECT <include refid="productDtoColumns"/>
+        FROM products p
+        ORDER BY p.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

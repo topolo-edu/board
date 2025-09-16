@@ -17,6 +17,13 @@ spring:
     locations: classpath:db/migration/maria
     baseline-on-migrate: true
 
+  # 파일 업로드 설정
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 100MB
+
 # 공통 로깅 설정
 logging:
   level:
@@ -28,3 +35,8 @@ logging:
   charset:
     console: UTF-8
     file: UTF-8
+
+# 애플리케이션 설정
+app:
+  upload:
+    root: /src/main/resources/static/uploads

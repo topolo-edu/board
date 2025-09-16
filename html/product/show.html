@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 관리 - 상세보기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">상품 상세보기</h1>
+                <p class="mt-2 text-sm text-gray-600">상품의 상세 정보를 확인합니다.</p>
+            </div>
+            <div class="flex space-x-3">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    수정
+                </button>
+                <button class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    삭제
+                </button>
+                <button class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    목록
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 상품 이미지 -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">상품 이미지</h3>
+                    <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                        <div class="text-center">
+                            <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-500">이미지 없음</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상품 정보 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 기본 정보 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">기본 정보</h3>
+
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">상품명</dt>
+                            <dd class="mt-1 text-sm text-gray-900">MacBook Pro 16인치</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">상품코드</dt>
+                            <dd class="mt-1 text-sm text-gray-900">MBP-16-2024</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">SKU</dt>
+                            <dd class="mt-1 text-sm text-gray-900">MBP162024001</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">바코드</dt>
+                            <dd class="mt-1 text-sm text-gray-900">1234567890123</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">카테고리</dt>
+                            <dd class="mt-1 text-sm text-gray-900">전자제품</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">상태</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    판매중
+                                </span>
+                            </dd>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">상품 설명</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                최신 M2 Pro 칩을 탑재한 MacBook Pro 16인치 모델입니다.
+                                전문 작업을 위한 강력한 성능과 뛰어난 배터리 수명을 제공합니다.
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- 가격 정보 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">가격 정보</h3>
+
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">판매가</dt>
+                            <dd class="mt-1 text-lg font-semibold text-gray-900">₩3,500,000</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">원가</dt>
+                            <dd class="mt-1 text-lg font-semibold text-gray-900">₩3,200,000</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">단위</dt>
+                            <dd class="mt-1 text-sm text-gray-900">개</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">마진율</dt>
+                            <dd class="mt-1 text-lg font-semibold text-green-600">9.4%</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">마진액</dt>
+                            <dd class="mt-1 text-lg font-semibold text-green-600">₩300,000</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- 추가 정보 -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">추가 정보</h3>
+
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">무게</dt>
+                            <dd class="mt-1 text-sm text-gray-900">2.150 kg</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">치수</dt>
+                            <dd class="mt-1 text-sm text-gray-900">35.57 x 24.81 x 1.68 cm</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">등록일</dt>
+                            <dd class="mt-1 text-sm text-gray-900">2024-12-15 10:30:00</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">수정일</dt>
+                            <dd class="mt-1 text-sm text-gray-900">2024-12-15 14:25:00</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <!-- 재고 정보 (참고용) -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-6">재고 정보</h3>
+
+                    <dl class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">현재 재고</dt>
+                            <dd class="mt-1 text-lg font-semibold text-blue-600">25개</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">최소 재고</dt>
+                            <dd class="mt-1 text-sm text-gray-900">10개</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">최대 재고</dt>
+                            <dd class="mt-1 text-sm text-gray-900">100개</dd>
+                        </div>
+                    </dl>
+
+                    <div class="mt-4">
+                        <div class="text-sm text-gray-500 mb-2">재고 상태</div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-green-600 h-3 rounded-full" style="width: 60%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">적정 재고 수준</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 관련 정보 탭 (향후 확장용) -->
+        <div class="mt-8">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button class="border-blue-500 text-blue-600 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                        재고 이력
+                    </button>
+                    <!-- 주문 내역은 주문관리 시스템 구현 시 추가 -->
+                </nav>
+            </div>
+
+            <div class="mt-6 bg-white rounded-lg shadow p-6">
+                <p class="text-gray-500 text-center py-8">재고 이력 정보가 여기에 표시됩니다.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
