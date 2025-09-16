@@ -69,7 +69,6 @@ public class ProductController {
     @GetMapping("/new")
     public String createForm(Model model) {
         model.addAttribute("product", new ProductCreateDto());
-        model.addAttribute("isEdit", false);
         model.addAttribute("categories", categoryService.findAllActive());
         model.addAttribute("suppliers", supplierService.findAllActive());
         return "products/form";
@@ -89,7 +88,6 @@ public class ProductController {
         log.debug("상품 등록 요청: {}", createDto);
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("isEdit", false);
             model.addAttribute("categories", categoryService.findAllActive());
             model.addAttribute("suppliers", supplierService.findAllActive());
             return "products/form";
@@ -103,7 +101,6 @@ public class ProductController {
         } catch (Exception e) {
             log.error("상품 등록 실패", e);
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("isEdit", false);
             model.addAttribute("categories", categoryService.findAllActive());
             model.addAttribute("suppliers", supplierService.findAllActive());
             return "products/form";
@@ -127,7 +124,6 @@ public class ProductController {
         updateDto.setProductSeq(productSeq);
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("isEdit", true);
             model.addAttribute("categories", categoryService.findAllActiveOrSelected(updateDto.getCategorySeq()));
             model.addAttribute("suppliers", supplierService.findAllActiveOrSelected(updateDto.getSupplierSeq()));
             return "products/form";
@@ -141,7 +137,6 @@ public class ProductController {
         } catch (Exception e) {
             log.error("상품 수정 실패", e);
             model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("isEdit", true);
             model.addAttribute("categories", categoryService.findAllActiveOrSelected(updateDto.getCategorySeq()));
             model.addAttribute("suppliers", supplierService.findAllActiveOrSelected(updateDto.getSupplierSeq()));
             return "products/form";
@@ -201,7 +196,6 @@ public class ProductController {
                     .build();
 
             model.addAttribute("product", updateDto);
-            model.addAttribute("isEdit", true);
             model.addAttribute("categories", categoryService.findAllActiveOrSelected(product.getCategorySeq()));
             model.addAttribute("suppliers", supplierService.findAllActiveOrSelected(product.getSupplierSeq()));
             return "products/form";

@@ -67,6 +67,7 @@ public class ProductUpdateDto {
     private MultipartFile imageFile;
 
     // 이미지 삭제 여부
+    @Builder.Default
     private Boolean deleteImage = false;
 
     /**
