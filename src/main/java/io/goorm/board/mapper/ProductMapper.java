@@ -1,4 +1,4 @@
-package io.goorm.board.mapper.product;
+package io.goorm.board.mapper;
 
 import io.goorm.board.dto.product.ProductDto;
 import io.goorm.board.dto.product.ProductSearchDto;

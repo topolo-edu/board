@@ -8,7 +8,7 @@ import io.goorm.board.entity.Product;
 import io.goorm.board.exception.product.ProductCodeDuplicateException;
 import io.goorm.board.exception.product.ProductNotFoundException;
 import io.goorm.board.exception.product.ProductValidationException;
-import io.goorm.board.mapper.product.ProductMapper;
+import io.goorm.board.mapper.ProductMapper;
 import io.goorm.board.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
