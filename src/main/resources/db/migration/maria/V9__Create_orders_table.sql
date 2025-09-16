@@ -16,16 +16,17 @@ CREATE TABLE orders (
     shipping_address TEXT,
     tracking_number VARCHAR(100),
     note TEXT,
-    user_id BIGINT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     INDEX idx_orders_number (order_number),
     INDEX idx_orders_customer_seq (customer_seq),
     INDEX idx_orders_date (order_date),
     INDEX idx_orders_status (status),
     INDEX idx_orders_payment_status (payment_status),
-    INDEX idx_orders_user_id (user_id),
+    INDEX idx_orders_user_id (created_seq),
     INDEX idx_orders_created_at (created_at),
 
     CONSTRAINT fk_orders_customer_seq
@@ -34,7 +35,7 @@ CREATE TABLE orders (
         ON DELETE RESTRICT ON UPDATE CASCADE,
 
     CONSTRAINT fk_orders_user_seq
-        FOREIGN KEY (user_id)
+        FOREIGN KEY (created_seq)
         REFERENCES users(user_seq)
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -17,6 +17,8 @@ CREATE TABLE products (
     status ENUM('ACTIVE', 'INACTIVE', 'DISCONTINUED') DEFAULT 'ACTIVE',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     INDEX idx_products_code (code),
     INDEX idx_products_name (name),

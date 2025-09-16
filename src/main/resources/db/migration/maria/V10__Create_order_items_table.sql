@@ -8,6 +8,10 @@ CREATE TABLE order_items (
     discount_amount DECIMAL(10,2) DEFAULT 0.00,
     total_amount DECIMAL(12,2) NOT NULL,
     note TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     INDEX idx_order_items_order_seq (order_seq),
     INDEX idx_order_items_product_seq (product_seq),

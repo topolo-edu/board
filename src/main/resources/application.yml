@@ -17,6 +17,7 @@ spring:
     locations: classpath:db/migration/maria
     baseline-on-migrate: true
 
+
   # 파일 업로드 설정
   servlet:
     multipart:

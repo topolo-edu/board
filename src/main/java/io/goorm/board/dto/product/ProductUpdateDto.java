@@ -61,6 +61,8 @@ public class ProductUpdateDto {
 
     private ProductStatus status;
 
+    private Long updatedSeq;
+
     private String currentImageUrl;
 
     // 파일 업로드용 필드
@@ -69,6 +71,7 @@ public class ProductUpdateDto {
     // 이미지 삭제 여부
     @Builder.Default
     private Boolean deleteImage = false;
+
 
     /**
      * 이미지 파일 존재 여부

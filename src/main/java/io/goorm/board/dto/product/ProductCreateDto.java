@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ProductCreateDto {
 
+    private Long productSeq;
+
     @NotBlank(message = "{validation.product.code.required}")
     @Size(max = 50, message = "{validation.product.code.size}")
     private String code;

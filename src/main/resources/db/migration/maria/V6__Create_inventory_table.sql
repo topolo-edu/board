@@ -12,6 +12,8 @@ CREATE TABLE inventory (
     last_stock_check TIMESTAMP NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     UNIQUE KEY uk_inventory_product_location (product_seq, location),
     INDEX idx_inventory_product_seq (product_seq),

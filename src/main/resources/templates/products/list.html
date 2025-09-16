@@ -164,7 +164,7 @@
                         <p class="text-sm text-gray-700">
                             <span class="font-medium" th:text="${products.number * products.size + 1}">1</span>
                             -
-                            <span class="font-medium" th:text="${#numbers.min(products.number * products.size + products.size, products.totalElements)}">10</span>
+                            <span class="font-medium" th:text="${(products.number * products.size + products.size) > products.totalElements ? products.totalElements : (products.number * products.size + products.size)}">10</span>
                             of
                             <span class="font-medium" th:text="${products.totalElements}">127</span>
                             results

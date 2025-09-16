@@ -16,6 +16,8 @@ CREATE TABLE customers (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     INDEX idx_customers_code (customer_code),
     INDEX idx_customers_name (name),

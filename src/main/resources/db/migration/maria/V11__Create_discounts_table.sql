@@ -15,6 +15,8 @@ CREATE TABLE discounts (
     applicable_to ENUM('ALL', 'CATEGORY', 'PRODUCT', 'CUSTOMER') DEFAULT 'ALL',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     INDEX idx_discounts_name (name),
     INDEX idx_discounts_type (discount_type),

@@ -11,6 +11,10 @@
         <result property="parentCategorySeq" column="parent_category_seq"/>
         <result property="sortOrder" column="sort_order"/>
         <result property="isActive" column="is_active"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="createdSeq" column="created_seq"/>
+        <result property="updatedSeq" column="updated_seq"/>
     </resultMap>
 
     <!-- 활성 카테고리 목록 조회 -->
@@ -21,7 +25,11 @@
             description,
             parent_category_seq,
             sort_order,
-            is_active
+            is_active,
+            created_at,
+            updated_at,
+            created_seq,
+            updated_seq
         FROM categories
         WHERE is_active = TRUE
         ORDER BY sort_order ASC, name ASC
@@ -35,7 +43,11 @@
             description,
             parent_category_seq,
             sort_order,
-            is_active
+            is_active,
+            created_at,
+            updated_at,
+            created_seq,
+            updated_seq
         FROM categories
         WHERE is_active = TRUE
         <if test="selectedCategorySeq != null">
@@ -52,7 +64,11 @@
             description,
             parent_category_seq,
             sort_order,
-            is_active
+            is_active,
+            created_at,
+            updated_at,
+            created_seq,
+            updated_seq
         FROM categories
         WHERE category_seq = #{categorySeq}
     </select>

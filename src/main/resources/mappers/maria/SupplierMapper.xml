@@ -13,6 +13,10 @@
         <result property="address" column="address"/>
         <result property="description" column="description"/>
         <result property="isActive" column="is_active"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="createdSeq" column="created_seq"/>
+        <result property="updatedSeq" column="updated_seq"/>
     </resultMap>
 
     <!-- 활성 공급업체 목록 조회 -->
@@ -25,7 +29,11 @@
             phone,
             address,
             description,
-            is_active
+            is_active,
+            created_at,
+            updated_at,
+            created_seq,
+            updated_seq
         FROM suppliers
         WHERE is_active = TRUE
         ORDER BY name ASC
@@ -41,7 +49,11 @@
             phone,
             address,
             description,
-            is_active
+            is_active,
+            created_at,
+            updated_at,
+            created_seq,
+            updated_seq
         FROM suppliers
         WHERE is_active = TRUE
         <if test="selectedSupplierSeq != null">
@@ -60,7 +72,11 @@
             phone,
             address,
             description,
-            is_active
+            is_active,
+            created_at,
+            updated_at,
+            created_seq,
+            updated_seq
         FROM suppliers
         WHERE supplier_seq = #{supplierSeq}
     </select>

@@ -23,6 +23,8 @@
         <result property="status" column="status"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+        <result property="createdSeq" column="created_seq"/>
+        <result property="updatedSeq" column="updated_seq"/>
     </resultMap>
 
     <!-- DTO Result Map -->
@@ -46,6 +48,8 @@
         <result property="status" column="status"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
+        <result property="createdSeq" column="created_seq"/>
+        <result property="updatedSeq" column="updated_seq"/>
     </resultMap>
 
     <!-- 공통 컬럼 -->
@@ -66,7 +70,9 @@
         p.image_url,
         p.status,
         p.created_at,
-        p.updated_at
+        p.updated_at,
+        p.created_seq,
+        p.updated_seq
     </sql>
 
     <!-- DTO용 컬럼 (조인 정보 포함) -->
@@ -143,11 +149,11 @@
         INSERT INTO products (
             code, name, description, category_seq, supplier_seq,
             unit_price, unit_cost, unit, sku, barcode,
-            weight, dimensions, image_url, status
+            weight, dimensions, image_url, status, created_seq, updated_seq
         ) VALUES (
             #{code}, #{name}, #{description}, #{categorySeq}, #{supplierSeq},
             #{unitPrice}, #{unitCost}, #{unit}, #{sku}, #{barcode},
-            #{weight}, #{dimensions}, #{imageUrl}, #{status}
+            #{weight}, #{dimensions}, #{imageUrl}, #{status}, #{createdSeq}, #{updatedSeq}
         )
     </insert>
 
@@ -167,7 +173,8 @@
             weight = #{weight},
             dimensions = #{dimensions},
             image_url = #{imageUrl},
-            status = #{status}
+            status = #{status},
+            updated_seq = #{updatedSeq}
         WHERE product_seq = #{productSeq}
     </update>
 

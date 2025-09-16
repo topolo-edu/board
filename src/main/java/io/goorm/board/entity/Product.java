@@ -103,6 +103,12 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "created_seq")
+    private Long createdSeq;
+
+    @Column(name = "updated_seq")
+    private Long updatedSeq;
+
     // === 비즈니스 메서드 ===
 
     /**

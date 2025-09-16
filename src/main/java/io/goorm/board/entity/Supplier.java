@@ -54,6 +54,12 @@ public class Supplier {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "created_seq")
+    private Long createdSeq;
+
+    @Column(name = "updated_seq")
+    private Long updatedSeq;
+
     /**
      * 활성 상태 확인
      */

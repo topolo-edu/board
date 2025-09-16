@@ -9,14 +9,16 @@ CREATE TABLE stock_movements (
     reference_type ENUM('PURCHASE', 'SALE', 'ADJUSTMENT', 'TRANSFER', 'RETURN') NOT NULL,
     reference_id BIGINT,
     note TEXT,
-    user_id BIGINT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_seq BIGINT COMMENT '생성자 ID',
+    updated_seq BIGINT COMMENT '수정자 ID',
 
     INDEX idx_stock_movements_product_seq (product_seq),
     INDEX idx_stock_movements_location (location),
     INDEX idx_stock_movements_type (movement_type),
     INDEX idx_stock_movements_reference (reference_type, reference_id),
-    INDEX idx_stock_movements_user_id (user_id),
+    INDEX idx_stock_movements_user_id (created_seq),
     INDEX idx_stock_movements_created_at (created_at),
 
     CONSTRAINT fk_stock_movements_product_seq
@@ -25,7 +27,7 @@ CREATE TABLE stock_movements (
         ON DELETE CASCADE ON UPDATE CASCADE,
 
     CONSTRAINT fk_stock_movements_user_seq
-        FOREIGN KEY (user_id)
+        FOREIGN KEY (created_seq)
         REFERENCES users(user_seq)
         ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

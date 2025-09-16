@@ -34,6 +34,8 @@ public class ProductDto {
     private ProductStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long createdSeq;
+    private Long updatedSeq;
 
     // 계산된 필드들
     private BigDecimal marginAmount;
