@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{buyer.list.title}">고객 관리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- 페이지 헤더 -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900" th:text="#{buyer.list.title}">고객 관리</h1>
+                <p class="mt-2 text-gray-600" th:text="#{buyer.list.description}">고객 정보를 관리합니다.</p>
+            </div>
+
+            <!-- 성공/오류 메시지 -->
+            <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+                <span th:text="${successMessage}"></span>
+            </div>
+            <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- 검색 폼 -->
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <form th:action="@{/buyers}" method="get" th:object="${search}" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{buyer.search.keyword}">검색어</label>
+                            <input type="text" th:field="*{keyword}"
+                                   th:placeholder="#{buyer.search.keyword.placeholder}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{buyer.field.email}">이메일</label>
+                            <input type="email" th:field="*{email}"
+                                   th:placeholder="#{buyer.search.email.placeholder}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{buyer.field.businessNumber}">사업자등록번호</label>
+                            <input type="text" th:field="*{businessNumber}"
+                                   th:placeholder="#{buyer.search.businessNumber.placeholder}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" th:text="#{buyer.field.status}">상태</label>
+                            <select th:field="*{status}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="" th:text="#{common.all}">전체</option>
+                                <option th:each="status : ${buyerStatuses}"
+                                        th:value="${status}"
+                                        th:text="${status.displayName}"
+                                        th:selected="${search.status == status}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <span th:text="#{common.search}">검색</span>
+                        </button>
+                        <a th:href="@{/buyers}" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <span th:text="#{common.reset}">초기화</span>
+                        </a>
+                        <a th:href="@{/buyers/new}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                            <span th:text="#{buyer.new}">고객 등록</span>
+                        </a>
+                        <a th:href="@{/buyers/excel(keyword=${search.keyword}, email=${search.email}, businessNumber=${search.businessNumber}, status=${search.status})}"
+                           class="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
+                            <span th:text="#{common.excel.download}">엑셀 다운로드</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 검색 결과 통계 -->
+            <div class="mb-4 text-sm text-gray-600">
+                <span th:text="#{common.search.result(${totalElements})}">총 [[${totalElements}]]건의 검색 결과</span>
+            </div>
+
+            <!-- 고객 목록 테이블 -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.companyName}">회사명</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.businessNumber}">사업자등록번호</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.contactPerson}">담당자</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.email}">이메일</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.phone}">전화번호</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.creditLimit}">신용한도</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.discountRate}">할인율</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{buyer.field.status}">상태</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" th:text="#{common.actions}">작업</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr th:if="${#lists.isEmpty(buyers)}" class="hover:bg-gray-50">
+                                <td colspan="9" class="px-6 py-4 text-center text-gray-500" th:text="#{buyer.list.empty}">등록된 고객이 없습니다.</td>
+                            </tr>
+                            <tr th:each="buyer : ${buyers}" class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a th:href="@{/buyers/{seq}(seq=${buyer.buyerSeq})}"
+                                       class="text-blue-600 hover:text-blue-800 font-medium"
+                                       th:text="${buyer.companyName}"></a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${buyer.businessNumber}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${buyer.contactPerson}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${buyer.email}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${buyer.phone}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(buyer.creditLimit, 0, 'COMMA', 0, 'POINT')}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${buyer.discountRate + '%'}"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span th:if="${buyer.status.name() == 'ACTIVE'}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                        <span th:text="${buyer.status.displayName}">활성</span>
+                                    </span>
+                                    <span th:if="${buyer.status.name() == 'INACTIVE'}" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                        <span th:text="${buyer.status.displayName}">비활성</span>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <a th:href="@{/buyers/{seq}(seq=${buyer.buyerSeq})}"
+                                       class="text-blue-600 hover:text-blue-900" th:text="#{common.view}">보기</a>
+                                    <a th:href="@{/buyers/{seq}/edit(seq=${buyer.buyerSeq})}"
+                                       class="text-green-600 hover:text-green-900" th:text="#{common.edit}">수정</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div th:if="${totalPages > 1}" class="mt-6">
+                <nav class="flex items-center justify-between">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        <a th:if="${currentPage > 1}"
+                           th:href="@{/buyers(page=${currentPage - 1}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, businessNumber=${search.businessNumber}, status=${search.status})}"
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <span th:text="#{common.previous}">이전</span>
+                        </a>
+                        <a th:if="${currentPage < totalPages}"
+                           th:href="@{/buyers(page=${currentPage + 1}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, businessNumber=${search.businessNumber}, status=${search.status})}"
+                           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            <span th:text="#{common.next}">다음</span>
+                        </a>
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                <span th:text="#{common.pagination.info(${(currentPage-1)*search.size + 1}, ${currentPage == totalPages ? totalElements : currentPage*search.size}, ${totalElements})}"></span>
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                                <!-- 이전 페이지 -->
+                                <a th:if="${currentPage > 1}"
+                                   th:href="@{/buyers(page=${currentPage - 1}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, businessNumber=${search.businessNumber}, status=${search.status})}"
+                                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span th:text="#{common.previous}">이전</span>
+                                </a>
+
+                                <!-- 페이지 번호들 -->
+                                <span th:each="page : ${#numbers.sequence(1, totalPages)}" th:if="${page <= 10 or (page >= currentPage - 5 and page <= currentPage + 5) or page > totalPages - 5}">
+                                    <a th:if="${page != currentPage}"
+                                       th:href="@{/buyers(page=${page}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, businessNumber=${search.businessNumber}, status=${search.status})}"
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                       th:text="${page}"></a>
+                                    <span th:if="${page == currentPage}"
+                                          class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600"
+                                          th:text="${page}"></span>
+                                </span>
+
+                                <!-- 다음 페이지 -->
+                                <a th:if="${currentPage < totalPages}"
+                                   th:href="@{/buyers(page=${currentPage + 1}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, businessNumber=${search.businessNumber}, status=${search.status})}"
+                                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span th:text="#{common.next}">다음</span>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
