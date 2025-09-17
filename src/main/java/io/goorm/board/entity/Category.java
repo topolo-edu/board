@@ -1,22 +1,24 @@
 package io.goorm.board.entity;
 
+import io.goorm.board.enums.CategoryStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 /**
- * 카테고리 엔터티
+ * 카테고리 엔티티
  */
 @Entity
 @Table(name = "categories")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Category {
 
     @Id
@@ -24,29 +26,27 @@ public class Category {
     @Column(name = "category_seq")
     private Long categorySeq;
 
-    @Column(name = "name", nullable = false, length = 50)
+
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", length = 500)
     private String description;
-
-    @Column(name = "parent_category_seq")
-    private Long parentCategorySeq;
 
     @Column(name = "sort_order")
     @Builder.Default
     private Integer sortOrder = 0;
 
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
-    @CreationTimestamp
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @LastModifiedDate
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @Column(name = "created_seq")
@@ -56,16 +56,31 @@ public class Category {
     private Long updatedSeq;
 
     /**
-     * 활성 상태 확인
+     * 카테고리 활성화
      */
-    public boolean isActive() {
-        return Boolean.TRUE.equals(isActive);
+    public void activate() {
+        this.isActive = true;
     }
 
     /**
-     * 최상위 카테고리 여부 확인
+     * 카테고리 비활성화
      */
-    public boolean isRootCategory() {
-        return parentCategorySeq == null;
+    public void deactivate() {
+        this.isActive = false;
+    }
+
+    /**
+     * 상태를 CategoryStatus enum으로 반환
+     */
+    public CategoryStatus getStatus() {
+        return isActive ? CategoryStatus.ACTIVE : CategoryStatus.INACTIVE;
+    }
+
+    /**
+     * 기본 정보 업데이트
+     */
+    public void updateBasicInfo(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
 }

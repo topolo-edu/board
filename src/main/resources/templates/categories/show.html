@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="#{category.detail.title}">카테고리 상세보기</title>
+</head>
+<body>
+    <div layout:fragment="content" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900" th:text="#{category.detail.title}">카테고리 상세보기</h1>
+            <p class="mt-2 text-sm text-gray-600" th:text="#{category.detail.description}">카테고리의 상세 정보를 확인합니다.</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="text-red-800" th:text="${errorMessage}">오류 메시지</div>
+        </div>
+
+        <!-- 성공 메시지 -->
+        <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <div class="text-green-800" th:text="${successMessage}">성공 메시지</div>
+        </div>
+
+        <!-- 카테고리 상세 정보 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- 카테고리 헤더 -->
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900" th:text="${category.name}">카테고리명</h2>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- 상태 표시 -->
+                        <span th:if="${category.status.name() == 'ACTIVE'}"
+                              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800"
+                              th:text="${category.status.displayName}">활성</span>
+                        <span th:if="${category.status.name() == 'INACTIVE'}"
+                              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800"
+                              th:text="${category.status.displayName}">비활성</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카테고리 상세 내용 -->
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 카테고리명 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{category.form.name}">카테고리명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${category.name}">카테고리명</dd>
+                    </div>
+
+
+                    <!-- 상태 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{category.form.status}">상태</dt>
+                        <dd class="mt-1">
+                            <span th:if="${category.status.name() == 'ACTIVE'}"
+                                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
+                                  th:text="${category.status.displayName}">활성</span>
+                            <span th:if="${category.status.name() == 'INACTIVE'}"
+                                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800"
+                                  th:text="${category.status.displayName}">비활성</span>
+                        </dd>
+                    </div>
+
+                    <!-- 정렬순서 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{category.form.sort.order}">정렬순서</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${category.sortOrder}">1</dd>
+                    </div>
+
+                    <!-- 등록일 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{category.label.created.at}">등록일</dt>
+                        <dd class="mt-1 text-sm text-gray-900"
+                            th:text="${#temporals.format(category.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</dd>
+                    </div>
+
+                    <!-- 수정일 -->
+                    <div th:if="${category.updatedAt}">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{category.label.updated.at}">수정일</dt>
+                        <dd class="mt-1 text-sm text-gray-900"
+                            th:text="${#temporals.format(category.updatedAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</dd>
+                    </div>
+
+                    <!-- 설명 -->
+                    <div th:if="${category.description}" class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{category.form.description}">설명</dt>
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line" th:text="${category.description}">카테고리 설명</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- 관련 상품 정보 (Phase 2에서 구현 예정) -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">관련 상품</h3>
+                <div class="text-sm text-gray-500">
+                    <p th:text="#{product.label.phase2.note}">Phase 2에서 구현 예정입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="mt-8 flex justify-between items-center">
+            <a th:href="@{/categories}"
+               class="text-blue-600 hover:text-blue-800 font-medium"
+               th:text="#{category.action.list}">← 목록</a>
+
+            <div class="flex space-x-4">
+                <!-- 수정 버튼 -->
+                <a th:href="@{/categories/{seq}/edit(seq=${category.categorySeq})}"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   th:text="#{category.action.edit}">수정</a>
+
+                <!-- 활성화/비활성화 버튼 -->
+                <form th:if="${category.status.name() == 'ACTIVE'}"
+                      th:action="@{/categories/{seq}/deactivate(seq=${category.categorySeq})}"
+                      method="post" class="inline">
+                    <button type="submit"
+                            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            onclick="return confirm([[#{category.confirm.deactivate}]])"
+                            th:text="#{category.action.deactivate}">비활성화</button>
+                </form>
+
+                <form th:if="${category.status.name() == 'INACTIVE'}"
+                      th:action="@{/categories/{seq}/activate(seq=${category.categorySeq})}"
+                      method="post" class="inline">
+                    <button type="submit"
+                            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            onclick="return confirm([[#{category.confirm.activate}]])"
+                            th:text="#{category.action.activate}">활성화</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

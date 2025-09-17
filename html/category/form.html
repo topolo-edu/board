@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카테고리 관리 - 등록/수정</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900" id="pageTitle">카테고리 등록</h1>
+            <p class="mt-2 text-sm text-gray-600" id="pageDescription">새로운 카테고리를 등록합니다.</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md hidden">
+            <div class="text-red-800">오류가 발생했습니다.</div>
+        </div>
+
+        <!-- 성공 메시지 -->
+        <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md hidden">
+            <div class="text-green-800">성공적으로 처리되었습니다.</div>
+        </div>
+
+        <!-- 카테고리 등록/수정 폼 -->
+        <form id="categoryForm" class="space-y-8" onsubmit="handleFormSubmit(event)">
+            <!-- 기본 정보 -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-6">기본 정보</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 카테고리명 -->
+                    <div class="md:col-span-2">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            카테고리명 <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" required
+                               placeholder="카테고리명을 입력하세요"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div id="nameError" class="mt-1 text-sm text-red-600 hidden">카테고리명을 입력해주세요.</div>
+                    </div>
+
+                    <!-- 정렬순서 -->
+                    <div>
+                        <label for="sortOrder" class="block text-sm font-medium text-gray-700 mb-2">정렬순서</label>
+                        <input type="number" id="sortOrder" name="sortOrder" min="0" value="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="mt-1 text-sm text-gray-500">작은 번호일수록 앞에 표시됩니다.</div>
+                    </div>
+
+                    <!-- 상태 (수정시에만 표시) -->
+                    <div id="statusField" class="hidden">
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
+                        <select id="status" name="status" disabled
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100">
+                            <option value="ACTIVE">활성</option>
+                            <option value="INACTIVE">비활성</option>
+                        </select>
+                        <div class="mt-1 text-sm text-gray-500">상태는 목록에서 변경할 수 있습니다.</div>
+                    </div>
+
+                    <!-- 카테고리 설명 -->
+                    <div class="md:col-span-2">
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">카테고리 설명</label>
+                        <textarea id="description" name="description" rows="4"
+                                  placeholder="카테고리에 대한 설명을 입력하세요"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        <div id="descriptionError" class="mt-1 text-sm text-red-600 hidden">설명이 너무 깁니다.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 폼 액션 버튼 -->
+            <div class="flex justify-end space-x-4">
+                <button type="button" onclick="goToList()"
+                        class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    취소
+                </button>
+
+                <button type="submit" id="submitBtn"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    등록
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 페이지 모드 (create/edit)
+        let isEditMode = false;
+        let categoryId = null;
+
+        // URL에서 edit 모드 확인 (실제로는 서버에서 처리)
+        function checkEditMode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            if (id) {
+                isEditMode = true;
+                categoryId = id;
+
+                // 페이지 제목 변경
+                document.getElementById('pageTitle').textContent = '카테고리 수정';
+                document.getElementById('pageDescription').textContent = '카테고리 정보를 수정합니다.';
+                document.getElementById('submitBtn').textContent = '수정';
+
+                // 상태 필드 표시
+                document.getElementById('statusField').classList.remove('hidden');
+
+                // 샘플 데이터 로드 (실제로는 서버에서 가져옴)
+                loadSampleData();
+            }
+        }
+
+        // 샘플 데이터 로드
+        function loadSampleData() {
+            if (categoryId === '1') {
+                document.getElementById('name').value = '전자제품';
+                document.getElementById('description').value = '컴퓨터, 스마트폰, 가전제품 등';
+                document.getElementById('sortOrder').value = '1';
+                document.getElementById('status').value = 'ACTIVE';
+            }
+        }
+
+        // 폼 제출 처리
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            // 유효성 검사
+            if (!validateForm()) {
+                return;
+            }
+
+            // 실제로는 서버로 전송
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            console.log('전송할 데이터:', data);
+
+            // 성공 메시지 표시
+            showSuccessMessage(isEditMode ? '카테고리가 성공적으로 수정되었습니다.' : '카테고리가 성공적으로 등록되었습니다.');
+
+            // 3초 후 목록으로 이동
+            setTimeout(() => {
+                goToList();
+            }, 2000);
+        }
+
+        // 폼 유효성 검사
+        function validateForm() {
+            let isValid = true;
+
+            // 카테고리명 검사
+            const name = document.getElementById('name').value.trim();
+            const nameError = document.getElementById('nameError');
+
+            if (!name) {
+                nameError.textContent = '카테고리명을 입력해주세요.';
+                nameError.classList.remove('hidden');
+                isValid = false;
+            } else if (name.length > 100) {
+                nameError.textContent = '카테고리명은 100자 이하로 입력해주세요.';
+                nameError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                nameError.classList.add('hidden');
+            }
+
+            // 설명 검사
+            const description = document.getElementById('description').value.trim();
+            const descriptionError = document.getElementById('descriptionError');
+
+            if (description.length > 500) {
+                descriptionError.textContent = '설명은 500자 이하로 입력해주세요.';
+                descriptionError.classList.remove('hidden');
+                isValid = false;
+            } else {
+                descriptionError.classList.add('hidden');
+            }
+
+            return isValid;
+        }
+
+        // 에러 메시지 표시
+        function showErrorMessage(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.querySelector('div').textContent = message;
+            errorDiv.classList.remove('hidden');
+
+            // 성공 메시지 숨김
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+
+        // 성공 메시지 표시
+        function showSuccessMessage(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.querySelector('div').textContent = message;
+            successDiv.classList.remove('hidden');
+
+            // 에러 메시지 숨김
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        // 목록으로 이동
+        function goToList() {
+            window.location.href = 'list.html';
+        }
+
+        // 페이지 로드시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            checkEditMode();
+        });
+    </script>
+</body>
+</html>

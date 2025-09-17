@@ -4,13 +4,12 @@
 <mapper namespace="io.goorm.board.mapper.CategoryMapper">
 
     <!-- CategoryDto ResultMap -->
-    <resultMap id="categoryResultMap" type="io.goorm.board.dto.CategoryDto">
+    <resultMap id="categoryResultMap" type="io.goorm.board.dto.category.CategoryDto">
         <id property="categorySeq" column="category_seq"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
-        <result property="parentCategorySeq" column="parent_category_seq"/>
         <result property="sortOrder" column="sort_order"/>
-        <result property="isActive" column="is_active"/>
+        <result property="status" column="is_active" typeHandler="org.apache.ibatis.type.BooleanTypeHandler"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
         <result property="createdSeq" column="created_seq"/>
@@ -23,7 +22,6 @@
             category_seq,
             name,
             description,
-            parent_category_seq,
             sort_order,
             is_active,
             created_at,
@@ -41,7 +39,6 @@
             category_seq,
             name,
             description,
-            parent_category_seq,
             sort_order,
             is_active,
             created_at,
@@ -62,7 +59,6 @@
             category_seq,
             name,
             description,
-            parent_category_seq,
             sort_order,
             is_active,
             created_at,

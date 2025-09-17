@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카테고리 관리 - 상세보기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">카테고리 상세보기</h1>
+            <p class="mt-2 text-sm text-gray-600">카테고리의 상세 정보를 확인합니다.</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md hidden">
+            <div class="text-red-800">오류 메시지</div>
+        </div>
+
+        <!-- 성공 메시지 -->
+        <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md hidden">
+            <div class="text-green-800">성공 메시지</div>
+        </div>
+
+        <!-- 카테고리 상세 정보 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- 카테고리 헤더 -->
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900" id="categoryName">전자제품</h2>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- 상태 표시 -->
+                        <span id="statusBadge" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                            활성
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 카테고리 상세 내용 -->
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 카테고리명 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">카테고리명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" id="categoryNameDetail">전자제품</dd>
+                    </div>
+
+                    <!-- 상태 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">상태</dt>
+                        <dd class="mt-1">
+                            <span id="statusBadgeDetail" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                활성
+                            </span>
+                        </dd>
+                    </div>
+
+                    <!-- 정렬순서 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">정렬순서</dt>
+                        <dd class="mt-1 text-sm text-gray-900" id="sortOrder">1</dd>
+                    </div>
+
+                    <!-- 등록일 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">등록일</dt>
+                        <dd class="mt-1 text-sm text-gray-900" id="createdAt">2024-12-15 10:30:00</dd>
+                    </div>
+
+                    <!-- 수정일 -->
+                    <div id="updatedAtField" class="hidden">
+                        <dt class="text-sm font-medium text-gray-500">수정일</dt>
+                        <dd class="mt-1 text-sm text-gray-900" id="updatedAt">2024-12-15 14:20:00</dd>
+                    </div>
+
+                    <!-- 설명 -->
+                    <div id="descriptionField" class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">설명</dt>
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line" id="description">컴퓨터, 스마트폰, 가전제품 등을 포함하는 카테고리입니다.</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- 관련 상품 정보 -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">관련 상품</h3>
+                <div class="text-sm text-gray-500">
+                    <p>Phase 2에서 구현 예정입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="mt-8 flex justify-between items-center">
+            <button onclick="goToList()" class="text-blue-600 hover:text-blue-800 font-medium">
+                ← 목록
+            </button>
+
+            <div class="flex space-x-4">
+                <!-- 수정 버튼 -->
+                <button onclick="editCategory()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    수정
+                </button>
+
+                <!-- 활성화/비활성화 버튼 -->
+                <button id="toggleStatusBtn" onclick="toggleStatus()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    비활성화
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 현재 카테고리 정보
+        let currentCategory = {
+            categorySeq: 1,
+            name: '전자제품',
+            description: '컴퓨터, 스마트폰, 가전제품 등을 포함하는 카테고리입니다.',
+            sortOrder: 1,
+            status: 'ACTIVE',
+            createdAt: '2024-12-15 10:30:00',
+            updatedAt: '2024-12-15 14:20:00'
+        };
+
+        // 페이지 로드시 카테고리 정보 로드
+        function loadCategoryData() {
+            // URL에서 카테고리 ID 가져오기 (실제로는 서버에서 데이터 조회)
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryId = urlParams.get('id') || '1';
+
+            // 샘플 데이터 설정 (실제로는 서버에서 가져옴)
+            if (categoryId === '1') {
+                currentCategory = {
+                    categorySeq: 1,
+                    name: '전자제품',
+                    description: '컴퓨터, 스마트폰, 가전제품 등을 포함하는 카테고리입니다.',
+                    sortOrder: 1,
+                    status: 'ACTIVE',
+                    createdAt: '2024-12-15 10:30:00',
+                    updatedAt: '2024-12-15 14:20:00'
+                };
+            } else if (categoryId === '2') {
+                currentCategory = {
+                    categorySeq: 2,
+                    name: '의류',
+                    description: '신발, 상의, 하의, 액세서리',
+                    sortOrder: 2,
+                    status: 'ACTIVE',
+                    createdAt: '2024-12-15 10:25:00',
+                    updatedAt: null
+                };
+            } else if (categoryId === '3') {
+                currentCategory = {
+                    categorySeq: 3,
+                    name: '도서',
+                    description: '프로그래밍, 소설, 교육서적',
+                    sortOrder: 3,
+                    status: 'INACTIVE',
+                    createdAt: '2024-12-14 15:20:00',
+                    updatedAt: '2024-12-15 09:10:00'
+                };
+            }
+
+            // 화면에 데이터 표시
+            displayCategoryData();
+        }
+
+        // 카테고리 데이터 화면에 표시
+        function displayCategoryData() {
+            document.getElementById('categoryName').textContent = currentCategory.name;
+            document.getElementById('categoryNameDetail').textContent = currentCategory.name;
+            document.getElementById('sortOrder').textContent = currentCategory.sortOrder;
+            document.getElementById('createdAt').textContent = currentCategory.createdAt;
+
+            // 설명 표시
+            if (currentCategory.description) {
+                document.getElementById('description').textContent = currentCategory.description;
+            } else {
+                document.getElementById('descriptionField').classList.add('hidden');
+            }
+
+            // 수정일 표시
+            if (currentCategory.updatedAt) {
+                document.getElementById('updatedAt').textContent = currentCategory.updatedAt;
+                document.getElementById('updatedAtField').classList.remove('hidden');
+            }
+
+            // 상태 표시
+            updateStatusDisplay();
+        }
+
+        // 상태 표시 업데이트
+        function updateStatusDisplay() {
+            const statusBadge = document.getElementById('statusBadge');
+            const statusBadgeDetail = document.getElementById('statusBadgeDetail');
+            const toggleBtn = document.getElementById('toggleStatusBtn');
+
+            if (currentCategory.status === 'ACTIVE') {
+                statusBadge.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800';
+                statusBadge.textContent = '활성';
+
+                statusBadgeDetail.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
+                statusBadgeDetail.textContent = '활성';
+
+                toggleBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500';
+                toggleBtn.textContent = '비활성화';
+            } else {
+                statusBadge.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800';
+                statusBadge.textContent = '비활성';
+
+                statusBadgeDetail.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800';
+                statusBadgeDetail.textContent = '비활성';
+
+                toggleBtn.className = 'bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500';
+                toggleBtn.textContent = '활성화';
+            }
+        }
+
+        // 카테고리 수정 페이지로 이동
+        function editCategory() {
+            window.location.href = `form.html?id=${currentCategory.categorySeq}`;
+        }
+
+        // 상태 토글
+        function toggleStatus() {
+            const action = currentCategory.status === 'ACTIVE' ? '비활성화' : '활성화';
+
+            if (confirm(`정말 ${action}하시겠습니까?`)) {
+                // 실제로는 서버로 요청 전송
+                currentCategory.status = currentCategory.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+                currentCategory.updatedAt = new Date().toLocaleString('ko-KR');
+
+                // 상태 표시 업데이트
+                updateStatusDisplay();
+
+                // 수정일 표시
+                document.getElementById('updatedAt').textContent = currentCategory.updatedAt;
+                document.getElementById('updatedAtField').classList.remove('hidden');
+
+                // 성공 메시지 표시
+                showSuccessMessage(`카테고리가 성공적으로 ${action}되었습니다.`);
+            }
+        }
+
+        // 목록으로 이동
+        function goToList() {
+            window.location.href = 'list.html';
+        }
+
+        // 성공 메시지 표시
+        function showSuccessMessage(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.querySelector('div').textContent = message;
+            successDiv.classList.remove('hidden');
+
+            // 에러 메시지 숨김
+            document.getElementById('errorMessage').classList.add('hidden');
+
+            // 3초 후 메시지 숨김
+            setTimeout(() => {
+                successDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 페이지 로드시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategoryData();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카테고리 관리 - 목록</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">카테고리 관리</h1>
+            <p class="mt-2 text-sm text-gray-600">카테고리를 등록하고 관리할 수 있습니다.</p>
+        </div>
+
+        <!-- 검색 및 필터 영역 -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <form class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- 검색어 -->
+                <div>
+                    <label for="keyword" class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
+                    <input type="text" id="keyword" name="keyword" placeholder="카테고리명 검색"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- 상태 -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
+                    <select id="status" name="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">전체</option>
+                        <option value="ACTIVE">활성</option>
+                        <option value="INACTIVE">비활성</option>
+                    </select>
+                </div>
+
+                <!-- 검색 버튼 -->
+                <div class="flex items-end">
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        검색
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 액션 영역 -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="text-sm text-gray-600">
+                <span>총 <strong>15</strong>개의 카테고리</span>
+            </div>
+            <div class="flex space-x-2">
+                <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm">
+                    엑셀 다운로드
+                </button>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    + 카테고리 등록
+                </button>
+            </div>
+        </div>
+
+        <!-- 카테고리 목록 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                카테고리정보
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                상태
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                정렬순서
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                등록일
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                관리
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- 샘플 데이터 1 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="#" class="hover:text-blue-600">전자제품</a>
+                                        </div>
+                                        <div class="text-sm text-gray-500">컴퓨터, 스마트폰, 가전제품 등</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    활성
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-15 10:30</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
+                            </td>
+                        </tr>
+
+                        <!-- 샘플 데이터 2 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="#" class="hover:text-blue-600">의류</a>
+                                        </div>
+                                        <div class="text-sm text-gray-500">신발, 상의, 하의, 액세서리</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    활성
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-15 10:25</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
+                            </td>
+                        </tr>
+
+                        <!-- 샘플 데이터 3 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="#" class="hover:text-blue-600">도서</a>
+                                        </div>
+                                        <div class="text-sm text-gray-500">프로그래밍, 소설, 교육서적</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    비활성
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-14 15:20</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">수정</button>
+                                <button class="text-green-600 hover:text-green-900" onclick="return confirm('정말 활성화하시겠습니까?')">활성화</button>
+                            </td>
+                        </tr>
+
+                        <!-- 샘플 데이터 4 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="#" class="hover:text-blue-600">스포츠</a>
+                                        </div>
+                                        <div class="text-sm text-gray-500">운동용품, 스포츠웨어</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    활성
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">4</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-13 09:15</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
+                            </td>
+                        </tr>
+
+                        <!-- 샘플 데이터 5 -->
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <a href="#" class="hover:text-blue-600">뷰티</a>
+                                        </div>
+                                        <div class="text-sm text-gray-500">화장품, 스킨케어, 향수</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    활성
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-12 14:30</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                <button class="text-indigo-600 hover:text-indigo-900">수정</button>
+                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="mt-6 flex justify-center">
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <!-- 이전 페이지 -->
+                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    이전
+                </button>
+
+                <!-- 페이지 번호 -->
+                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">1</button>
+                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">2</button>
+                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">3</button>
+
+                <!-- 다음 페이지 -->
+                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    다음
+                </button>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

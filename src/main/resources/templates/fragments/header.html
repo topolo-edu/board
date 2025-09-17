@@ -8,6 +8,7 @@
         <nav class="space-x-4 flex items-center">
             <a th:href="@{/posts}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.posts}">게시판</a>
             <a th:href="@{/products}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.products}">상품관리</a>
+            <a th:href="@{/categories}" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium" th:text="#{nav.categories}">카테고리관리</a>
 
             <!-- 로그인하지 않은 경우 -->
             <div sec:authorize="isAnonymous()" class="space-x-4">

@@ -1,6 +1,6 @@
 package io.goorm.board.mapper;
 
-import io.goorm.board.dto.CategoryDto;
+import io.goorm.board.dto.category.CategoryDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
