@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title th:text="#{supplier.detail.title}">공급업체 상세보기</title>
+</head>
+<body>
+    <div layout:fragment="content" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900" th:text="#{supplier.detail.title}">공급업체 상세보기</h1>
+            <p class="mt-2 text-sm text-gray-600" th:text="#{supplier.detail.description}">공급업체의 상세 정보를 확인합니다.</p>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="text-red-800" th:text="${errorMessage}">오류 메시지</div>
+        </div>
+
+        <!-- 성공 메시지 -->
+        <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <div class="text-green-800" th:text="${successMessage}">성공 메시지</div>
+        </div>
+
+        <!-- 공급업체 상세 정보 -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- 공급업체 헤더 -->
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-900" th:text="${supplier.name}">업체명</h2>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <!-- 상태 표시 -->
+                        <span th:if="${supplier.status.name() == 'ACTIVE'}"
+                              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800"
+                              th:text="${supplier.status.displayName}">활성</span>
+                        <span th:if="${supplier.status.name() == 'INACTIVE'}"
+                              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800"
+                              th:text="${supplier.status.displayName}">비활성</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 공급업체 상세 내용 -->
+            <div class="px-6 py-6">
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 업체명 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.name}">업체명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.name}">업체명</dd>
+                    </div>
+
+                    <!-- 상태 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.status}">상태</dt>
+                        <dd class="mt-1">
+                            <span th:if="${supplier.status.name() == 'ACTIVE'}"
+                                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
+                                  th:text="${supplier.status.displayName}">활성</span>
+                            <span th:if="${supplier.status.name() == 'INACTIVE'}"
+                                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800"
+                                  th:text="${supplier.status.displayName}">비활성</span>
+                        </dd>
+                    </div>
+
+                    <!-- 담당자명 -->
+                    <div th:if="${supplier.contactPerson}">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.contactPerson}">담당자명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.contactPerson}">담당자명</dd>
+                    </div>
+
+                    <!-- 전화번호 -->
+                    <div th:if="${supplier.phone}">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.phone}">전화번호</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.phone}">전화번호</dd>
+                    </div>
+
+                    <!-- 이메일 -->
+                    <div th:if="${supplier.email}" class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.email}">이메일</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <a th:href="'mailto:' + ${supplier.email}" th:text="${supplier.email}" class="text-blue-600 hover:text-blue-800">이메일</a>
+                        </dd>
+                    </div>
+
+                    <!-- 등록일 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.label.created.at}">등록일</dt>
+                        <dd class="mt-1 text-sm text-gray-900"
+                            th:text="${#temporals.format(supplier.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</dd>
+                    </div>
+
+                    <!-- 수정일 -->
+                    <div th:if="${supplier.updatedAt}">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.label.updated.at}">수정일</dt>
+                        <dd class="mt-1 text-sm text-gray-900"
+                            th:text="${#temporals.format(supplier.updatedAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</dd>
+                    </div>
+
+                    <!-- 주소 -->
+                    <div th:if="${supplier.address}" class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.address}">주소</dt>
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line" th:text="${supplier.address}">주소</dd>
+                    </div>
+
+                    <!-- 설명 -->
+                    <div th:if="${supplier.description}" class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.form.description}">설명</dt>
+                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line" th:text="${supplier.description}">공급업체 설명</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- 관련 상품 정보 -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">공급 상품</h3>
+                <div class="text-sm text-gray-500">
+                    <p th:text="#{product.label.phase2.note}">Phase 2에서 구현 예정입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="mt-8 flex justify-between items-center">
+            <a th:href="@{/suppliers}"
+               class="text-blue-600 hover:text-blue-800 font-medium"
+               th:text="#{supplier.action.list}">← 목록</a>
+
+            <div class="flex space-x-4">
+                <!-- 수정 버튼 -->
+                <a th:href="@{/suppliers/{seq}/edit(seq=${supplier.supplierSeq})}"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   th:text="#{supplier.action.edit}">수정</a>
+
+                <!-- 활성화/비활성화 버튼 -->
+                <form th:if="${supplier.status.name() == 'ACTIVE'}"
+                      th:action="@{/suppliers/{seq}/deactivate(seq=${supplier.supplierSeq})}"
+                      method="post" class="inline">
+                    <button type="submit"
+                            class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            onclick="return confirm([[#{supplier.confirm.deactivate}]])"
+                            th:text="#{supplier.action.deactivate}">비활성화</button>
+                </form>
+
+                <form th:if="${supplier.status.name() == 'INACTIVE'}"
+                      th:action="@{/suppliers/{seq}/activate(seq=${supplier.supplierSeq})}"
+                      method="post" class="inline">
+                    <button type="submit"
+                            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            onclick="return confirm([[#{supplier.confirm.activate}]])"
+                            th:text="#{supplier.action.activate}">활성화</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

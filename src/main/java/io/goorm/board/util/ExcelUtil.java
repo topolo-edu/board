@@ -4,9 +4,11 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.math.BigDecimal;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -167,5 +169,64 @@ public class ExcelUtil {
         String fileName = prefix + "_" + timestamp + ".xlsx";
         return URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString())
                 .replaceAll("\\+", "%20");
+    }
+
+    /**
+     * Excel 다운로드 (리플렉션 기반 범용 메서드)
+     */
+    public static <T> void downloadExcel(HttpServletResponse response, List<T> data,
+                                       String[] headers, String[] properties, String filePrefix) throws IOException {
+        // 파일명 설정
+        String fileName = generateFileName(filePrefix);
+
+        // 응답 헤더 설정
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+
+        // Excel 생성
+        Function<T, Object[]> rowMapper = item -> {
+            Object[] row = new Object[properties.length];
+            for (int i = 0; i < properties.length; i++) {
+                try {
+                    Object value = getFieldValue(item, properties[i]);
+                    row[i] = formatValue(value);
+                } catch (Exception e) {
+                    row[i] = "";
+                }
+            }
+            return row;
+        };
+
+        byte[] excelData = createExcelWithTypes(filePrefix, headers, data, rowMapper, null);
+
+        // 응답으로 전송
+        response.getOutputStream().write(excelData);
+        response.getOutputStream().flush();
+    }
+
+    /**
+     * 리플렉션을 통한 필드 값 추출
+     */
+    private static Object getFieldValue(Object obj, String fieldName) throws Exception {
+        Class<?> clazz = obj.getClass();
+        Field field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return field.get(obj);
+    }
+
+    /**
+     * 값 포매팅
+     */
+    private static Object formatValue(Object value) {
+        if (value == null) {
+            return "";
+        }
+        if (value instanceof LocalDateTime) {
+            return ((LocalDateTime) value).format(DATE_FORMATTER);
+        }
+        return value;
     }
 }

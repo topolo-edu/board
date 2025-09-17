@@ -1,27 +1,36 @@
-package io.goorm.board.dto;
+package io.goorm.board.dto.supplier;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 /**
- * 공급업체 DTO
+ * 공급업체 엑셀 다운로드용 DTO
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SupplierDto {
+public class SupplierExcelDto {
 
-    private Long supplierSeq;
     private String name;
+
     private String contactPerson;
+
     private String email;
+
     private String phone;
+
     private String address;
+
     private String description;
-    private Boolean isActive;
+
+    private String status;
+
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
-    private Long createdSeq;
-    private Long updatedSeq;
 }

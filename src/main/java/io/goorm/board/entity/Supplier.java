@@ -1,9 +1,11 @@
 package io.goorm.board.entity;
 
+import io.goorm.board.enums.SupplierStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -12,11 +14,11 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Table(name = "suppliers")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Supplier {
 
     @Id
@@ -46,11 +48,11 @@ public class Supplier {
     @Builder.Default
     private Boolean isActive = true;
 
-    @CreationTimestamp
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+    @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
@@ -60,10 +62,24 @@ public class Supplier {
     @Column(name = "updated_seq")
     private Long updatedSeq;
 
-    /**
-     * 활성 상태 확인
-     */
-    public boolean isActive() {
-        return Boolean.TRUE.equals(isActive);
+    public SupplierStatus getStatus() {
+        return isActive ? SupplierStatus.ACTIVE : SupplierStatus.INACTIVE;
+    }
+
+    public void updateBasicInfo(String name, String contactPerson, String email, String phone, String address, String description) {
+        this.name = name;
+        this.contactPerson = contactPerson;
+        this.email = email;
+        this.phone = phone;
+        this.address = address;
+        this.description = description;
+    }
+
+    public void activate() {
+        this.isActive = true;
+    }
+
+    public void deactivate() {
+        this.isActive = false;
     }
 }
