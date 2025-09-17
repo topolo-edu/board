@@ -6,6 +6,7 @@ import io.goorm.board.dto.product.ProductSearchDto;
 import io.goorm.board.dto.product.ProductUpdateDto;
 import io.goorm.board.enums.ProductStatus;
 import io.goorm.board.service.CategoryService;
+import io.goorm.board.service.ExcelExportService;
 import io.goorm.board.service.ProductService;
 import io.goorm.board.service.SupplierService;
 import jakarta.validation.Valid;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,6 +38,7 @@ public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
     private final SupplierService supplierService;
+    private final ExcelExportService excelExportService;
     private final MessageSource messageSource;
     private final LocaleResolver localeResolver;
 
@@ -273,6 +277,35 @@ public class ProductController {
         } catch (Exception e) {
             log.error("Failed to get recent products", e);
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * 상품 목록 Excel 다운로드
+     */
+    @GetMapping("/excel")
+    public ResponseEntity<byte[]> downloadExcel(@ModelAttribute ProductSearchDto searchDto, HttpServletRequest request) {
+        try {
+            log.debug("Excel download request with search: {}", searchDto);
+
+            // 서비스에서 Excel 데이터 생성
+            byte[] excelData = productService.exportToExcel(searchDto);
+
+            // 파일명 생성 (한글 지원)
+            String fileName = excelExportService.generateFileName("상품목록", localeResolver.resolveLocale(request));
+
+            // HTTP 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", fileName);
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(excelData);
+
+        } catch (Exception e) {
+            log.error("Failed to download Excel", e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

@@ -66,12 +66,13 @@
             <div class="flex items-center space-x-4">
                 <span class="text-sm text-gray-500">총 <strong th:text="${totalElements}">0</strong>개의 상품</span>
                 <!-- 엑셀 다운로드 버튼 -->
-                <button class="flex items-center px-3 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <a th:href="@{/products/excel(keyword=${search.keyword}, categorySeq=${search.categorySeq}, status=${search.status})}"
+                   class="flex items-center px-3 py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     <span th:text="#{product.action.excel.download}">엑셀 다운로드</span>
-                </button>
+                </a>
             </div>
             <a th:href="@{/products/new}" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
                th:text="#{product.action.create}">

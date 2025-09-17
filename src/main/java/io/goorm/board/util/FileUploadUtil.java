@@ -29,6 +29,7 @@ public class FileUploadUtil {
      * 상품 이미지 업로드
      */
     public String uploadProductImage(MultipartFile file) throws IOException {
+
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("파일이 비어있습니다.");
         }

@@ -71,4 +71,14 @@ public interface ProductService {
      * 공급업체별 상품 개수
      */
     int countBySupplier(Long supplierSeq);
+
+    /**
+     * Excel 내보내기용 상품 목록 조회 (페이징 없음)
+     */
+    List<ProductDto> findAllForExport(ProductSearchDto searchDto);
+
+    /**
+     * 상품 목록 Excel 내보내기
+     */
+    byte[] exportToExcel(ProductSearchDto searchDto);
 }

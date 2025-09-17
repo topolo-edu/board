@@ -1,10 +1,13 @@
 package io.goorm.board.exception;
 
+import io.goorm.board.exception.excel.ExcelExportException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -148,25 +151,38 @@ public class GlobalExceptionHandler {
      * 기타 모든 예외 처리
      * 예상하지 못한 예외가 발생할 때 500 페이지로 이동
      */
+    /**
+     * Excel 관련 예외 처리
+     * Excel 내보내기 중 발생한 예외를 처리
+     */
+    @ExceptionHandler(ExcelExportException.class)
+    public ResponseEntity<String> handleExcelExportException(ExcelExportException e, HttpServletRequest request) {
+        log.error("Excel export error: {} - {}", e.getErrorCode(), e.getMessage(), e);
+
+        // 이미 다국어 처리된 메시지를 반환
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleGeneralException(Exception e, Model model) {
         log.error("Unexpected error occurred", e);
-        
+
         // 국제화 메시지 조회
         String errorMessage = messageSource.getMessage(
             "error.server.internal",
             null,
             LocaleContextHolder.getLocale()
         );
-        
+
         model.addAttribute("error", errorMessage);
-        
+
         // 개발 환경에서는 상세 에러 정보 표시
         if (log.isDebugEnabled()) {
             model.addAttribute("exception", e.getClass().getSimpleName());
             model.addAttribute("message", e.getMessage());
         }
-        
+
         return "error/500";
     }
 }

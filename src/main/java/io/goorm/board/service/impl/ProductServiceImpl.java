@@ -2,6 +2,7 @@ package io.goorm.board.service.impl;
 
 import io.goorm.board.dto.product.ProductCreateDto;
 import io.goorm.board.dto.product.ProductDto;
+import io.goorm.board.dto.product.ProductExcelDto;
 import io.goorm.board.dto.product.ProductSearchDto;
 import io.goorm.board.dto.product.ProductUpdateDto;
 import io.goorm.board.entity.Product;
@@ -9,6 +10,8 @@ import io.goorm.board.exception.product.ProductCodeDuplicateException;
 import io.goorm.board.exception.product.ProductNotFoundException;
 import io.goorm.board.exception.product.ProductValidationException;
 import io.goorm.board.mapper.ProductMapper;
+import io.goorm.board.service.ExcelExportService;
+import io.goorm.board.util.ExcelUtil.CellType;
 import io.goorm.board.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.i18n.LocaleContextHolder;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import io.goorm.board.service.ProductService;
@@ -33,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductMapper productMapper;
     private final FileUploadUtil fileUploadUtil;
+    private final ExcelExportService excelExportService;
 
     @Override
     @Transactional
@@ -251,5 +257,113 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public int countBySupplier(Long supplierSeq) {
         return productMapper.countBySupplier(supplierSeq);
+    }
+
+    @Override
+    public List<ProductDto> findAllForExport(ProductSearchDto searchDto) {
+        log.debug("Finding all products for export with search: {}", searchDto);
+
+        // 페이징 없이 전체 조회
+        searchDto.setPage(0);
+        searchDto.setSize(Integer.MAX_VALUE);
+        Page<ProductDto> productPage = findAll(searchDto);
+        return productPage.getContent();
+    }
+
+    @Override
+    public byte[] exportToExcel(ProductSearchDto searchDto) {
+        log.debug("Exporting products to Excel with search: {}", searchDto);
+
+        // Excel 내보내기용 상품 목록 조회
+        List<ProductDto> products = findAllForExport(searchDto);
+
+        // ProductDto를 ProductExcelDto로 변환
+        List<ProductExcelDto> excelProducts = products.stream()
+                .map(this::convertToExcelDto)
+                .toList();
+
+        // Excel 생성
+        String[] headers = {
+            "상품명", "상품코드", "카테고리", "공급업체",
+            "판매가", "원가", "단위", "상태",
+            "SKU", "바코드", "등록일"
+        };
+
+        // 컬럼 타입 정의
+        CellType[] columnTypes = {
+            CellType.STRING,  // 상품명
+            CellType.STRING,  // 상품코드
+            CellType.STRING,  // 카테고리
+            CellType.STRING,  // 공급업체
+            CellType.NUMERIC, // 판매가
+            CellType.NUMERIC, // 원가
+            CellType.STRING,  // 단위
+            CellType.STRING,  // 상태
+            CellType.STRING,  // SKU
+            CellType.STRING,  // 바코드 (텍스트로 처리)
+            CellType.STRING   // 등록일
+        };
+
+        return excelExportService.exportToExcelWithTypes("상품목록", headers, excelProducts, this::mapToRowDataWithTypes,
+                columnTypes, LocaleContextHolder.getLocale());
+    }
+
+    /**
+     * ProductDto를 ProductExcelDto로 변환
+     */
+    private ProductExcelDto convertToExcelDto(ProductDto product) {
+        return ProductExcelDto.builder()
+                .name(product.getName())
+                .code(product.getCode())
+                .categoryName(product.getCategoryName())
+                .supplierName(product.getSupplierName())
+                .unitPrice(product.getUnitPrice())
+                .unitCost(product.getUnitCost())
+                .unit(product.getUnit() != null ? product.getUnit().getDisplayName() : "")
+                .status(product.getStatus() != null ? product.getStatus().getDisplayName() : "")
+                .sku(product.getSku())
+                .barcode(product.getBarcode())
+                .createdAt(product.getCreatedAt())
+                .build();
+    }
+
+    /**
+     * ProductExcelDto를 Excel 행 데이터로 변환 (문자열 배열)
+     */
+    private String[] mapToRowData(ProductExcelDto product) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return new String[] {
+            product.getName(),
+            product.getCode(),
+            product.getCategoryName(),
+            product.getSupplierName(),
+            product.getUnitPrice() != null ? product.getUnitPrice().toString() : "",
+            product.getUnitCost() != null ? product.getUnitCost().toString() : "",
+            product.getUnit(),
+            product.getStatus(),
+            product.getSku(),
+            product.getBarcode(),
+            product.getCreatedAt() != null ? product.getCreatedAt().format(formatter) : ""
+        };
+    }
+
+    /**
+     * ProductExcelDto를 Excel 행 데이터로 변환 (타입별 Object 배열)
+     */
+    private Object[] mapToRowDataWithTypes(ProductExcelDto product) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        return new Object[] {
+            product.getName(),                          // STRING
+            product.getCode(),                          // STRING
+            product.getCategoryName(),                  // STRING
+            product.getSupplierName(),                  // STRING
+            product.getUnitPrice(),                     // NUMERIC (BigDecimal)
+            product.getUnitCost(),                      // NUMERIC (BigDecimal)
+            product.getUnit(),                          // STRING
+            product.getStatus(),                        // STRING
+            product.getSku(),                           // STRING
+            product.getBarcode(),                       // STRING (텍스트로 처리)
+            product.getCreatedAt() != null ? product.getCreatedAt().format(formatter) : "" // STRING
+        };
     }
 }
