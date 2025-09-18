@@ -17,16 +17,23 @@ public class CategorySearchDto extends BaseSearchConditionDto {
 
     private CategoryStatus status;
 
+    /**
+     * 상태 필터 여부 확인
+     */
+    public boolean hasStatus() {
+        return status != null;
+    }
+
     @Override
     public boolean isEmpty() {
-        return !hasKeyword() && status == null;
+        return !hasKeyword() && !hasStatus();
     }
 
     /**
      * 검색 조건 존재 여부 확인
      */
     public boolean hasSearchCondition() {
-        return hasKeyword() || status != null;
+        return hasKeyword() || hasStatus();
     }
 
 }

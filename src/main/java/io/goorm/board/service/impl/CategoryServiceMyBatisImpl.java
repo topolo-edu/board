@@ -5,12 +5,8 @@ import io.goorm.board.dto.category.CategoryDto;
 import io.goorm.board.dto.category.CategoryExcelDto;
 import io.goorm.board.dto.category.CategorySearchDto;
 import io.goorm.board.dto.category.CategoryUpdateDto;
-import io.goorm.board.entity.Category;
-import io.goorm.board.enums.CategoryStatus;
-import io.goorm.board.exception.category.CategoryCodeDuplicateException;
 import io.goorm.board.exception.category.CategoryNotFoundException;
-import io.goorm.board.exception.category.CategoryValidationException;
-import io.goorm.board.repository.CategoryRepository;
+import io.goorm.board.mapper.CategoryMapper;
 import io.goorm.board.service.CategoryService;
 import io.goorm.board.service.ExcelExportService;
 import io.goorm.board.util.ExcelUtil.CellType;
@@ -33,9 +29,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CategoryServiceImpl implements CategoryService {
+public class CategoryServiceMyBatisImpl implements CategoryService {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryMapper categoryMapper;
     private final ExcelExportService excelExportService;
 
     @Override
@@ -43,24 +39,28 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto create(CategoryCreateDto createDto) {
         log.debug("Creating category: {}", createDto.getName());
 
-
         // 정렬순서 설정 (기존 최대값 + 1)
-        Integer maxSortOrder = categoryRepository.findMaxSortOrder();
+        Integer maxSortOrder = categoryMapper.findMaxSortOrder();
         int nextSortOrder = (maxSortOrder != null) ? maxSortOrder + 1 : 1;
 
-        // Entity 생성
-        Category category = Category.builder()
+        // DTO 생성
+        CategoryDto categoryDto = CategoryDto.builder()
                 .name(createDto.getName())
                 .description(createDto.getDescription())
                 .sortOrder(nextSortOrder)
                 .isActive(true)
+                .createdSeq(1L) // TODO: 현재 사용자 ID로 변경
+                .updatedSeq(1L)
                 .build();
 
         // 저장
-        Category savedCategory = categoryRepository.save(category);
+        int result = categoryMapper.insert(categoryDto);
+        if (result <= 0) {
+            throw new RuntimeException("카테고리 등록에 실패했습니다.");
+        }
 
-        log.info("Category created successfully with seq: {}", savedCategory.getCategorySeq());
-        return convertToDto(savedCategory);
+        log.info("Category created successfully with seq: {}", categoryDto.getCategorySeq());
+        return categoryDto;
     }
 
     @Override
@@ -69,62 +69,63 @@ public class CategoryServiceImpl implements CategoryService {
         log.debug("Updating category with seq: {}", updateDto.getCategorySeq());
 
         // 존재하는 카테고리인지 확인
-        Category existingCategory = categoryRepository.findById(updateDto.getCategorySeq())
-                .orElseThrow(() -> new CategoryNotFoundException(updateDto.getCategorySeq()));
+        CategoryDto existingCategory = categoryMapper.findBySeq(updateDto.getCategorySeq());
+        if (existingCategory == null) {
+            throw new CategoryNotFoundException(updateDto.getCategorySeq());
+        }
 
-        // Entity 업데이트
-        existingCategory.updateBasicInfo(updateDto.getName(), updateDto.getDescription());
+        // DTO 업데이트
+        CategoryDto categoryDto = CategoryDto.builder()
+                .categorySeq(updateDto.getCategorySeq())
+                .name(updateDto.getName())
+                .description(updateDto.getDescription())
+                .updatedSeq(1L) // TODO: 현재 사용자 ID로 변경
+                .build();
 
         // 저장
-        Category updatedCategory = categoryRepository.save(existingCategory);
+        int result = categoryMapper.update(categoryDto);
+        if (result <= 0) {
+            throw new RuntimeException("카테고리 수정에 실패했습니다.");
+        }
 
         log.info("Category updated successfully with seq: {}", updateDto.getCategorySeq());
-        return convertToDto(updatedCategory);
+
+        // 수정된 카테고리 조회해서 반환
+        return categoryMapper.findBySeq(updateDto.getCategorySeq());
     }
 
     @Override
     public CategoryDto findById(Long categorySeq) {
-        Category category = categoryRepository.findById(categorySeq)
-                .orElseThrow(() -> new CategoryNotFoundException(categorySeq));
-        return convertToDto(category);
+        CategoryDto category = categoryMapper.findBySeq(categorySeq);
+        if (category == null) {
+            throw new CategoryNotFoundException(categorySeq);
+        }
+        return category;
     }
 
     @Override
     public Page<CategoryDto> findAll(CategorySearchDto searchDto) {
-        List<Category> categories = categoryRepository.findAllBySearchCondition(
-                searchDto.getKeyword(),
-                searchDto.getStatus() != null ? (searchDto.getStatus() == CategoryStatus.ACTIVE) : null
-        );
-
-        // 페이징 처리
-        int offset = Math.max(0, (searchDto.getPage() - 1) * searchDto.getSize());
-        int endIndex = Math.min(offset + searchDto.getSize(), categories.size());
-        List<Category> pagedCategories = categories.subList(Math.min(offset, categories.size()), endIndex);
+        // 페이징 정보
+        List<CategoryDto> categories = categoryMapper.findAll(searchDto);
+        int total = categoryMapper.count(searchDto);
 
         PageRequest pageRequest = PageRequest.of(
                 Math.max(0, searchDto.getPage() - 1),
                 searchDto.getSize()
         );
 
-        List<CategoryDto> categoryDtos = pagedCategories.stream()
-                .map(this::convertToDto)
-                .toList();
-
-        return new PageImpl<>(categoryDtos, pageRequest, categories.size());
+        return new PageImpl<>(categories, pageRequest, total);
     }
 
     @Override
     public List<CategoryDto> findAllForExport(CategorySearchDto searchDto) {
         log.debug("Finding all categories for export with search: {}", searchDto);
 
-        List<Category> categories = categoryRepository.findAllBySearchCondition(
-                searchDto.getKeyword(),
-                searchDto.getStatus() != null ? (searchDto.getStatus() == CategoryStatus.ACTIVE) : null
-        );
+        // 페이징 무시하고 전체 데이터 조회
+        searchDto.setPage(0);
+        searchDto.setSize(Integer.MAX_VALUE);
 
-        return categories.stream()
-                .map(this::convertToDto)
-                .toList();
+        return categoryMapper.findAllForExcel(searchDto);
     }
 
     @Override
@@ -159,33 +160,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> findAllActive() {
-        List<Category> categories = categoryRepository.findByIsActiveOrderBySortOrderAsc(true);
-        return categories.stream()
-                .map(this::convertToDto)
-                .toList();
+        return categoryMapper.findAllActive();
     }
 
     @Override
     public List<CategoryDto> findAllActiveOrSelected(Long selectedCategorySeq) {
-        List<CategoryDto> activeCategories = findAllActive();
-
-        // 선택된 카테고리가 비활성 상태인 경우 목록에 추가
-        if (selectedCategorySeq != null) {
-            boolean containsSelected = activeCategories.stream()
-                    .anyMatch(category -> category.getCategorySeq().equals(selectedCategorySeq));
-
-            if (!containsSelected) {
-                try {
-                    CategoryDto selectedCategory = findById(selectedCategorySeq);
-                    activeCategories.add(selectedCategory);
-                } catch (CategoryNotFoundException e) {
-                    // 선택된 카테고리가 존재하지 않으면 무시
-                    log.warn("Selected category not found: {}", selectedCategorySeq);
-                }
-            }
+        if (selectedCategorySeq == null) {
+            return findAllActive();
         }
-
-        return activeCategories;
+        return categoryMapper.findAllActiveOrSelected(selectedCategorySeq);
     }
 
     @Override
@@ -193,11 +176,15 @@ public class CategoryServiceImpl implements CategoryService {
     public void activate(Long categorySeq) {
         log.debug("Activating category with seq: {}", categorySeq);
 
-        Category category = categoryRepository.findById(categorySeq)
-                .orElseThrow(() -> new CategoryNotFoundException(categorySeq));
+        CategoryDto category = categoryMapper.findBySeq(categorySeq);
+        if (category == null) {
+            throw new CategoryNotFoundException(categorySeq);
+        }
 
-        category.activate();
-        categoryRepository.save(category);
+        int result = categoryMapper.activate(categorySeq);
+        if (result <= 0) {
+            throw new RuntimeException("카테고리 활성화에 실패했습니다.");
+        }
 
         log.info("Category activated successfully with seq: {}", categorySeq);
     }
@@ -207,34 +194,22 @@ public class CategoryServiceImpl implements CategoryService {
     public void deactivate(Long categorySeq) {
         log.debug("Deactivating category with seq: {}", categorySeq);
 
-        Category category = categoryRepository.findById(categorySeq)
-                .orElseThrow(() -> new CategoryNotFoundException(categorySeq));
+        CategoryDto category = categoryMapper.findBySeq(categorySeq);
+        if (category == null) {
+            throw new CategoryNotFoundException(categorySeq);
+        }
 
-        category.deactivate();
-        categoryRepository.save(category);
+        int result = categoryMapper.deactivate(categorySeq);
+        if (result <= 0) {
+            throw new RuntimeException("카테고리 비활성화에 실패했습니다.");
+        }
 
         log.info("Category deactivated successfully with seq: {}", categorySeq);
     }
 
-
     @Override
     public CategoryDto findBySeq(Long categorySeq) {
         return findById(categorySeq);
-    }
-
-    /**
-     * Category 엔티티를 CategoryDto로 변환
-     */
-    private CategoryDto convertToDto(Category category) {
-        return CategoryDto.builder()
-                .categorySeq(category.getCategorySeq())
-                .name(category.getName())
-                .description(category.getDescription())
-                .sortOrder(category.getSortOrder())
-                .status(category.getStatus())
-                .createdAt(category.getCreatedAt())
-                .updatedAt(category.getUpdatedAt())
-                .build();
     }
 
     /**

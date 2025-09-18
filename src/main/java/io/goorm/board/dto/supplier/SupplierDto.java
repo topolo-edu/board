@@ -31,7 +31,7 @@ public class SupplierDto {
 
     private String description;
 
-    private SupplierStatus status;
+    private Boolean isActive;
 
     private LocalDateTime createdAt;
 
@@ -40,4 +40,11 @@ public class SupplierDto {
     private Long createdSeq;
 
     private Long updatedSeq;
+
+    /**
+     * Boolean isActive를 SupplierStatus로 변환
+     */
+    public SupplierStatus getStatus() {
+        return Boolean.TRUE.equals(isActive) ? SupplierStatus.ACTIVE : SupplierStatus.INACTIVE;
+    }
 }

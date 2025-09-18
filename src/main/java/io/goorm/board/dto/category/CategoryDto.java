@@ -21,23 +21,23 @@ public class CategoryDto {
     private String name;
     private String description;
     private Integer sortOrder;
-    private CategoryStatus status;
+    private Boolean isActive;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long createdSeq;
     private Long updatedSeq;
 
     /**
-     * 카테고리 활성 상태 확인
+     * Boolean isActive를 CategoryStatus로 변환
      */
-    public boolean isActive() {
-        return CategoryStatus.ACTIVE.equals(this.status);
+    public CategoryStatus getStatus() {
+        return Boolean.TRUE.equals(isActive) ? CategoryStatus.ACTIVE : CategoryStatus.INACTIVE;
     }
 
     /**
      * 상태 표시명 반환
      */
     public String getStatusDisplayName() {
-        return status != null ? status.getDisplayName() : "";
+        return getStatus().getDisplayName();
     }
 }

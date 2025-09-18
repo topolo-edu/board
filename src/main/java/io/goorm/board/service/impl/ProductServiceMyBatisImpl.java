@@ -34,7 +34,7 @@ import io.goorm.board.service.ProductService;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ProductServiceImpl implements ProductService {
+public class ProductServiceMyBatisImpl implements ProductService {
 
     private final ProductMapper productMapper;
     private final FileUploadUtil fileUploadUtil;
