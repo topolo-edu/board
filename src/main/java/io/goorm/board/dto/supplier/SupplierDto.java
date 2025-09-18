@@ -1,6 +1,5 @@
 package io.goorm.board.dto.supplier;
 
-import io.goorm.board.enums.SupplierStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,10 +40,4 @@ public class SupplierDto {
 
     private Long updatedSeq;
 
-    /**
-     * Boolean isActive를 SupplierStatus로 변환
-     */
-    public SupplierStatus getStatus() {
-        return Boolean.TRUE.equals(isActive) ? SupplierStatus.ACTIVE : SupplierStatus.INACTIVE;
-    }
 }
