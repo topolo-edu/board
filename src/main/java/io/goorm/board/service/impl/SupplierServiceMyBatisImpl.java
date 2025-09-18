@@ -7,6 +7,8 @@ import io.goorm.board.dto.supplier.SupplierSearchDto;
 import io.goorm.board.dto.supplier.SupplierUpdateDto;
 import io.goorm.board.enums.SupplierStatus;
 import io.goorm.board.exception.supplier.SupplierNotFoundException;
+import io.goorm.board.exception.supplier.SupplierValidationException;
+import io.goorm.board.exception.supplier.SupplierStateException;
 import io.goorm.board.mapper.SupplierMapper;
 import io.goorm.board.service.ExcelExportService;
 import io.goorm.board.service.SupplierService;
@@ -57,7 +59,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
         // 저장
         int result = supplierMapper.insert(supplierDto);
         if (result <= 0) {
-            throw new RuntimeException("공급업체 등록에 실패했습니다.");
+            throw new SupplierValidationException("공급업체 등록에 실패했습니다.");
         }
 
         log.info("Supplier created successfully with seq: {}", supplierDto.getSupplierSeq());
@@ -90,7 +92,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
         // 저장
         int result = supplierMapper.update(supplierDto);
         if (result <= 0) {
-            throw new RuntimeException("공급업체 수정에 실패했습니다.");
+            throw new SupplierValidationException("공급업체 수정에 실패했습니다.");
         }
 
         log.info("Supplier updated successfully with seq: {}", supplierSeq);
@@ -189,7 +191,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
 
         int result = supplierMapper.activate(supplierSeq);
         if (result <= 0) {
-            throw new RuntimeException("공급업체 활성화에 실패했습니다.");
+            throw new SupplierStateException(supplierSeq, supplier.getStatus(), SupplierStatus.ACTIVE, "공급업체 활성화에 실패했습니다.");
         }
 
         log.info("Supplier activated successfully with seq: {}", supplierSeq);
@@ -207,7 +209,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
 
         int result = supplierMapper.deactivate(supplierSeq);
         if (result <= 0) {
-            throw new RuntimeException("공급업체 비활성화에 실패했습니다.");
+            throw new SupplierStateException(supplierSeq, supplier.getStatus(), SupplierStatus.INACTIVE, "공급업체 비활성화에 실패했습니다.");
         }
 
         log.info("Supplier deactivated successfully with seq: {}", supplierSeq);

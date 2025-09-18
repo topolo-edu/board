@@ -4,16 +4,17 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${category.categorySeq != null} ? #{category.edit.title} : #{category.create.title}">카테고리 관리</title>
+    <title th:if="${category.categorySeq != null}" th:text="#{category.edit.title}">카테고리 수정</title>
+    <title th:if="${category.categorySeq == null}" th:text="#{category.create.title}">카테고리 등록</title>
 </head>
 <body>
 <div layout:fragment="content" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- 헤더 -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900"
-            th:text="${category.categorySeq != null} ? #{category.edit.title} : #{category.create.title}">카테고리 등록</h1>
-        <p class="mt-2 text-sm text-gray-600"
-           th:text="${category.categorySeq != null} ? #{category.edit.description} : #{category.create.description}">새로운 카테고리를 등록합니다.</p>
+        <h1 class="text-3xl font-bold text-gray-900" th:if="${category.categorySeq != null}" th:text="#{category.edit.title}">카테고리 수정</h1>
+        <h1 class="text-3xl font-bold text-gray-900" th:if="${category.categorySeq == null}" th:text="#{category.create.title}">카테고리 등록</h1>
+        <p class="mt-2 text-sm text-gray-600" th:if="${category.categorySeq != null}" th:text="#{category.edit.description}">카테고리 정보를 수정합니다.</p>
+        <p class="mt-2 text-sm text-gray-600" th:if="${category.categorySeq == null}" th:text="#{category.create.description}">새로운 카테고리를 등록합니다.</p>
     </div>
 
     <!-- 에러 메시지 -->
@@ -82,7 +83,10 @@
 
             <button type="submit"
                     class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    th:text="${category.categorySeq != null} ? #{category.action.edit} : #{category.action.create}">등록</button>
+                    th:if="${category.categorySeq != null}" th:text="#{button.update}">수정</button>
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    th:if="${category.categorySeq == null}" th:text="#{button.create}">등록</button>
         </div>
     </form>
 </div>

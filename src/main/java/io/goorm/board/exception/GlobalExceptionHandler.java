@@ -1,6 +1,10 @@
 package io.goorm.board.exception;
 
 import io.goorm.board.exception.excel.ExcelExportException;
+import io.goorm.board.exception.supplier.SupplierNotFoundException;
+import io.goorm.board.exception.supplier.SupplierValidationException;
+import io.goorm.board.exception.supplier.SupplierDuplicateException;
+import io.goorm.board.exception.supplier.SupplierStateException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -162,6 +166,102 @@ public class GlobalExceptionHandler {
         // 이미 다국어 처리된 메시지를 반환
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(e.getMessage());
+    }
+
+    /**
+     * SupplierNotFoundException 처리
+     * 공급업체를 찾을 수 없을 때 404 페이지로 이동
+     */
+    @ExceptionHandler(SupplierNotFoundException.class)
+    public String handleSupplierNotFoundException(SupplierNotFoundException e, Model model) {
+        log.warn("Supplier not found: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.supplier.notfound",
+            new Object[]{e.getSupplierSeq()},
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        model.addAttribute("supplierSeq", e.getSupplierSeq());
+
+        return "error/404";
+    }
+
+    /**
+     * SupplierValidationException 처리
+     * 공급업체 유효성 검증 실패시 폼으로 돌아감
+     */
+    @ExceptionHandler(SupplierValidationException.class)
+    public String handleSupplierValidationException(SupplierValidationException e, Model model, HttpServletRequest request) {
+        log.warn("Supplier validation error: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.supplier.validation",
+            new Object[]{e.getField(), e.getValue()},
+            e.getMessage(),
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+
+        // 요청 URI에 따라 적절한 페이지로 이동
+        String requestURI = request.getRequestURI();
+        if (requestURI.contains("/suppliers")) {
+            return "suppliers/form";
+        }
+
+        return "redirect:/suppliers";
+    }
+
+    /**
+     * SupplierDuplicateException 처리
+     * 공급업체 중복 오류시 폼으로 돌아감
+     */
+    @ExceptionHandler(SupplierDuplicateException.class)
+    public String handleSupplierDuplicateException(SupplierDuplicateException e, Model model, HttpServletRequest request) {
+        log.warn("Supplier duplicate error: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.supplier.duplicate",
+            new Object[]{e.getFieldName(), e.getFieldValue()},
+            e.getMessage(),
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+
+        // 요청 URI에 따라 적절한 페이지로 이동
+        String requestURI = request.getRequestURI();
+        if (requestURI.contains("/suppliers")) {
+            return "suppliers/form";
+        }
+
+        return "redirect:/suppliers";
+    }
+
+    /**
+     * SupplierStateException 처리
+     * 공급업체 상태 변경 실패시 목록으로 돌아감
+     */
+    @ExceptionHandler(SupplierStateException.class)
+    public String handleSupplierStateException(SupplierStateException e, Model model) {
+        log.warn("Supplier state error: {}", e.getMessage());
+
+        // 국제화 메시지 조회
+        String errorMessage = messageSource.getMessage(
+            "error.supplier.state",
+            new Object[]{e.getSupplierSeq(), e.getCurrentStatus(), e.getTargetStatus()},
+            e.getMessage(),
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+
+        return "redirect:/suppliers";
     }
 
     @ExceptionHandler(Exception.class)

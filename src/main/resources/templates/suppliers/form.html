@@ -4,16 +4,17 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-    <title th:text="${supplier.supplierSeq != null} ? #{supplier.edit.title} : #{supplier.create.title}">공급업체 관리</title>
+    <title th:if="${supplier.supplierSeq != null}" th:text="#{supplier.edit.title}">공급업체 수정</title>
+    <title th:if="${supplier.supplierSeq == null}" th:text="#{supplier.create.title}">공급업체 등록</title>
 </head>
 <body>
 <div layout:fragment="content" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- 헤더 -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900"
-            th:text="${supplier.supplierSeq != null} ? #{supplier.edit.title} : #{supplier.create.title}">공급업체 등록</h1>
-        <p class="mt-2 text-sm text-gray-600"
-           th:text="${supplier.supplierSeq != null} ? #{supplier.edit.description} : #{supplier.create.description}">새로운 공급업체를 등록합니다.</p>
+        <h1 class="text-3xl font-bold text-gray-900" th:if="${supplier.supplierSeq != null}" th:text="#{supplier.edit.title}">공급업체 수정</h1>
+        <h1 class="text-3xl font-bold text-gray-900" th:if="${supplier.supplierSeq == null}" th:text="#{supplier.create.title}">공급업체 등록</h1>
+        <p class="mt-2 text-sm text-gray-600" th:if="${supplier.supplierSeq != null}" th:text="#{supplier.edit.description}">공급업체 정보를 수정합니다.</p>
+        <p class="mt-2 text-sm text-gray-600" th:if="${supplier.supplierSeq == null}" th:text="#{supplier.create.description}">새로운 공급업체를 등록합니다.</p>
     </div>
 
     <!-- 에러 메시지 -->
@@ -121,7 +122,10 @@
 
             <button type="submit"
                     class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    th:text="${supplier.supplierSeq != null} ? #{button.update} : #{button.create}">등록</button>
+                    th:if="${supplier.supplierSeq != null}" th:text="#{button.update}">수정</button>
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    th:if="${supplier.supplierSeq == null}" th:text="#{button.create}">등록</button>
         </div>
     </form>
 </div>

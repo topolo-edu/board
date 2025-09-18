@@ -73,15 +73,9 @@ public class SupplierController {
     ) {
         log.debug("Supplier detail request for seq: {}", seq);
 
-        try {
-            SupplierDto supplier = supplierService.findBySeq(seq);
-            model.addAttribute("supplier", supplier);
-            return "suppliers/show";
-        } catch (Exception e) {
-            log.error("Failed to get supplier detail for seq: {}", seq, e);
-            model.addAttribute("errorMessage", e.getMessage());
-            return "redirect:/suppliers";
-        }
+        SupplierDto supplier = supplierService.findBySeq(seq);
+        model.addAttribute("supplier", supplier);
+        return "suppliers/show";
     }
 
     /**
@@ -117,16 +111,10 @@ public class SupplierController {
         createDto.setCreatedSeq(currentUser.getUserSeq());
         createDto.setUpdatedSeq(currentUser.getUserSeq());
 
-        try {
-            Long supplierSeq = supplierService.create(createDto);
-            String message = messageSource.getMessage("supplier.message.create.success", null, localeResolver.resolveLocale(request));
-            redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/suppliers/" + supplierSeq;
-        } catch (Exception e) {
-            log.error("공급업체 등록 실패", e);
-            model.addAttribute("errorMessage", e.getMessage());
-            return "suppliers/form";
-        }
+        Long supplierSeq = supplierService.create(createDto);
+        String message = messageSource.getMessage("supplier.message.create.success", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
+        return "redirect:/suppliers/" + supplierSeq;
     }
 
     /**
@@ -139,28 +127,22 @@ public class SupplierController {
     ) {
         log.debug("Supplier edit form request for seq: {}", seq);
 
-        try {
-            SupplierDto supplier = supplierService.findBySeq(seq);
+        SupplierDto supplier = supplierService.findBySeq(seq);
 
-            SupplierUpdateDto updateDto = SupplierUpdateDto.builder()
-                    .supplierSeq(supplier.getSupplierSeq())
-                    .name(supplier.getName())
-                    .contactPerson(supplier.getContactPerson())
-                    .email(supplier.getEmail())
-                    .phone(supplier.getPhone())
-                    .address(supplier.getAddress())
-                    .description(supplier.getDescription())
-                    .status(supplier.getStatus())
-                    .isActive(supplier.getStatus() == SupplierStatus.ACTIVE)
-                    .build();
+        SupplierUpdateDto updateDto = SupplierUpdateDto.builder()
+                .supplierSeq(supplier.getSupplierSeq())
+                .name(supplier.getName())
+                .contactPerson(supplier.getContactPerson())
+                .email(supplier.getEmail())
+                .phone(supplier.getPhone())
+                .address(supplier.getAddress())
+                .description(supplier.getDescription())
+                .status(supplier.getStatus())
+                .isActive(supplier.getStatus() == SupplierStatus.ACTIVE)
+                .build();
 
-            model.addAttribute("supplier", updateDto);
-            return "suppliers/form";
-        } catch (Exception e) {
-            log.error("Failed to get supplier edit form for seq: {}", seq, e);
-            model.addAttribute("errorMessage", e.getMessage());
-            return "redirect:/suppliers";
-        }
+        model.addAttribute("supplier", updateDto);
+        return "suppliers/form";
     }
 
     /**
@@ -187,16 +169,10 @@ public class SupplierController {
         // 사용자 정보 설정
         updateDto.setUpdatedSeq(currentUser.getUserSeq());
 
-        try {
-            supplierService.update(seq, updateDto);
-            String message = messageSource.getMessage("supplier.message.update.success", null, localeResolver.resolveLocale(request));
-            redirectAttributes.addFlashAttribute("successMessage", message);
-            return "redirect:/suppliers/" + seq;
-        } catch (Exception e) {
-            log.error("공급업체 수정 실패", e);
-            model.addAttribute("errorMessage", e.getMessage());
-            return "suppliers/form";
-        }
+        supplierService.update(seq, updateDto);
+        String message = messageSource.getMessage("supplier.message.update.success", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
+        return "redirect:/suppliers/" + seq;
     }
 
     /**
