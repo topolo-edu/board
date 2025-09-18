@@ -47,4 +47,11 @@ public class SupplierDto {
     public SupplierStatus getStatus() {
         return Boolean.TRUE.equals(isActive) ? SupplierStatus.ACTIVE : SupplierStatus.INACTIVE;
     }
+
+    /**
+     * 상태 표시명 반환
+     */
+    public String getStatusDisplayName() {
+        return getStatus().getDisplayName();
+    }
 }
