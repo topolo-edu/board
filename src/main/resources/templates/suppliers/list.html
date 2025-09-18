@@ -1,53 +1,54 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공급업체 관리 - 목록</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title th:text="#{supplier.list.title}">공급업체 관리</title>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- 헤더 -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">공급업체 관리</h1>
-            <p class="mt-2 text-sm text-gray-600">공급업체를 등록하고 관리할 수 있습니다.</p>
+            <h1 class="text-3xl font-bold text-gray-900" th:text="#{supplier.list.title}">공급업체 관리</h1>
+            <p class="mt-2 text-sm text-gray-600" th:text="#{supplier.list.description}">공급업체를 등록하고 관리할 수 있습니다.</p>
         </div>
 
         <!-- 검색 및 필터 영역 -->
         <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <form class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form th:action="@{/suppliers}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- 검색어 -->
                 <div>
-                    <label for="keyword" class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
-                    <input type="text" id="keyword" name="keyword" placeholder="업체명, 담당자명 검색"
+                    <label for="keyword" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.search.keyword}">검색어</label>
+                    <input type="text" id="keyword" name="keyword" th:value="${search.keyword}" th:placeholder="#{supplier.search.keyword.placeholder}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <!-- 이메일 -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-                    <input type="email" id="email" name="email" placeholder="이메일 검색"
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.search.email}">이메일</label>
+                    <input type="email" id="email" name="email" th:value="${search.email}" th:placeholder="#{supplier.search.email.placeholder}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
                 <!-- 상태 -->
                 <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
-                    <select id="status" name="status"
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.search.status}">상태</label>
+                    <select id="status" name="status" th:value="${search.status}"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">전체</option>
-                        <option value="ACTIVE">활성</option>
-                        <option value="INACTIVE">비활성</option>
+                        <option value="" th:text="#{supplier.search.all}">전체</option>
+                        <option th:each="status : ${statuses}"
+                                th:value="${status.name()}"
+                                th:text="${status.displayName}"
+                                th:selected="${search.status?.name() == status.name()}">상태명</option>
                     </select>
                 </div>
 
                 <!-- 검색 버튼 -->
                 <div class="flex items-end">
                     <button type="submit"
-                            class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        검색
-                    </button>
+                            class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            th:text="#{supplier.search.button}">검색</button>
                 </div>
             </form>
         </div>
@@ -55,15 +56,15 @@
         <!-- 액션 영역 -->
         <div class="flex justify-between items-center mb-6">
             <div class="text-sm text-gray-600">
-                <span>총 <strong>11</strong>개의 공급업체</span>
+                <span th:text="#{supplier.label.total.count(${totalElements})}">총 0개의 공급업체</span>
             </div>
             <div class="flex space-x-2">
-                <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm">
-                    엑셀 다운로드
-                </button>
-                <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                    + 공급업체 등록
-                </button>
+                <a th:href="@{/suppliers/excel(keyword=${search.keyword}, email=${search.email}, status=${search.status})}"
+                   class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                   th:text="#{supplier.action.excel.download}">엑셀 다운로드</a>
+                <a th:href="@{/suppliers/new}"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                   th:text="#{supplier.action.create}">+ 공급업체 등록</a>
             </div>
         </div>
 
@@ -73,185 +74,93 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                업체정보
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                담당자
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                연락처
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                상태
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                등록일
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                관리
-                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                th:text="#{supplier.table.supplier.info}">업체정보</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                th:text="#{supplier.table.contact}">담당자</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                th:text="#{supplier.table.contact.info}">연락처</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                th:text="#{supplier.table.status}">상태</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                th:text="#{supplier.table.created.date}">등록일</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                th:text="#{supplier.table.management}">관리</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <!-- 샘플 데이터 1 -->
-                        <tr class="hover:bg-gray-50">
+                        <tr th:each="supplier : ${suppliers}" class="hover:bg-gray-50">
+                            <!-- 업체정보 -->
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900">
-                                            <a href="show.html?id=1" class="hover:text-blue-600">삼성전자</a>
+                                            <a th:href="@{/suppliers/{seq}(seq=${supplier.supplierSeq})}"
+                                               th:text="${supplier.name}"
+                                               class="hover:text-blue-600">업체명</a>
                                         </div>
-                                        <div class="text-sm text-gray-500">전자제품 공급업체</div>
+                                        <div class="text-sm text-gray-500" th:text="${supplier.description}" th:if="${supplier.description}">설명</div>
                                     </div>
                                 </div>
                             </td>
+
+                            <!-- 담당자 -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">김삼성</div>
-                                <div class="text-sm text-gray-500">contact@samsung.com</div>
+                                <div class="text-sm text-gray-900" th:text="${supplier.contactPerson}" th:if="${supplier.contactPerson}">담당자명</div>
+                                <div class="text-sm text-gray-500" th:text="${supplier.email}" th:if="${supplier.email}">이메일</div>
                             </td>
+
+                            <!-- 연락처 -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">02-1234-5678</div>
-                                <div class="text-sm text-gray-500">서울특별시 강남구</div>
+                                <div class="text-sm text-gray-900" th:text="${supplier.phone}" th:if="${supplier.phone}">전화번호</div>
+                                <div class="text-sm text-gray-500" th:text="${supplier.address}" th:if="${supplier.address}">주소</div>
                             </td>
+
+                            <!-- 상태 -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    활성
-                                </span>
+                                <span th:if="${supplier.status.name() == 'ACTIVE'}"
+                                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
+                                      th:text="${supplier.status.displayName}">활성</span>
+                                <span th:if="${supplier.status.name() == 'INACTIVE'}"
+                                      class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800"
+                                      th:text="${supplier.status.displayName}">비활성</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-15 10:30</td>
+
+                            <!-- 등록일 -->
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                th:text="${#temporals.format(supplier.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
+
+                            <!-- 관리 -->
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="form.html?id=1" class="text-indigo-600 hover:text-indigo-900">수정</a>
-                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
+                                <a th:href="@{/suppliers/{seq}/edit(seq=${supplier.supplierSeq})}"
+                                   class="text-indigo-600 hover:text-indigo-900"
+                                   th:text="#{supplier.action.edit}">수정</a>
+
+                                <!-- 활성화/비활성화 버튼 -->
+                                <form th:if="${supplier.status.name() == 'ACTIVE'}"
+                                      th:action="@{/suppliers/{seq}/deactivate(seq=${supplier.supplierSeq})}"
+                                      method="post" class="inline">
+                                    <button type="submit"
+                                            class="text-red-600 hover:text-red-900"
+                                            onclick="return confirm([[#{supplier.confirm.deactivate}]])"
+                                            th:text="#{supplier.action.deactivate}">비활성화</button>
+                                </form>
+
+                                <form th:if="${supplier.status.name() == 'INACTIVE'}"
+                                      th:action="@{/suppliers/{seq}/activate(seq=${supplier.supplierSeq})}"
+                                      method="post" class="inline">
+                                    <button type="submit"
+                                            class="text-green-600 hover:text-green-900"
+                                            onclick="return confirm([[#{supplier.confirm.activate}]])"
+                                            th:text="#{supplier.action.activate}">활성화</button>
+                                </form>
                             </td>
                         </tr>
 
-                        <!-- 샘플 데이터 2 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            <a href="show.html?id=2" class="hover:text-blue-600">LG전자</a>
-                                        </div>
-                                        <div class="text-sm text-gray-500">가전제품 공급업체</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">이엘지</div>
-                                <div class="text-sm text-gray-500">contact@lg.com</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">02-2345-6789</div>
-                                <div class="text-sm text-gray-500">서울특별시 서초구</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    활성
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-15 10:25</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="form.html?id=2" class="text-indigo-600 hover:text-indigo-900">수정</a>
-                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
-                            </td>
-                        </tr>
-
-                        <!-- 샘플 데이터 3 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            <a href="show.html?id=3" class="hover:text-blue-600">패션플러스</a>
-                                        </div>
-                                        <div class="text-sm text-gray-500">의류 공급업체</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">박패션</div>
-                                <div class="text-sm text-gray-500">contact@fashionplus.com</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">02-3456-7890</div>
-                                <div class="text-sm text-gray-500">서울특별시 강서구</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                    비활성
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-14 15:20</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="form.html?id=3" class="text-indigo-600 hover:text-indigo-900">수정</a>
-                                <button class="text-green-600 hover:text-green-900" onclick="return confirm('정말 활성화하시겠습니까?')">활성화</button>
-                            </td>
-                        </tr>
-
-                        <!-- 샘플 데이터 4 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            <a href="show.html?id=4" class="hover:text-blue-600">애플</a>
-                                        </div>
-                                        <div class="text-sm text-gray-500">애플 공식 공급업체</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">팀 애플</div>
-                                <div class="text-sm text-gray-500">contact@apple.com</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">02-7890-1234</div>
-                                <div class="text-sm text-gray-500">서울특별시 종로구</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    활성
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-13 09:15</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="form.html?id=4" class="text-indigo-600 hover:text-indigo-900">수정</a>
-                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
-                            </td>
-                        </tr>
-
-                        <!-- 샘플 데이터 5 -->
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900">
-                                            <a href="show.html?id=5" class="hover:text-blue-600">나이키</a>
-                                        </div>
-                                        <div class="text-sm text-gray-500">스포츠/의류 공급업체</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">박나이키</div>
-                                <div class="text-sm text-gray-500">contact@nike.com</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">02-0123-4567</div>
-                                <div class="text-sm text-gray-500">서울특별시 강동구</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    활성
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-12-12 14:30</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                <a href="form.html?id=5" class="text-indigo-600 hover:text-indigo-900">수정</a>
-                                <button class="text-red-600 hover:text-red-900" onclick="return confirm('정말 비활성화하시겠습니까?')">비활성화</button>
-                            </td>
+                        <!-- 데이터 없음 -->
+                        <tr th:if="${suppliers.empty}">
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500"
+                                th:text="#{supplier.table.no.suppliers}">등록된 공급업체가 없습니다.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -259,22 +168,34 @@
         </div>
 
         <!-- 페이지네이션 -->
-        <div class="mt-6 flex justify-center">
+        <div th:if="${totalPages > 1}" class="mt-6 flex justify-center">
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <!-- 이전 페이지 -->
-                <button class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    이전
-                </button>
+                <a th:if="${currentPage > 1}"
+                   th:href="@{/suppliers(page=${currentPage - 1}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, status=${search.status})}"
+                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span th:text="#{supplier.pagination.previous}">이전</span>
+                </a>
 
-                <!-- 페이지 번호 -->
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">1</button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">2</button>
-                <button class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">3</button>
+                <!-- 페이지 번호들 -->
+                <th:block th:each="page : ${#numbers.sequence(1, totalPages)}">
+                    <!-- 현재 페이지 -->
+                    <span th:if="${page == currentPage}"
+                          class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-indigo-50 text-sm font-medium text-indigo-600"
+                          th:text="${page}">1</span>
+                    <!-- 다른 페이지 -->
+                    <a th:if="${page != currentPage}"
+                       th:href="@{/suppliers(page=${page}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, status=${search.status})}"
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                       th:text="${page}">2</a>
+                </th:block>
 
                 <!-- 다음 페이지 -->
-                <button class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                    다음
-                </button>
+                <a th:if="${currentPage < totalPages}"
+                   th:href="@{/suppliers(page=${currentPage + 1}, size=${search.size}, keyword=${search.keyword}, email=${search.email}, status=${search.status})}"
+                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                    <span th:text="#{supplier.pagination.next}">다음</span>
+                </a>
             </nav>
         </div>
     </div>

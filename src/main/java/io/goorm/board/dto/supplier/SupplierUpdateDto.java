@@ -1,5 +1,6 @@
 package io.goorm.board.dto.supplier;
 
+import io.goorm.board.enums.SupplierStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -16,6 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SupplierUpdateDto {
+
+    private Long supplierSeq;
 
     @NotBlank(message = "{supplier.validation.name.notblank}")
     @Size(max = 100, message = "{supplier.validation.name.size}")
@@ -36,4 +39,23 @@ public class SupplierUpdateDto {
 
     @Size(max = 1000, message = "{supplier.validation.description.size}")
     private String description;
+
+    private Boolean isActive;
+
+    private SupplierStatus status;
+
+    /**
+     * Boolean isActive를 SupplierStatus로 변환
+     */
+    public SupplierStatus getStatus() {
+        return status != null ? status : (Boolean.TRUE.equals(isActive) ? SupplierStatus.ACTIVE : SupplierStatus.INACTIVE);
+    }
+
+    /**
+     * SupplierStatus를 설정
+     */
+    public void setStatus(SupplierStatus status) {
+        this.status = status;
+        this.isActive = status == SupplierStatus.ACTIVE;
+    }
 }

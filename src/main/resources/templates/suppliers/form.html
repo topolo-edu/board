@@ -1,300 +1,129 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공급업체 관리 - 등록/수정</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title th:text="${supplier.supplierSeq != null} ? #{supplier.edit.title} : #{supplier.create.title}">공급업체 관리</title>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- 헤더 -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900" id="pageTitle">공급업체 등록</h1>
-            <p class="mt-2 text-sm text-gray-600" id="pageDescription">새로운 공급업체를 등록합니다.</p>
-        </div>
-
-        <!-- 에러 메시지 -->
-        <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md hidden">
-            <div class="text-red-800">오류가 발생했습니다.</div>
-        </div>
-
-        <!-- 성공 메시지 -->
-        <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md hidden">
-            <div class="text-green-800">성공적으로 처리되었습니다.</div>
-        </div>
-
-        <!-- 공급업체 등록/수정 폼 -->
-        <form id="supplierForm" class="space-y-8" onsubmit="handleFormSubmit(event)">
-            <!-- 기본 정보 -->
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-6">기본 정보</h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- 업체명 -->
-                    <div class="md:col-span-2">
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                            업체명 <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" id="name" name="name" required
-                               placeholder="업체명을 입력하세요"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <div id="nameError" class="mt-1 text-sm text-red-600 hidden">업체명을 입력해주세요.</div>
-                    </div>
-
-                    <!-- 담당자명 -->
-                    <div>
-                        <label for="contactPerson" class="block text-sm font-medium text-gray-700 mb-2">담당자명</label>
-                        <input type="text" id="contactPerson" name="contactPerson"
-                               placeholder="담당자명을 입력하세요"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <div id="contactPersonError" class="mt-1 text-sm text-red-600 hidden">담당자명이 너무 깁니다.</div>
-                    </div>
-
-                    <!-- 전화번호 -->
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
-                        <input type="tel" id="phone" name="phone"
-                               placeholder="02-1234-5678"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <div id="phoneError" class="mt-1 text-sm text-red-600 hidden">전화번호 형식이 올바르지 않습니다.</div>
-                    </div>
-
-                    <!-- 이메일 -->
-                    <div class="md:col-span-2">
-                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-                        <input type="email" id="email" name="email"
-                               placeholder="contact@company.com"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <div id="emailError" class="mt-1 text-sm text-red-600 hidden">이메일 형식이 올바르지 않습니다.</div>
-                    </div>
-
-                    <!-- 상태 (수정시에만 표시) -->
-                    <div id="statusField" class="hidden">
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">상태</label>
-                        <select id="status" name="status" disabled
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100">
-                            <option value="ACTIVE">활성</option>
-                            <option value="INACTIVE">비활성</option>
-                        </select>
-                        <div class="mt-1 text-sm text-gray-500">상태는 목록에서 변경할 수 있습니다.</div>
-                    </div>
-
-                    <!-- 주소 -->
-                    <div class="md:col-span-2">
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-2">주소</label>
-                        <textarea id="address" name="address" rows="2"
-                                  placeholder="업체 주소를 입력하세요"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        <div id="addressError" class="mt-1 text-sm text-red-600 hidden">주소가 너무 깁니다.</div>
-                    </div>
-
-                    <!-- 업체 설명 -->
-                    <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">업체 설명</label>
-                        <textarea id="description" name="description" rows="4"
-                                  placeholder="업체에 대한 설명을 입력하세요"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        <div id="descriptionError" class="mt-1 text-sm text-red-600 hidden">설명이 너무 깁니다.</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 폼 액션 버튼 -->
-            <div class="flex justify-end space-x-4">
-                <button type="button" onclick="goToList()"
-                        class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    취소
-                </button>
-
-                <button type="submit" id="submitBtn"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    등록
-                </button>
-            </div>
-        </form>
+<body>
+<div layout:fragment="content" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900"
+            th:text="${supplier.supplierSeq != null} ? #{supplier.edit.title} : #{supplier.create.title}">공급업체 등록</h1>
+        <p class="mt-2 text-sm text-gray-600"
+           th:text="${supplier.supplierSeq != null} ? #{supplier.edit.description} : #{supplier.create.description}">새로운 공급업체를 등록합니다.</p>
     </div>
 
-    <script>
-        // 페이지 모드 (create/edit)
-        let isEditMode = false;
-        let supplierId = null;
+    <!-- 에러 메시지 -->
+    <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+        <div class="text-red-800" th:text="${errorMessage}">오류 메시지</div>
+    </div>
 
-        // URL에서 edit 모드 확인 (실제로는 서버에서 처리)
-        function checkEditMode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
+    <!-- 성공 메시지 -->
+    <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+        <div class="text-green-800" th:text="${successMessage}">성공 메시지</div>
+    </div>
 
-            if (id) {
-                isEditMode = true;
-                supplierId = id;
+    <!-- 공급업체 등록/수정 폼 -->
+    <form th:action="${supplier.supplierSeq != null ? '/suppliers/' + supplier.supplierSeq : '/suppliers'}"
+          method="post"
+          th:object="${supplier}"
+          class="space-y-8">
 
-                // 페이지 제목 변경
-                document.getElementById('pageTitle').textContent = '공급업체 수정';
-                document.getElementById('pageDescription').textContent = '공급업체 정보를 수정합니다.';
-                document.getElementById('submitBtn').textContent = '수정';
+        <!-- 기본 정보 -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-6" th:text="#{supplier.form.basic.info}">기본 정보</h3>
 
-                // 상태 필드 표시
-                document.getElementById('statusField').classList.remove('hidden');
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 업체명 -->
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <span th:text="#{supplier.form.name}">업체명</span> <span class="text-red-500" th:text="#{required}">*</span>
+                    </label>
+                    <input type="text" id="name" th:field="*{name}" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           th:classappend="${#fields.hasErrors('name')} ? 'border-red-300' : ''"
+                           th:placeholder="#{supplier.placeholder.name}">
+                    <div th:if="${#fields.hasErrors('name')}" class="mt-1 text-sm text-red-600" th:errors="*{name}">업체명 오류</div>
+                </div>
 
-                // 샘플 데이터 로드 (실제로는 서버에서 가져옴)
-                loadSampleData();
-            }
-        }
+                <!-- 담당자명 -->
+                <div>
+                    <label for="contactPerson" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.form.contactPerson}">담당자명</label>
+                    <input type="text" id="contactPerson" th:field="*{contactPerson}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           th:classappend="${#fields.hasErrors('contactPerson')} ? 'border-red-300' : ''"
+                           th:placeholder="#{supplier.placeholder.contactPerson}">
+                    <div th:if="${#fields.hasErrors('contactPerson')}" class="mt-1 text-sm text-red-600" th:errors="*{contactPerson}">담당자명 오류</div>
+                </div>
 
-        // 샘플 데이터 로드
-        function loadSampleData() {
-            if (supplierId === '1') {
-                document.getElementById('name').value = '삼성전자';
-                document.getElementById('contactPerson').value = '김삼성';
-                document.getElementById('email').value = 'contact@samsung.com';
-                document.getElementById('phone').value = '02-1234-5678';
-                document.getElementById('address').value = '서울특별시 강남구';
-                document.getElementById('description').value = '전자제품 공급업체';
-                document.getElementById('status').value = 'ACTIVE';
-            } else if (supplierId === '2') {
-                document.getElementById('name').value = 'LG전자';
-                document.getElementById('contactPerson').value = '이엘지';
-                document.getElementById('email').value = 'contact@lg.com';
-                document.getElementById('phone').value = '02-2345-6789';
-                document.getElementById('address').value = '서울특별시 서초구';
-                document.getElementById('description').value = '가전제품 공급업체';
-                document.getElementById('status').value = 'ACTIVE';
-            }
-        }
+                <!-- 이메일 -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.form.email}">이메일</label>
+                    <input type="email" id="email" th:field="*{email}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           th:classappend="${#fields.hasErrors('email')} ? 'border-red-300' : ''"
+                           th:placeholder="#{supplier.placeholder.email}">
+                    <div th:if="${#fields.hasErrors('email')}" class="mt-1 text-sm text-red-600" th:errors="*{email}">이메일 오류</div>
+                </div>
 
-        // 폼 제출 처리
-        function handleFormSubmit(event) {
-            event.preventDefault();
+                <!-- 전화번호 -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.form.phone}">전화번호</label>
+                    <input type="text" id="phone" th:field="*{phone}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           th:classappend="${#fields.hasErrors('phone')} ? 'border-red-300' : ''"
+                           th:placeholder="#{supplier.placeholder.phone}">
+                    <div th:if="${#fields.hasErrors('phone')}" class="mt-1 text-sm text-red-600" th:errors="*{phone}">전화번호 오류</div>
+                </div>
 
-            // 유효성 검사
-            if (!validateForm()) {
-                return;
-            }
+                <!-- 상태 (수정시에만 표시) -->
+                <div th:if="${supplier.supplierSeq != null}">
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.form.status}">상태</label>
+                    <select id="status" th:field="*{status}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            disabled>
+                        <option value="ACTIVE" th:text="#{supplier.status.active}">활성</option>
+                        <option value="INACTIVE" th:text="#{supplier.status.inactive}">비활성</option>
+                    </select>
+                    <div class="mt-1 text-sm text-gray-500">상태는 상세보기에서 변경할 수 있습니다.</div>
+                </div>
 
-            // 실제로는 서버로 전송
-            const formData = new FormData(event.target);
-            const data = Object.fromEntries(formData);
+                <!-- 주소 -->
+                <div class="md:col-span-2">
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.form.address}">주소</label>
+                    <input type="text" id="address" th:field="*{address}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           th:classappend="${#fields.hasErrors('address')} ? 'border-red-300' : ''"
+                           th:placeholder="#{supplier.placeholder.address}">
+                    <div th:if="${#fields.hasErrors('address')}" class="mt-1 text-sm text-red-600" th:errors="*{address}">주소 오류</div>
+                </div>
 
-            console.log('전송할 데이터:', data);
+                <!-- 설명 -->
+                <div class="md:col-span-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2" th:text="#{supplier.form.description}">설명</label>
+                    <textarea id="description" th:field="*{description}" rows="4"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              th:classappend="${#fields.hasErrors('description')} ? 'border-red-300' : ''"
+                              th:placeholder="#{supplier.placeholder.description}"></textarea>
+                    <div th:if="${#fields.hasErrors('description')}" class="mt-1 text-sm text-red-600" th:errors="*{description}">설명 오류</div>
+                </div>
+            </div>
+        </div>
 
-            // 성공 메시지 표시
-            showSuccessMessage(isEditMode ? '공급업체가 성공적으로 수정되었습니다.' : '공급업체가 성공적으로 등록되었습니다.');
+        <!-- 버튼 영역 -->
+        <div class="flex justify-between">
+            <a th:href="@{/suppliers}"
+               class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+               th:text="#{button.cancel}">취소</a>
 
-            // 3초 후 목록으로 이동
-            setTimeout(() => {
-                goToList();
-            }, 2000);
-        }
-
-        // 폼 유효성 검사
-        function validateForm() {
-            let isValid = true;
-
-            // 업체명 검사
-            const name = document.getElementById('name').value.trim();
-            const nameError = document.getElementById('nameError');
-
-            if (!name) {
-                nameError.textContent = '업체명을 입력해주세요.';
-                nameError.classList.remove('hidden');
-                isValid = false;
-            } else if (name.length > 100) {
-                nameError.textContent = '업체명은 100자 이하로 입력해주세요.';
-                nameError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                nameError.classList.add('hidden');
-            }
-
-            // 담당자명 검사
-            const contactPerson = document.getElementById('contactPerson').value.trim();
-            const contactPersonError = document.getElementById('contactPersonError');
-
-            if (contactPerson.length > 50) {
-                contactPersonError.textContent = '담당자명은 50자 이하로 입력해주세요.';
-                contactPersonError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                contactPersonError.classList.add('hidden');
-            }
-
-            // 이메일 검사
-            const email = document.getElementById('email').value.trim();
-            const emailError = document.getElementById('emailError');
-
-            if (email && !isValidEmail(email)) {
-                emailError.textContent = '올바른 이메일 주소를 입력해주세요.';
-                emailError.classList.remove('hidden');
-                isValid = false;
-            } else if (email.length > 255) {
-                emailError.textContent = '이메일은 255자 이하로 입력해주세요.';
-                emailError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                emailError.classList.add('hidden');
-            }
-
-            // 전화번호 검사
-            const phone = document.getElementById('phone').value.trim();
-            const phoneError = document.getElementById('phoneError');
-
-            if (phone && !isValidPhone(phone)) {
-                phoneError.textContent = '올바른 전화번호 형식을 입력해주세요. (예: 02-1234-5678)';
-                phoneError.classList.remove('hidden');
-                isValid = false;
-            } else if (phone.length > 20) {
-                phoneError.textContent = '전화번호는 20자 이하로 입력해주세요.';
-                phoneError.classList.remove('hidden');
-                isValid = false;
-            } else {
-                phoneError.classList.add('hidden');
-            }
-
-            return isValid;
-        }
-
-        // 이메일 유효성 검사
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        // 전화번호 유효성 검사
-        function isValidPhone(phone) {
-            const phoneRegex = /^[\d\-\+\(\)\s]+$/;
-            return phoneRegex.test(phone);
-        }
-
-        // 에러 메시지 표시
-        function showErrorMessage(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.querySelector('div').textContent = message;
-            errorDiv.classList.remove('hidden');
-
-            // 성공 메시지 숨김
-            document.getElementById('successMessage').classList.add('hidden');
-        }
-
-        // 성공 메시지 표시
-        function showSuccessMessage(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.querySelector('div').textContent = message;
-            successDiv.classList.remove('hidden');
-
-            // 에러 메시지 숨김
-            document.getElementById('errorMessage').classList.add('hidden');
-        }
-
-        // 목록으로 이동
-        function goToList() {
-            window.location.href = 'list.html';
-        }
-
-        // 페이지 로드시 실행
-        document.addEventListener('DOMContentLoaded', function() {
-            checkEditMode();
-        });
-    </script>
+            <button type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    th:text="${supplier.supplierSeq != null} ? #{button.update} : #{button.create}">등록</button>
+        </div>
+    </form>
+</div>
 </body>
 </html>

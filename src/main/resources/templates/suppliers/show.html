@@ -1,27 +1,27 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공급업체 관리 - 상세보기</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title th:text="#{supplier.detail.title}">공급업체 상세보기</title>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<body>
+    <div layout:fragment="content" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- 헤더 -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">공급업체 상세보기</h1>
-            <p class="mt-2 text-sm text-gray-600">공급업체의 상세 정보를 확인합니다.</p>
+            <h1 class="text-3xl font-bold text-gray-900" th:text="#{supplier.detail.title}">공급업체 상세보기</h1>
+            <p class="mt-2 text-sm text-gray-600" th:text="#{supplier.detail.description}">공급업체의 상세 정보를 확인합니다.</p>
         </div>
 
         <!-- 에러 메시지 -->
-        <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md hidden">
-            <div class="text-red-800">오류 메시지</div>
+        <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div class="text-red-800" th:text="${errorMessage}">오류 메시지</div>
         </div>
 
         <!-- 성공 메시지 -->
-        <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md hidden">
-            <div class="text-green-800">성공 메시지</div>
+        <div th:if="${successMessage}" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <div class="text-green-800" th:text="${successMessage}">성공 메시지</div>
         </div>
 
         <!-- 공급업체 상세 정보 -->
@@ -30,13 +30,16 @@
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-semibold text-gray-900" id="supplierName">삼성전자</h2>
+                        <h2 class="text-xl font-semibold text-gray-900" th:text="${supplier.name}">업체명</h2>
                     </div>
                     <div class="flex items-center space-x-2">
                         <!-- 상태 표시 -->
-                        <span id="statusBadge" class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
-                            활성
-                        </span>
+                        <span th:if="${supplier.status.name() == 'ACTIVE'}"
+                              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800"
+                              th:text="${supplier.status.displayName}">활성</span>
+                        <span th:if="${supplier.status.name() == 'INACTIVE'}"
+                              class="inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800"
+                              th:text="${supplier.status.displayName}">비활성</span>
                     </div>
                 </div>
             </div>
@@ -46,318 +49,107 @@
                 <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- 업체명 -->
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">업체명</dt>
-                        <dd class="mt-1 text-sm text-gray-900" id="supplierNameDetail">삼성전자</dd>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.name}">업체명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.name}">-</dd>
+                    </div>
+
+                    <!-- 담당자명 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.contactPerson}">담당자명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.contactPerson} ?: '-'">-</dd>
+                    </div>
+
+                    <!-- 이메일 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.email}">이메일</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            <a th:if="${supplier.email}" th:href="'mailto:' + ${supplier.email}" th:text="${supplier.email}"
+                               class="text-blue-600 hover:text-blue-800">이메일</a>
+                            <span th:unless="${supplier.email}">-</span>
+                        </dd>
+                    </div>
+
+                    <!-- 전화번호 -->
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.phone}">전화번호</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.phone} ?: '-'">-</dd>
+                    </div>
+
+                    <!-- 주소 -->
+                    <div class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.address}">주소</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.address} ?: '-'">-</dd>
+                    </div>
+
+                    <!-- 설명 -->
+                    <div class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.company.description}">설명</dt>
+                        <dd class="mt-1 text-sm text-gray-900" th:text="${supplier.description} ?: '-'">-</dd>
                     </div>
 
                     <!-- 상태 -->
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">상태</dt>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.status}">상태</dt>
                         <dd class="mt-1">
-                            <span id="statusBadgeDetail" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                활성
-                            </span>
-                        </dd>
-                    </div>
-
-                    <!-- 담당자명 -->
-                    <div id="contactPersonField">
-                        <dt class="text-sm font-medium text-gray-500">담당자명</dt>
-                        <dd class="mt-1 text-sm text-gray-900" id="contactPerson">김삼성</dd>
-                    </div>
-
-                    <!-- 전화번호 -->
-                    <div id="phoneField">
-                        <dt class="text-sm font-medium text-gray-500">전화번호</dt>
-                        <dd class="mt-1 text-sm text-gray-900" id="phone">02-1234-5678</dd>
-                    </div>
-
-                    <!-- 이메일 -->
-                    <div id="emailField" class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">이메일</dt>
-                        <dd class="mt-1 text-sm text-gray-900">
-                            <a href="mailto:" id="emailLink" class="text-blue-600 hover:text-blue-800">contact@samsung.com</a>
+                            <span th:if="${supplier.status.name() == 'ACTIVE'}"
+                                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"
+                                  th:text="${supplier.status.displayName}">활성</span>
+                            <span th:if="${supplier.status.name() == 'INACTIVE'}"
+                                  class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800"
+                                  th:text="${supplier.status.displayName}">비활성</span>
                         </dd>
                     </div>
 
                     <!-- 등록일 -->
                     <div>
-                        <dt class="text-sm font-medium text-gray-500">등록일</dt>
-                        <dd class="mt-1 text-sm text-gray-900" id="createdAt">2024-12-15 10:30:00</dd>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.createdAt}">등록일</dt>
+                        <dd class="mt-1 text-sm text-gray-900"
+                            th:text="${#temporals.format(supplier.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</dd>
                     </div>
 
                     <!-- 수정일 -->
-                    <div id="updatedAtField" class="hidden">
-                        <dt class="text-sm font-medium text-gray-500">수정일</dt>
-                        <dd class="mt-1 text-sm text-gray-900" id="updatedAt">2024-12-15 14:20:00</dd>
-                    </div>
-
-                    <!-- 주소 -->
-                    <div id="addressField" class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">주소</dt>
-                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line" id="address">서울특별시 강남구</dd>
-                    </div>
-
-                    <!-- 설명 -->
-                    <div id="descriptionField" class="md:col-span-2">
-                        <dt class="text-sm font-medium text-gray-500">설명</dt>
-                        <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line" id="description">전자제품 공급업체</dd>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500" th:text="#{supplier.detail.updatedAt}">수정일</dt>
+                        <dd class="mt-1 text-sm text-gray-900"
+                            th:text="${#temporals.format(supplier.updatedAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</dd>
                     </div>
                 </dl>
-            </div>
-
-            <!-- 관련 상품 정보 -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">공급 상품</h3>
-                <div class="text-sm text-gray-500">
-                    <p>Phase 2에서 구현 예정입니다.</p>
-                </div>
             </div>
         </div>
 
         <!-- 액션 버튼 -->
-        <div class="mt-8 flex justify-between items-center">
-            <button onclick="goToList()" class="text-blue-600 hover:text-blue-800 font-medium">
-                ← 목록
-            </button>
+        <div class="mt-8 flex justify-between">
+            <!-- 뒤로가기 -->
+            <a th:href="@{/suppliers}"
+               class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+               th:text="#{button.back}">뒤로가기</a>
 
-            <div class="flex space-x-4">
-                <!-- 수정 버튼 -->
-                <button onclick="editSupplier()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    수정
-                </button>
+            <div class="space-x-2">
+                <!-- 수정하기 -->
+                <a th:href="@{/suppliers/{seq}/edit(seq=${supplier.supplierSeq})}"
+                   class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   th:text="#{button.edit}">수정하기</a>
 
-                <!-- 활성화/비활성화 버튼 -->
-                <button id="toggleStatusBtn" onclick="toggleStatus()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    비활성화
-                </button>
+                <!-- 활성화/비활성화 -->
+                <form th:if="${supplier.status.name() == 'ACTIVE'}"
+                      th:action="@{/suppliers/{seq}/deactivate(seq=${supplier.supplierSeq})}"
+                      method="post" class="inline">
+                    <button type="submit"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                            onclick="return confirm([[#{supplier.confirm.deactivate}]])"
+                            th:text="#{supplier.action.deactivate}">비활성화</button>
+                </form>
+
+                <form th:if="${supplier.status.name() == 'INACTIVE'}"
+                      th:action="@{/suppliers/{seq}/activate(seq=${supplier.supplierSeq})}"
+                      method="post" class="inline">
+                    <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            onclick="return confirm([[#{supplier.confirm.activate}]])"
+                            th:text="#{supplier.action.activate}">활성화</button>
+                </form>
             </div>
         </div>
     </div>
-
-    <script>
-        // 현재 공급업체 정보
-        let currentSupplier = {
-            supplierSeq: 1,
-            name: '삼성전자',
-            contactPerson: '김삼성',
-            email: 'contact@samsung.com',
-            phone: '02-1234-5678',
-            address: '서울특별시 강남구',
-            description: '전자제품 공급업체',
-            status: 'ACTIVE',
-            createdAt: '2024-12-15 10:30:00',
-            updatedAt: '2024-12-15 14:20:00'
-        };
-
-        // 페이지 로드시 공급업체 정보 로드
-        function loadSupplierData() {
-            // URL에서 공급업체 ID 가져오기 (실제로는 서버에서 데이터 조회)
-            const urlParams = new URLSearchParams(window.location.search);
-            const supplierId = urlParams.get('id') || '1';
-
-            // 샘플 데이터 설정 (실제로는 서버에서 가져옴)
-            if (supplierId === '1') {
-                currentSupplier = {
-                    supplierSeq: 1,
-                    name: '삼성전자',
-                    contactPerson: '김삼성',
-                    email: 'contact@samsung.com',
-                    phone: '02-1234-5678',
-                    address: '서울특별시 강남구',
-                    description: '전자제품 공급업체',
-                    status: 'ACTIVE',
-                    createdAt: '2024-12-15 10:30:00',
-                    updatedAt: '2024-12-15 14:20:00'
-                };
-            } else if (supplierId === '2') {
-                currentSupplier = {
-                    supplierSeq: 2,
-                    name: 'LG전자',
-                    contactPerson: '이엘지',
-                    email: 'contact@lg.com',
-                    phone: '02-2345-6789',
-                    address: '서울특별시 서초구',
-                    description: '가전제품 공급업체',
-                    status: 'ACTIVE',
-                    createdAt: '2024-12-15 10:25:00',
-                    updatedAt: null
-                };
-            } else if (supplierId === '3') {
-                currentSupplier = {
-                    supplierSeq: 3,
-                    name: '패션플러스',
-                    contactPerson: '박패션',
-                    email: 'contact@fashionplus.com',
-                    phone: '02-3456-7890',
-                    address: '서울특별시 강서구',
-                    description: '의류 공급업체',
-                    status: 'INACTIVE',
-                    createdAt: '2024-12-14 15:20:00',
-                    updatedAt: '2024-12-15 09:10:00'
-                };
-            } else if (supplierId === '4') {
-                currentSupplier = {
-                    supplierSeq: 4,
-                    name: '애플',
-                    contactPerson: '팀 애플',
-                    email: 'contact@apple.com',
-                    phone: '02-7890-1234',
-                    address: '서울특별시 종로구',
-                    description: '애플 공식 공급업체',
-                    status: 'ACTIVE',
-                    createdAt: '2024-12-13 09:15:00',
-                    updatedAt: null
-                };
-            } else if (supplierId === '5') {
-                currentSupplier = {
-                    supplierSeq: 5,
-                    name: '나이키',
-                    contactPerson: '박나이키',
-                    email: 'contact@nike.com',
-                    phone: '02-0123-4567',
-                    address: '서울특별시 강동구',
-                    description: '스포츠/의류 공급업체',
-                    status: 'ACTIVE',
-                    createdAt: '2024-12-12 14:30:00',
-                    updatedAt: null
-                };
-            }
-
-            // 화면에 데이터 표시
-            displaySupplierData();
-        }
-
-        // 공급업체 데이터 화면에 표시
-        function displaySupplierData() {
-            document.getElementById('supplierName').textContent = currentSupplier.name;
-            document.getElementById('supplierNameDetail').textContent = currentSupplier.name;
-            document.getElementById('createdAt').textContent = currentSupplier.createdAt;
-
-            // 담당자명 표시
-            if (currentSupplier.contactPerson) {
-                document.getElementById('contactPerson').textContent = currentSupplier.contactPerson;
-            } else {
-                document.getElementById('contactPersonField').classList.add('hidden');
-            }
-
-            // 전화번호 표시
-            if (currentSupplier.phone) {
-                document.getElementById('phone').textContent = currentSupplier.phone;
-            } else {
-                document.getElementById('phoneField').classList.add('hidden');
-            }
-
-            // 이메일 표시
-            if (currentSupplier.email) {
-                const emailLink = document.getElementById('emailLink');
-                emailLink.textContent = currentSupplier.email;
-                emailLink.href = 'mailto:' + currentSupplier.email;
-            } else {
-                document.getElementById('emailField').classList.add('hidden');
-            }
-
-            // 주소 표시
-            if (currentSupplier.address) {
-                document.getElementById('address').textContent = currentSupplier.address;
-            } else {
-                document.getElementById('addressField').classList.add('hidden');
-            }
-
-            // 설명 표시
-            if (currentSupplier.description) {
-                document.getElementById('description').textContent = currentSupplier.description;
-            } else {
-                document.getElementById('descriptionField').classList.add('hidden');
-            }
-
-            // 수정일 표시
-            if (currentSupplier.updatedAt) {
-                document.getElementById('updatedAt').textContent = currentSupplier.updatedAt;
-                document.getElementById('updatedAtField').classList.remove('hidden');
-            }
-
-            // 상태 표시
-            updateStatusDisplay();
-        }
-
-        // 상태 표시 업데이트
-        function updateStatusDisplay() {
-            const statusBadge = document.getElementById('statusBadge');
-            const statusBadgeDetail = document.getElementById('statusBadgeDetail');
-            const toggleBtn = document.getElementById('toggleStatusBtn');
-
-            if (currentSupplier.status === 'ACTIVE') {
-                statusBadge.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800';
-                statusBadge.textContent = '활성';
-
-                statusBadgeDetail.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800';
-                statusBadgeDetail.textContent = '활성';
-
-                toggleBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500';
-                toggleBtn.textContent = '비활성화';
-            } else {
-                statusBadge.className = 'inline-flex px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800';
-                statusBadge.textContent = '비활성';
-
-                statusBadgeDetail.className = 'inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800';
-                statusBadgeDetail.textContent = '비활성';
-
-                toggleBtn.className = 'bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500';
-                toggleBtn.textContent = '활성화';
-            }
-        }
-
-        // 공급업체 수정 페이지로 이동
-        function editSupplier() {
-            window.location.href = `form.html?id=${currentSupplier.supplierSeq}`;
-        }
-
-        // 상태 토글
-        function toggleStatus() {
-            const action = currentSupplier.status === 'ACTIVE' ? '비활성화' : '활성화';
-
-            if (confirm(`정말 ${action}하시겠습니까?`)) {
-                // 실제로는 서버로 요청 전송
-                currentSupplier.status = currentSupplier.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
-                currentSupplier.updatedAt = new Date().toLocaleString('ko-KR');
-
-                // 상태 표시 업데이트
-                updateStatusDisplay();
-
-                // 수정일 표시
-                document.getElementById('updatedAt').textContent = currentSupplier.updatedAt;
-                document.getElementById('updatedAtField').classList.remove('hidden');
-
-                // 성공 메시지 표시
-                showSuccessMessage(`공급업체가 성공적으로 ${action}되었습니다.`);
-            }
-        }
-
-        // 목록으로 이동
-        function goToList() {
-            window.location.href = 'list.html';
-        }
-
-        // 성공 메시지 표시
-        function showSuccessMessage(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.querySelector('div').textContent = message;
-            successDiv.classList.remove('hidden');
-
-            // 에러 메시지 숨김
-            document.getElementById('errorMessage').classList.add('hidden');
-
-            // 3초 후 메시지 숨김
-            setTimeout(() => {
-                successDiv.classList.add('hidden');
-            }, 3000);
-        }
-
-        // 페이지 로드시 실행
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSupplierData();
-        });
-    </script>
 </body>
 </html>
