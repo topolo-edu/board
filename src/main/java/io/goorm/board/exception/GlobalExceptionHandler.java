@@ -5,6 +5,7 @@ import io.goorm.board.exception.supplier.SupplierNotFoundException;
 import io.goorm.board.exception.supplier.SupplierValidationException;
 import io.goorm.board.exception.supplier.SupplierDuplicateException;
 import io.goorm.board.exception.supplier.SupplierStateException;
+import io.goorm.board.enums.SupplierStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -197,13 +198,25 @@ public class GlobalExceptionHandler {
     public String handleSupplierValidationException(SupplierValidationException e, Model model, HttpServletRequest request) {
         log.warn("Supplier validation error: {}", e.getMessage());
 
-        // 국제화 메시지 조회
-        String errorMessage = messageSource.getMessage(
-            "error.supplier.validation",
-            new Object[]{e.getField(), e.getValue()},
-            e.getMessage(),
-            LocaleContextHolder.getLocale()
-        );
+        String errorMessage;
+        if (e.getField() != null && e.getValue() != null) {
+            // 필드 검증 오류인 경우
+            errorMessage = messageSource.getMessage(
+                "error.supplier.validation",
+                new Object[]{e.getField(), e.getValue()},
+                "Supplier validation failed",
+                LocaleContextHolder.getLocale()
+            );
+        } else {
+            // 일반적인 서비스 오류인 경우 - 컨텍스트에 따라 메시지 결정
+            String messageKey = determineSupplierValidationMessageKey(request);
+            errorMessage = messageSource.getMessage(
+                messageKey,
+                null,
+                "Supplier operation failed",
+                LocaleContextHolder.getLocale()
+            );
+        }
 
         model.addAttribute("errorMessage", errorMessage);
 
@@ -214,6 +227,19 @@ public class GlobalExceptionHandler {
         }
 
         return "redirect:/suppliers";
+    }
+
+    private String determineSupplierValidationMessageKey(HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+
+        if ("POST".equals(method) && requestURI.matches(".*/suppliers$")) {
+            return "supplier.service.create.failed";
+        } else if ("POST".equals(method) && requestURI.matches(".*/suppliers/\\d+$")) {
+            return "supplier.service.update.failed";
+        }
+
+        return "supplier.service.create.failed"; // 기본값
     }
 
     /**
@@ -248,20 +274,31 @@ public class GlobalExceptionHandler {
      * 공급업체 상태 변경 실패시 목록으로 돌아감
      */
     @ExceptionHandler(SupplierStateException.class)
-    public String handleSupplierStateException(SupplierStateException e, Model model) {
+    public String handleSupplierStateException(SupplierStateException e, Model model, HttpServletRequest request) {
         log.warn("Supplier state error: {}", e.getMessage());
 
-        // 국제화 메시지 조회
+        // 컨텍스트에 따라 적절한 메시지 키 결정
+        String messageKey = determineSupplierStateMessageKey(request, e.getTargetStatus());
         String errorMessage = messageSource.getMessage(
-            "error.supplier.state",
-            new Object[]{e.getSupplierSeq(), e.getCurrentStatus(), e.getTargetStatus()},
-            e.getMessage(),
+            messageKey,
+            null,
+            "Supplier state change failed",
             LocaleContextHolder.getLocale()
         );
 
         model.addAttribute("errorMessage", errorMessage);
 
         return "redirect:/suppliers";
+    }
+
+    private String determineSupplierStateMessageKey(HttpServletRequest request, SupplierStatus targetStatus) {
+        if (targetStatus == SupplierStatus.ACTIVE) {
+            return "supplier.service.activate.failed";
+        } else if (targetStatus == SupplierStatus.INACTIVE) {
+            return "supplier.service.deactivate.failed";
+        }
+
+        return "supplier.service.activate.failed"; // 기본값
     }
 
     @ExceptionHandler(Exception.class)

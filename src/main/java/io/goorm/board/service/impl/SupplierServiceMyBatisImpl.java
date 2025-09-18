@@ -59,7 +59,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
         // 저장
         int result = supplierMapper.insert(supplierDto);
         if (result <= 0) {
-            throw new SupplierValidationException("공급업체 등록에 실패했습니다.");
+            throw new SupplierValidationException();
         }
 
         log.info("Supplier created successfully with seq: {}", supplierDto.getSupplierSeq());
@@ -92,7 +92,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
         // 저장
         int result = supplierMapper.update(supplierDto);
         if (result <= 0) {
-            throw new SupplierValidationException("공급업체 수정에 실패했습니다.");
+            throw new SupplierValidationException();
         }
 
         log.info("Supplier updated successfully with seq: {}", supplierSeq);
@@ -191,7 +191,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
 
         int result = supplierMapper.activate(supplierSeq);
         if (result <= 0) {
-            throw new SupplierStateException(supplierSeq, supplier.getStatus(), SupplierStatus.ACTIVE, "공급업체 활성화에 실패했습니다.");
+            throw new SupplierStateException(supplierSeq, supplier.getStatus(), SupplierStatus.ACTIVE);
         }
 
         log.info("Supplier activated successfully with seq: {}", supplierSeq);
@@ -209,7 +209,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
 
         int result = supplierMapper.deactivate(supplierSeq);
         if (result <= 0) {
-            throw new SupplierStateException(supplierSeq, supplier.getStatus(), SupplierStatus.INACTIVE, "공급업체 비활성화에 실패했습니다.");
+            throw new SupplierStateException(supplierSeq, supplier.getStatus(), SupplierStatus.INACTIVE);
         }
 
         log.info("Supplier deactivated successfully with seq: {}", supplierSeq);

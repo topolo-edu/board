@@ -179,11 +179,12 @@ public class SupplierController {
      * 공급업체 활성화
      */
     @PostMapping("/{seq}/activate")
-    public String activate(@PathVariable Long seq, RedirectAttributes redirectAttributes) {
+    public String activate(@PathVariable Long seq, RedirectAttributes redirectAttributes, HttpServletRequest request) {
         log.debug("Supplier activate request for seq: {}", seq);
 
         supplierService.activate(seq);
-        redirectAttributes.addFlashAttribute("successMessage", "공급업체가 활성화되었습니다.");
+        String message = messageSource.getMessage("supplier.message.activate.success", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
 
         return "redirect:/suppliers/" + seq;
     }
@@ -192,11 +193,12 @@ public class SupplierController {
      * 공급업체 비활성화
      */
     @PostMapping("/{seq}/deactivate")
-    public String deactivate(@PathVariable Long seq, RedirectAttributes redirectAttributes) {
+    public String deactivate(@PathVariable Long seq, RedirectAttributes redirectAttributes, HttpServletRequest request) {
         log.debug("Supplier deactivate request for seq: {}", seq);
 
         supplierService.deactivate(seq);
-        redirectAttributes.addFlashAttribute("successMessage", "공급업체가 비활성화되었습니다.");
+        String message = messageSource.getMessage("supplier.message.deactivate.success", null, localeResolver.resolveLocale(request));
+        redirectAttributes.addFlashAttribute("successMessage", message);
 
         return "redirect:/suppliers/" + seq;
     }

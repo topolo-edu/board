@@ -8,6 +8,12 @@ public class SupplierValidationException extends RuntimeException {
     private final String field;
     private final Object value;
 
+    public SupplierValidationException() {
+        super();
+        this.field = null;
+        this.value = null;
+    }
+
     public SupplierValidationException(String message) {
         super(message);
         this.field = null;

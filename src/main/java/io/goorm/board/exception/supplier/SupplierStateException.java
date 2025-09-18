@@ -18,6 +18,13 @@ public class SupplierStateException extends RuntimeException {
         this.targetStatus = targetStatus;
     }
 
+    public SupplierStateException(Long supplierSeq, SupplierStatus currentStatus, SupplierStatus targetStatus) {
+        super();
+        this.supplierSeq = supplierSeq;
+        this.currentStatus = currentStatus;
+        this.targetStatus = targetStatus;
+    }
+
     public SupplierStateException(String message) {
         super(message);
         this.supplierSeq = null;
