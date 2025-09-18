@@ -227,9 +227,13 @@ public class SupplierController {
 
         byte[] excelData = supplierService.exportToExcel(searchDto);
 
+        // 파일명 생성 (한글 지원)
+        String fileName = excelExportService.generateFileName("공급업체목록", localeResolver.resolveLocale(request));
+
+        // HTTP 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", "suppliers.xlsx");
+        headers.setContentDispositionFormData("attachment", fileName);
 
         return ResponseEntity.ok()
                 .headers(headers)
