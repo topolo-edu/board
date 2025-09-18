@@ -4,6 +4,7 @@ import io.goorm.board.dto.category.CategoryCreateDto;
 import io.goorm.board.dto.category.CategoryDto;
 import io.goorm.board.dto.category.CategorySearchDto;
 import io.goorm.board.dto.category.CategoryUpdateDto;
+import io.goorm.board.entity.User;
 import io.goorm.board.enums.CategoryStatus;
 import io.goorm.board.service.CategoryService;
 import io.goorm.board.service.ExcelExportService;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -77,6 +79,7 @@ public class CategoryController {
     public String create(
             @Valid @ModelAttribute("category") CategoryCreateDto createDto,
             BindingResult bindingResult,
+            @AuthenticationPrincipal User currentUser,
             RedirectAttributes redirectAttributes,
             Model model,
             HttpServletRequest request
@@ -86,6 +89,10 @@ public class CategoryController {
         if (bindingResult.hasErrors()) {
             return "categories/form";
         }
+
+        // 사용자 정보 설정
+        createDto.setCreatedSeq(currentUser.getUserSeq());
+        createDto.setUpdatedSeq(currentUser.getUserSeq());
 
         try {
             CategoryDto savedCategory = categoryService.create(createDto);
@@ -107,6 +114,7 @@ public class CategoryController {
             @PathVariable Long categorySeq,
             @Valid @ModelAttribute("category") CategoryUpdateDto updateDto,
             BindingResult bindingResult,
+            @AuthenticationPrincipal User currentUser,
             RedirectAttributes redirectAttributes,
             Model model,
             HttpServletRequest request
@@ -118,6 +126,9 @@ public class CategoryController {
         if (bindingResult.hasErrors()) {
             return "categories/form";
         }
+
+        // 사용자 정보 설정
+        updateDto.setUpdatedSeq(currentUser.getUserSeq());
 
         try {
             CategoryDto updatedCategory = categoryService.update(updateDto);

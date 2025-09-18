@@ -58,4 +58,7 @@ public class SupplierUpdateDto {
         this.status = status;
         this.isActive = status == SupplierStatus.ACTIVE;
     }
+
+    // 사용자 정보 (Controller에서 설정)
+    private Long updatedSeq;
 }

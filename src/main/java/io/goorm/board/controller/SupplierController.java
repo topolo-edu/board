@@ -4,6 +4,7 @@ import io.goorm.board.dto.supplier.SupplierCreateDto;
 import io.goorm.board.dto.supplier.SupplierDto;
 import io.goorm.board.dto.supplier.SupplierSearchDto;
 import io.goorm.board.dto.supplier.SupplierUpdateDto;
+import io.goorm.board.entity.User;
 import io.goorm.board.enums.SupplierStatus;
 import io.goorm.board.service.ExcelExportService;
 import io.goorm.board.service.SupplierService;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -100,6 +102,7 @@ public class SupplierController {
     public String create(
             @Valid @ModelAttribute("supplier") SupplierCreateDto createDto,
             BindingResult bindingResult,
+            @AuthenticationPrincipal User currentUser,
             RedirectAttributes redirectAttributes,
             Model model,
             HttpServletRequest request
@@ -109,6 +112,10 @@ public class SupplierController {
         if (bindingResult.hasErrors()) {
             return "suppliers/form";
         }
+
+        // 사용자 정보 설정
+        createDto.setCreatedSeq(currentUser.getUserSeq());
+        createDto.setUpdatedSeq(currentUser.getUserSeq());
 
         try {
             Long supplierSeq = supplierService.create(createDto);
@@ -164,6 +171,7 @@ public class SupplierController {
             @PathVariable Long seq,
             @Valid @ModelAttribute("supplier") SupplierUpdateDto updateDto,
             BindingResult bindingResult,
+            @AuthenticationPrincipal User currentUser,
             RedirectAttributes redirectAttributes,
             Model model,
             HttpServletRequest request
@@ -175,6 +183,9 @@ public class SupplierController {
         if (bindingResult.hasErrors()) {
             return "suppliers/form";
         }
+
+        // 사용자 정보 설정
+        updateDto.setUpdatedSeq(currentUser.getUserSeq());
 
         try {
             supplierService.update(seq, updateDto);

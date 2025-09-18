@@ -50,8 +50,8 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
                 .address(createDto.getAddress())
                 .description(createDto.getDescription())
                 .isActive(true)
-                .createdSeq(1L) // TODO: 현재 사용자 ID로 변경
-                .updatedSeq(1L)
+                .createdSeq(createDto.getCreatedSeq())
+                .updatedSeq(createDto.getUpdatedSeq())
                 .build();
 
         // 저장
@@ -84,7 +84,7 @@ public class SupplierServiceMyBatisImpl implements SupplierService {
                 .phone(updateDto.getPhone())
                 .address(updateDto.getAddress())
                 .description(updateDto.getDescription())
-                .updatedSeq(1L) // TODO: 현재 사용자 ID로 변경
+                .updatedSeq(updateDto.getUpdatedSeq())
                 .build();
 
         // 저장

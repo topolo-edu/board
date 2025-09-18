@@ -31,4 +31,7 @@ public class CategoryUpdateDto {
     private Integer sortOrder;
 
     private CategoryStatus status;
+
+    // 사용자 정보 (Controller에서 설정)
+    private Long updatedSeq;
 }

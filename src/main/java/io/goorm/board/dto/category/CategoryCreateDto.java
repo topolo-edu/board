@@ -28,4 +28,8 @@ public class CategoryCreateDto {
 
     @Builder.Default
     private Integer sortOrder = 0;
+
+    // 사용자 정보 (Controller에서 설정)
+    private Long createdSeq;
+    private Long updatedSeq;
 }

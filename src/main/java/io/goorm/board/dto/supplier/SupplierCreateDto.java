@@ -43,4 +43,8 @@ public class SupplierCreateDto {
 
     // 수정시에만 사용되는 필드 (등록시에는 null)
     private SupplierStatus status;
+
+    // 사용자 정보 (Controller에서 설정)
+    private Long createdSeq;
+    private Long updatedSeq;
 }

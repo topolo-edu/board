@@ -49,8 +49,8 @@ public class CategoryServiceMyBatisImpl implements CategoryService {
                 .description(createDto.getDescription())
                 .sortOrder(nextSortOrder)
                 .isActive(true)
-                .createdSeq(1L) // TODO: 현재 사용자 ID로 변경
-                .updatedSeq(1L)
+                .createdSeq(createDto.getCreatedSeq())
+                .updatedSeq(createDto.getUpdatedSeq())
                 .build();
 
         // 저장
@@ -79,7 +79,7 @@ public class CategoryServiceMyBatisImpl implements CategoryService {
                 .categorySeq(updateDto.getCategorySeq())
                 .name(updateDto.getName())
                 .description(updateDto.getDescription())
-                .updatedSeq(1L) // TODO: 현재 사용자 ID로 변경
+                .updatedSeq(updateDto.getUpdatedSeq())
                 .build();
 
         // 저장
