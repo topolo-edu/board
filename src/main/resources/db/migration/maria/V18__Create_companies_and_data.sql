@@ -32,7 +32,7 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- 바이어 계정 생성 (비밀번호: test123) - 중복 방지
+-- 바이어 계정 생성 (비밀번호: 1234) - 중복 방지
 INSERT IGNORE INTO users (email, password, nickname, role, company_seq, created_at) VALUES
 ('buyer1@samsung.com', '$2a$10$Zk63iE9f2BM1bff87n7gO.VU9kXav8kHfMciH/SyOWixVDOEGMicq', '김바이어', 'BUYER', 1, NOW()),
 ('buyer2@lg.com', '$2a$10$Zk63iE9f2BM1bff87n7gO.VU9kXav8kHfMciH/SyOWixVDOEGMicq', '박바이어', 'BUYER', 2, NOW()),
