@@ -37,7 +37,7 @@ ALTER TABLE orders
 
 -- 발주 관련 컬럼(새로 추가)
 ALTER TABLE orders
-    ADD COLUMN IF NOT EXISTS company_seq BIGINT NULL COMMENT '발주 회사' AFTER customer_seq,
+    ADD COLUMN IF NOT EXISTS company_seq BIGINT NULL COMMENT '발주 회사' AFTER delivery_status,
     ADD COLUMN IF NOT EXISTS user_seq BIGINT NULL COMMENT '발주자' AFTER company_seq,
     ADD COLUMN IF NOT EXISTS discount_rate DECIMAL(5,2) DEFAULT 0 COMMENT '적용된 할인율 (%)' AFTER discount_amount,
     ADD COLUMN IF NOT EXISTS final_amount DECIMAL(15,2) DEFAULT 0 COMMENT '최종 금액' AFTER total_amount,
@@ -93,9 +93,10 @@ CREATE INDEX IF NOT EXISTS idx_delivery_status ON orders (delivery_status);
    5) ORDER_ITEMS: 컬럼 추가 (새 필드만)
    =========================== */
 
+-- order_items 테이블 컬럼 정리: 일관된 네이밍과 불필요한 컬럼 제거
 ALTER TABLE order_items
-    ADD COLUMN IF NOT EXISTS discount_rate DECIMAL(5,2) DEFAULT 0 COMMENT '할인율 (%)' AFTER unit_price,
-    ADD COLUMN IF NOT EXISTS line_total DECIMAL(12,2) NULL COMMENT '라인 총액 (할인 적용 후)' AFTER discount_amount;
+    DROP COLUMN IF EXISTS discount_amount,
+    DROP COLUMN IF EXISTS total_amount;
 
 
 /* ===========================

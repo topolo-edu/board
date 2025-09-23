@@ -19,10 +19,6 @@ public interface OrderMapper {
      */
     int insert(Order order);
 
-    /**
-     * 발주 수정
-     */
-    int update(Order order);
 
     /**
      * 발주 조회 (ID)
@@ -64,8 +60,4 @@ public interface OrderMapper {
      */
     Integer findMaxDailySequence(String datePrefix);
 
-    /**
-     * 낙관적 락을 고려한 발주 업데이트
-     */
-    int updateWithVersion(Order order);
 }

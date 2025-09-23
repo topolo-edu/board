@@ -1,11 +1,13 @@
 package io.goorm.board.dto.order;
 
+import io.goorm.board.dto.common.BaseSearchConditionDto;
 import io.goorm.board.enums.DeliveryStatus;
 import io.goorm.board.enums.OrderStatus;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -14,10 +16,11 @@ import java.time.LocalDate;
  * 발주 검색 DTO
  */
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class OrderSearchDto {
+@EqualsAndHashCode(callSuper = true)
+public class OrderSearchDto extends BaseSearchConditionDto {
 
     private String orderNumber;
     private Long companySeq;
@@ -30,16 +33,14 @@ public class OrderSearchDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    // 페이징 정보
-    @Builder.Default
-    private int page = 0;
-
-    @Builder.Default
-    private int size = 10;
-
-    @Builder.Default
-    private String sort = "orderDate";
-
-    @Builder.Default
-    private String direction = "desc";
+    @Override
+    public boolean isEmpty() {
+        return orderNumber == null || orderNumber.trim().isEmpty()
+                && companySeq == null
+                && status == null
+                && deliveryStatus == null
+                && startDate == null
+                && endDate == null
+                && !hasKeyword();
+    }
 }

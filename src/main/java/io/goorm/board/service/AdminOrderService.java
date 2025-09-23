@@ -34,14 +34,6 @@ public class AdminOrderService {
                 .toList();
     }
 
-    @Transactional
-    public void completeDelivery(Long orderSeq) {
-        Order order = orderMapper.findById(orderSeq)
-                .orElseThrow(() -> new OrderNotFoundException("발주를 찾을 수 없습니다."));
-
-        order.completeDelivery();
-        orderMapper.update(order);
-    }
 
     private OrderDto convertToDto(Order order) {
         return OrderDto.builder()

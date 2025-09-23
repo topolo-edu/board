@@ -23,9 +23,6 @@ public class OrderItemDto {
     private Long productSeq;
     private Integer quantity;
     private BigDecimal unitPrice;
-    private BigDecimal discountRate;
-    private BigDecimal discountAmount;
-    private BigDecimal lineTotal;
     private LocalDateTime createdAt;
 
     // 조인 정보
@@ -43,9 +40,6 @@ public class OrderItemDto {
                 .productSeq(orderItem.getProductSeq())
                 .quantity(orderItem.getQuantity())
                 .unitPrice(orderItem.getUnitPrice())
-                .discountRate(orderItem.getDiscountRate())
-                .discountAmount(orderItem.getDiscountAmount())
-                .lineTotal(orderItem.getLineTotal())
                 .createdAt(orderItem.getCreatedAt())
                 .productName(orderItem.getProductName())
                 .productCode(orderItem.getProductCode())

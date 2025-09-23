@@ -22,9 +22,6 @@ public class OrderItem {
     private Long productSeq;
     private Integer quantity;
     private BigDecimal unitPrice;
-    private BigDecimal discountRate;
-    private BigDecimal discountAmount;
-    private BigDecimal lineTotal;
     private LocalDateTime createdAt;
 
     // 조인 필드
@@ -33,10 +30,9 @@ public class OrderItem {
     private String categoryName;
 
     /**
-     * 라인 총액 계산 (할인 적용 후)
+     * 라인 총액 계산 (단가 × 수량)
      */
-    public void calculateLineTotal() {
-        BigDecimal originalAmount = unitPrice.multiply(BigDecimal.valueOf(quantity));
-        this.lineTotal = originalAmount.subtract(discountAmount);
+    public BigDecimal getLineTotal() {
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 }

@@ -34,6 +34,14 @@ public class SecurityConfig {
                 .requestMatchers("/auth/profile").authenticated()
                 .anyRequest().authenticated()
             )
+            .exceptionHandling(ex -> ex
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("Access denied for user: {} to URL: {}",
+                        request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                        request.getRequestURI());
+                    response.sendRedirect("/error/403");
+                })
+            )
             .formLogin(form -> form
                 .loginPage("/auth/login")
                 .usernameParameter("email")

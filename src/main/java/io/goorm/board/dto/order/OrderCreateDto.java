@@ -19,9 +19,11 @@ import java.util.List;
 @Builder
 public class OrderCreateDto {
 
-    @NotEmpty(message = "발주 상품을 선택해주세요")
     @Valid
     private List<OrderItemCreateDto> items;
+
+    // 새로운 폼 바인딩 방식
+    private List<OrderProductSelectionDto> selectedProducts;
 
     @Size(max = 500, message = "비고는 500자 이내로 입력해주세요")
     private String notes;

@@ -22,23 +22,10 @@ public interface OrderItemMapper {
      */
     int insertBatch(@Param("orderItems") List<OrderItem> orderItems);
 
-    /**
-     * 발주 상품 수정
-     */
-    int update(OrderItem orderItem);
-
-    /**
-     * 발주 상품 삭제
-     */
-    int deleteById(Long orderItemSeq);
 
     /**
      * 발주별 상품 목록 조회
      */
     List<OrderItem> findByOrderSeq(Long orderSeq);
 
-    /**
-     * 발주별 상품 삭제
-     */
-    int deleteByOrderSeq(Long orderSeq);
 }

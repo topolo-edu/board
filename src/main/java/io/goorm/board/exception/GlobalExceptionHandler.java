@@ -302,11 +302,45 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * InvalidUserRoleException 처리
+     */
+    @ExceptionHandler(InvalidUserRoleException.class)
+    public String handleInvalidUserRoleException(InvalidUserRoleException e, Model model) {
+        log.warn("Invalid user role access attempt");
+
+        String errorMessage = messageSource.getMessage(
+            "error.user.role.invalid",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/dashboard";
+    }
+
+    /**
+     * CompanyNotFoundException 처리
+     */
+    @ExceptionHandler(CompanyNotFoundException.class)
+    public String handleCompanyNotFoundException(CompanyNotFoundException e, Model model) {
+        log.warn("Company information not found");
+
+        String errorMessage = messageSource.getMessage(
+            "error.company.notfound",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/dashboard";
+    }
+
+    /**
      * OrderNotFoundException 처리
      */
     @ExceptionHandler(OrderNotFoundException.class)
     public String handleOrderNotFoundException(OrderNotFoundException e, Model model) {
-        log.warn("Order not found: {}", e.getMessage());
+        log.warn("Order not found");
 
         String errorMessage = messageSource.getMessage(
             "error.order.notfound",
@@ -319,6 +353,23 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * OrderItemsNotSelectedException 처리
+     */
+    @ExceptionHandler(OrderItemsNotSelectedException.class)
+    public String handleOrderItemsNotSelectedException(OrderItemsNotSelectedException e, Model model) {
+        log.warn("Order items not selected");
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.items.notselected",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/orders/form";
+    }
+
+    /**
      * InsufficientStockException 처리
      */
     @ExceptionHandler(InsufficientStockException.class)
@@ -328,11 +379,12 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.order.insufficient.stock",
             null,
+            e.getMessage(),
             LocaleContextHolder.getLocale()
         );
 
         model.addAttribute("errorMessage", errorMessage);
-        return "buyer/order-form";
+        return "buyer/orders/form";
     }
 
     /**
@@ -345,11 +397,12 @@ public class GlobalExceptionHandler {
         String errorMessage = messageSource.getMessage(
             "error.order.processing",
             null,
+            e.getMessage(),
             LocaleContextHolder.getLocale()
         );
 
         model.addAttribute("errorMessage", errorMessage);
-        return "buyer/order-form";
+        return "buyer/orders/form";
     }
 
     @ExceptionHandler(Exception.class)
