@@ -46,8 +46,9 @@ public class AdminOrderService {
     private OrderDto convertToDto(Order order) {
         return OrderDto.builder()
                 .orderSeq(order.getOrderSeq())
-                .companySeq(order.getCustomerSeq())
+                .companySeq(order.getCompanySeq())
                 .companyName(order.getCompanyName())
+                .userSeq(order.getUserSeq())
                 .userName(order.getUserName())
                 .orderNumber(order.getOrderNumber())
                 .orderDate(order.getOrderDate())

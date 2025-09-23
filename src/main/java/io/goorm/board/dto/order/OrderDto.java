@@ -51,7 +51,7 @@ public class OrderDto {
     public static OrderDto from(Order order) {
         return OrderDto.builder()
                 .orderSeq(order.getOrderSeq())
-                .companySeq(order.getCustomerSeq())
+                .companySeq(order.getCompanySeq())
                 .orderNumber(order.getOrderNumber())
                 .orderDate(order.getOrderDate())
                 .status(order.getStatus())

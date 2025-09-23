@@ -48,7 +48,8 @@ public class OrderService {
 
         // 발주 등록
         Order order = Order.builder()
-                .customerSeq(user.getCompanySeq())
+                .companySeq(user.getCompanySeq())
+                .userSeq(user.getUserSeq())
                 .orderNumber(orderNumber)
                 .orderDate(LocalDateTime.now())
                 .totalAmount(totalAmount)
@@ -136,8 +137,9 @@ public class OrderService {
     private OrderDto convertToDto(Order order) {
         return OrderDto.builder()
                 .orderSeq(order.getOrderSeq())
-                .companySeq(order.getCustomerSeq())
+                .companySeq(order.getCompanySeq())
                 .companyName(order.getCompanyName())
+                .userSeq(order.getUserSeq())
                 .userName(order.getUserName())
                 .orderNumber(order.getOrderNumber())
                 .orderDate(order.getOrderDate())

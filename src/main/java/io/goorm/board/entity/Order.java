@@ -20,10 +20,12 @@ import java.time.LocalDateTime;
 public class Order {
 
     private Long orderSeq;
-    private Long customerSeq;
+    private Long companySeq;
+    private Long userSeq;
     private String orderNumber;
     private LocalDateTime orderDate;
     private OrderStatus status;
+    private DeliveryStatus deliveryStatus;
     private BigDecimal totalAmount;
     private BigDecimal discountAmount;
     private BigDecimal finalAmount;
@@ -45,6 +47,7 @@ public class Order {
      */
     public void approve(String approvedBy) {
         this.status = OrderStatus.APPROVED;
+        this.deliveryStatus = DeliveryStatus.ORDER_COMPLETED;
         this.approvedBy = approvedBy;
         this.approvedAt = LocalDateTime.now();
     }
@@ -53,6 +56,6 @@ public class Order {
      * 배송 완료 처리
      */
     public void completeDelivery() {
-        this.status = OrderStatus.APPROVED;
+        this.deliveryStatus = DeliveryStatus.DELIVERY_COMPLETED;
     }
 }

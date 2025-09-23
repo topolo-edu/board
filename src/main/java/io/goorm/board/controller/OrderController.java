@@ -9,6 +9,7 @@ import io.goorm.board.service.ProductService;
 import io.goorm.board.service.DiscountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/buyer/orders")
 @RequiredArgsConstructor
@@ -42,6 +44,8 @@ public class OrderController {
     public String createForm(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("orderCreateDto", new OrderCreateDto());
         model.addAttribute("products", productService.findSellableProducts());
+
+        log.debug("here");
 
         // 할인율 정보 추가
         if (user.getCompanySeq() != null) {
