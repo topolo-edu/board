@@ -301,6 +301,57 @@ public class GlobalExceptionHandler {
         return "supplier.service.activate.failed"; // 기본값
     }
 
+    /**
+     * OrderNotFoundException 처리
+     */
+    @ExceptionHandler(OrderNotFoundException.class)
+    public String handleOrderNotFoundException(OrderNotFoundException e, Model model) {
+        log.warn("Order not found: {}", e.getMessage());
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.notfound",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("error", errorMessage);
+        return "error/404";
+    }
+
+    /**
+     * InsufficientStockException 처리
+     */
+    @ExceptionHandler(InsufficientStockException.class)
+    public String handleInsufficientStockException(InsufficientStockException e, Model model) {
+        log.warn("Insufficient stock: {}", e.getMessage());
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.insufficient.stock",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/order-form";
+    }
+
+    /**
+     * OrderProcessingException 처리
+     */
+    @ExceptionHandler(OrderProcessingException.class)
+    public String handleOrderProcessingException(OrderProcessingException e, Model model) {
+        log.error("Order processing error: {}", e.getMessage());
+
+        String errorMessage = messageSource.getMessage(
+            "error.order.processing",
+            null,
+            LocaleContextHolder.getLocale()
+        );
+
+        model.addAttribute("errorMessage", errorMessage);
+        return "buyer/order-form";
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleGeneralException(Exception e, Model model) {
         log.error("Unexpected error occurred", e);

@@ -52,6 +52,10 @@ public class User implements UserDetails {
     @JoinColumn(name = "company_seq")
     private Company company;
 
+    public Long getCompanySeq() {
+        return company != null ? company.getCompanySeq() : null;
+    }
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

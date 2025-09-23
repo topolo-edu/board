@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>주문 등록</title>
+</head>
+<body>
+    <div layout:fragment="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 헤더 -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">주문 등록</h1>
+            <p class="mt-2 text-sm text-gray-600">상품을 선택하여 주문을 등록할 수 있습니다.</p>
+        </div>
+
+        <form th:action="@{/buyer/orders/create}" th:object="${orderCreateDto}" method="post">
+            <!-- 상품 선택 영역 -->
+            <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">상품 선택</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">선택</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상품명</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">단가</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">재고</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수량</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr th:each="product, stat : ${products}" class="hover:bg-gray-50">
+                                <!-- 선택 -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="checkbox" class="product-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                           th:data-seq="${product.productSeq}"
+                                           th:data-price="${product.unitPrice}"
+                                           th:data-stock="${product.stock != null ? product.stock : 0}"
+                                           th:disabled="${product.stock == null || product.stock <= 0}">
+                                </td>
+
+                                <!-- 상품명 -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900" th:text="${product.name}">상품명</div>
+                                </td>
+
+                                <!-- 카테고리 -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900" th:text="${product.categoryName}">카테고리</div>
+                                </td>
+
+                                <!-- 단가 -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900" th:text="${#numbers.formatDecimal(product.unitPrice, 0, 'COMMA', 0, 'POINT')} + '원'">0원</div>
+                                </td>
+
+                                <!-- 재고 -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <!-- 품절 상태 -->
+                                    <div th:if="${product.stock == null || product.stock <= 0}"
+                                         class="text-sm text-red-600 font-semibold">
+                                        0
+                                        <div class="text-xs text-red-500">품절</div>
+                                    </div>
+
+                                    <!-- 부족 상태 (1-10개) -->
+                                    <div th:if="${product.stock != null && product.stock > 0 && product.stock <= 10}"
+                                         class="text-sm text-yellow-600 font-semibold">
+                                        <span th:text="${product.stock}">0</span>
+                                        <div class="text-xs text-yellow-500">부족</div>
+                                    </div>
+
+                                    <!-- 정상 상태 (11개 이상) -->
+                                    <div th:if="${product.stock != null && product.stock > 10}"
+                                         class="text-sm text-gray-900">
+                                        <span th:text="${product.stock}">0</span>
+                                    </div>
+                                </td>
+
+                                <!-- 수량 -->
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <input type="number" class="quantity-input w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                                           min="1"
+                                           th:max="${product.stock != null && product.stock > 0 ? product.stock : 0}"
+                                           th:disabled="${product.stock == null || product.stock <= 0}"
+                                           disabled>
+                                </td>
+                            </tr>
+
+                            <!-- 상품 없음 -->
+                            <tr th:if="${products == null || #lists.isEmpty(products)}">
+                                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    등록된 상품이 없습니다.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 주문 요약 -->
+            <div id="orderSummary" class="bg-gray-50 rounded-lg p-6 mb-6" style="display: none;">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">주문 요약</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">선택된 상품:</span>
+                        <span id="selectedCount" class="font-medium">0개</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">총 상품 금액:</span>
+                        <span id="totalAmount" class="font-medium">0원</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-blue-600" th:if="${discountRate != null && discountRate > 0}">
+                        <span>할인율:</span>
+                        <span th:text="${discountRate} + '%'">0%</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-blue-600" th:if="${discountRate != null && discountRate > 0}">
+                        <span>할인 금액:</span>
+                        <span id="discountAmount">0원</span>
+                    </div>
+                    <hr class="border-gray-200">
+                    <div class="flex justify-between text-base font-semibold">
+                        <span class="text-gray-900">최종 결제 금액:</span>
+                        <span id="finalAmount" class="text-blue-600">0원</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="flex justify-end space-x-3">
+                <a th:href="@{/buyer/orders}"
+                   class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                   취소
+                </a>
+                <button type="submit"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        주문 등록
+                </button>
+            </div>
+
+            <!-- 선택된 상품들의 hidden input -->
+            <div id="selectedItems"></div>
+        </form>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    const selectedItemsDiv = document.getElementById('selectedItems');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const row = this.closest('tr');
+            const quantityInput = row.querySelector('.quantity-input');
+            const stock = parseInt(this.dataset.stock) || 0;
+
+            if (this.checked && stock > 0) {
+                quantityInput.disabled = false;
+                quantityInput.value = 1;
+                quantityInput.max = stock;
+            } else {
+                quantityInput.disabled = true;
+                quantityInput.value = '';
+                this.checked = false; // 재고가 없으면 체크 해제
+            }
+            updateSelectedItems();
+        });
+    });
+
+    function updateSelectedItems() {
+        selectedItemsDiv.innerHTML = '';
+        let index = 0;
+        let totalAmount = 0;
+        let selectedCount = 0;
+
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                const row = checkbox.closest('tr');
+                const quantityInput = row.querySelector('.quantity-input');
+                const productSeq = checkbox.dataset.seq;
+                const price = parseFloat(checkbox.dataset.price) || 0;
+                const quantity = parseInt(quantityInput.value) || 1;
+
+                selectedItemsDiv.innerHTML += `
+                    <input type="hidden" name="items[${index}].productSeq" value="${productSeq}">
+                    <input type="hidden" name="items[${index}].quantity" value="${quantity}">
+                    <input type="hidden" name="items[${index}].unitPrice" value="${price}">
+                `;
+
+                totalAmount += price * quantity;
+                selectedCount++;
+                index++;
+            }
+        });
+
+        updateOrderSummary(selectedCount, totalAmount);
+    }
+
+    function updateOrderSummary(selectedCount, totalAmount) {
+        const orderSummary = document.getElementById('orderSummary');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const totalAmountSpan = document.getElementById('totalAmount');
+        const discountAmountSpan = document.getElementById('discountAmount');
+        const finalAmountSpan = document.getElementById('finalAmount');
+
+        if (selectedCount > 0) {
+            // 할인율은 서버에서 전달된 값 사용 (Thymeleaf로 렌더링)
+            const discountRateElement = document.querySelector('[th\\:text*="discountRate"]');
+            const discountRate = discountRateElement ?
+                parseFloat(discountRateElement.textContent.replace('%', '')) || 0 : 0;
+
+            const discountAmount = totalAmount * (discountRate / 100);
+            const finalAmount = totalAmount - discountAmount;
+
+            selectedCountSpan.textContent = selectedCount + '개';
+            totalAmountSpan.textContent = new Intl.NumberFormat('ko-KR').format(totalAmount) + '원';
+
+            if (discountAmountSpan) {
+                discountAmountSpan.textContent = new Intl.NumberFormat('ko-KR').format(discountAmount) + '원';
+            }
+
+            finalAmountSpan.textContent = new Intl.NumberFormat('ko-KR').format(finalAmount) + '원';
+
+            orderSummary.style.display = 'block';
+        } else {
+            orderSummary.style.display = 'none';
+        }
+    }
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const row = this.closest('tr');
+            const checkbox = row.querySelector('.product-checkbox');
+            const stock = parseInt(checkbox.dataset.stock) || 0;
+            const quantity = parseInt(this.value) || 0;
+
+            // 재고 초과 검증
+            if (quantity > stock) {
+                alert(`주문 수량이 재고(${stock}개)를 초과할 수 없습니다.`);
+                this.value = stock;
+            }
+
+            // 최소 수량 검증
+            if (quantity < 1) {
+                this.value = 1;
+            }
+
+            updateSelectedItems();
+        });
+
+        input.addEventListener('input', function() {
+            // 실시간 검증
+            const row = this.closest('tr');
+            const checkbox = row.querySelector('.product-checkbox');
+            const stock = parseInt(checkbox.dataset.stock) || 0;
+            const quantity = parseInt(this.value) || 0;
+
+            if (quantity > stock) {
+                this.style.borderColor = '#ef4444';
+                this.title = `재고는 ${stock}개 입니다.`;
+            } else {
+                this.style.borderColor = '';
+                this.title = '';
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

@@ -9,8 +9,12 @@ CREATE TABLE IF NOT EXISTS companies (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 회사 기초 데이터 (중복 방지)
-INSERT IGNORE INTO companies (company_name, business_number, representative) VALUES
+-- 기존 데이터 삭제 후 AUTO_INCREMENT 리셋
+DELETE FROM companies;
+ALTER TABLE companies AUTO_INCREMENT = 1;
+
+-- 회사 기초 데이터
+INSERT INTO companies (company_name, business_number, representative) VALUES
 ('삼성전자', '123-45-67890', '이재용'),
 ('LG전자', '098-76-54321', '조성진'),
 ('현대자동차', '555-66-77888', '장재훈');

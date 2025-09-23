@@ -16,6 +16,9 @@ spring:
   flyway:
     locations: classpath:db/migration/maria
     baseline-on-migrate: true
+    validate-on-migrate: false
+    clean-on-validation-error: true
+    repair-on-migrate: true
 
 
   # 파일 업로드 설정

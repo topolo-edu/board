@@ -15,6 +15,6 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("pageTitle", "관리자 대시보드");
-        return "index";  // 기존 index.html을 관리자 대시보드로 사용
+        return "admin/dashboard";
     }
 }
