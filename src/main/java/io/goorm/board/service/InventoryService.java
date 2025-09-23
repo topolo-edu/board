@@ -38,4 +38,26 @@ public class InventoryService {
             throw new InsufficientStockException(productName, quantity, available);
         }
     }
+
+    /**
+     * 재고 차감 (주문 승인 시)
+     */
+    @Transactional
+    public void decreaseStock(Long productSeq, Integer quantity) {
+        int updatedRows = inventoryMapper.decreaseStock(productSeq, quantity);
+
+        if (updatedRows == 0) {
+            // 재고 차감 실패 (재고 부족 또는 상품 없음)
+            Product product = productMapper.findById(productSeq).orElse(null);
+            String productName = (product != null) ? product.getName() : "Unknown Product";
+
+            Inventory inventory = inventoryMapper.findByProductSeq(productSeq).orElse(null);
+            int available = (inventory != null && inventory.getCurrentStock() != null)
+                    ? inventory.getCurrentStock() : 0;
+
+            throw new InsufficientStockException(productName, quantity, available);
+        }
+
+        log.info("재고 차감 완료 - 상품: {}, 수량: {}", productSeq, quantity);
+    }
 }

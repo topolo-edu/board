@@ -73,4 +73,10 @@ public interface InventoryMapper {
      */
     int consumeStock(@Param("productSeq") Long productSeq,
                     @Param("quantity") Integer quantity);
+
+    /**
+     * 재고 차감 (주문 승인 시)
+     */
+    int decreaseStock(@Param("productSeq") Long productSeq,
+                     @Param("quantity") Integer quantity);
 }

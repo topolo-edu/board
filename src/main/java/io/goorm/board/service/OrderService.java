@@ -138,6 +138,11 @@ public class OrderService {
 
         orderItemMapper.insertBatch(orderItems);
 
+        // 주문 승인 후 재고 차감
+        createDto.getItems().forEach(itemDto -> {
+            inventoryService.decreaseStock(itemDto.getProductSeq(), itemDto.getQuantity());
+        });
+
         return convertToDto(orderMapper.findById(order.getOrderSeq()).orElseThrow());
     }
 
