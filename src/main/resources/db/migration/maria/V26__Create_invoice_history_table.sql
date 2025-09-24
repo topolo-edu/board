@@ -21,7 +21,6 @@ CREATE TABLE invoice_history (
 COMMENT='인보이스 출력 이력 관리';
 
 -- 주문 테이블에 입금 관련 컬럼 추가
-ALTER TABLE orders ADD COLUMN payment_status VARCHAR(20) DEFAULT 'PENDING' COMMENT '입금 상태';
 ALTER TABLE orders ADD COLUMN payment_due_date DATE COMMENT '입금 예정일';
 ALTER TABLE orders ADD COLUMN payment_completed_date DATETIME COMMENT '실제 입금일';
 ALTER TABLE orders ADD COLUMN invoice_generated_at DATETIME COMMENT '인보이스 확정일';

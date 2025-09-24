@@ -185,7 +185,7 @@ public class OrderService {
 
         // 배송 완료 처리 (인보이스 자동 확정)
         order.completeDelivery(user.getUserSeq(), user.getEmail());
-        orderMapper.update(order);
+        orderMapper.updateDeliveryComplete(order);
 
         // 주문 항목별 재고 소모 처리
         List<OrderItem> orderItems = orderItemMapper.findByOrderSeq(orderSeq);
@@ -212,7 +212,7 @@ public class OrderService {
 
         // 배송 시작 처리
         order.startDelivery("ADMIN");
-        orderMapper.update(order);
+        orderMapper.updateDeliveryComplete(order);
 
         log.info("배송 시작 처리됨 - 주문: {}, 사용자: {}", orderSeq, user.getEmail());
 
@@ -231,7 +231,7 @@ public class OrderService {
 
         // 입금 완료 처리
         order.completePayment(user.getUserSeq(), user.getEmail());
-        orderMapper.update(order);
+        orderMapper.updatePaymentComplete(order);
 
         log.info("입금 완료 처리됨 - 주문: {}, 사용자: {}", orderSeq, user.getEmail());
 

@@ -4,6 +4,8 @@ import io.goorm.board.dto.order.OrderCreateDto;
 import io.goorm.board.dto.order.OrderDto;
 import io.goorm.board.dto.order.OrderSearchDto;
 import io.goorm.board.entity.User;
+import io.goorm.board.enums.DeliveryStatus;
+import io.goorm.board.enums.PaymentStatus;
 import io.goorm.board.service.OrderService;
 import io.goorm.board.service.ProductService;
 import io.goorm.board.service.DiscountService;
@@ -13,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +25,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -93,6 +97,27 @@ public class OrderController {
     public String detail(@PathVariable Long orderSeq, Model model) {
         OrderDto order = orderService.findById(orderSeq);
         model.addAttribute("order", order);
+
+        // 배송 완료된 경우에만 결제 관련 정보 추가
+        if (order.getDeliveryStatus() == DeliveryStatus.DELIVERY_COMPLETED) {
+            // 결제 정보 표시 플래그
+            model.addAttribute("showPaymentInfo", true);
+
+            // 연체 여부 계산
+            boolean isOverdue = order.getPaymentDueDate() != null &&
+                order.getPaymentDueDate().isBefore(LocalDate.now()) &&
+                order.getPaymentStatus() == PaymentStatus.PENDING;
+            model.addAttribute("isOverdue", isOverdue);
+
+            // 인보이스 다운로드 버튼 표시
+            model.addAttribute("showInvoiceDownload", true);
+
+            // 결제 상태 한글명
+            String paymentStatusDisplay = order.getPaymentStatus() == PaymentStatus.PENDING ?
+                "입금대기" : "입금완료";
+            model.addAttribute("paymentStatusDisplay", paymentStatusDisplay);
+        }
+
         return "buyer/orders/detail";
     }
 

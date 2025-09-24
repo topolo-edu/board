@@ -91,8 +91,8 @@ public class Order {
      * 배송 시작 처리
      */
     public void startDelivery(String startedBy) {
-        this.status = OrderStatus.SHIPPING;
-        this.deliveryStatus = DeliveryStatus.IN_TRANSIT;
+        this.status = OrderStatus.APPROVED;
+        this.deliveryStatus = DeliveryStatus.ORDER_COMPLETED;
         this.updatedAt = LocalDateTime.now();
         if (this.notes == null) {
             this.notes = "배송 시작: " + startedBy;

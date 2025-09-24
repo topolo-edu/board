@@ -4,9 +4,14 @@ import io.goorm.board.dto.order.OrderDto;
 import io.goorm.board.dto.order.OrderSearchDto;
 import io.goorm.board.entity.Company;
 import io.goorm.board.entity.User;
+import io.goorm.board.exception.DeliveryCompleteException;
+import io.goorm.board.exception.PaymentCompleteException;
 import io.goorm.board.service.OrderService;
 import io.goorm.board.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -16,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequestMapping("/admin/orders")
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ public class AdminOrderController {
 
     private final OrderService orderService;
     private final UserService userService;
+    private final MessageSource messageSource;
 
     @GetMapping
     public String list(@ModelAttribute OrderSearchDto searchDto, Model model) {
@@ -53,12 +60,20 @@ public class AdminOrderController {
                                    RedirectAttributes redirectAttributes) {
         try {
             OrderDto order = orderService.completeDelivery(orderSeq, user);
-            redirectAttributes.addFlashAttribute("message", "배송이 완료 처리되었습니다. 인보이스가 발행되었습니다.");
+            String message = messageSource.getMessage("order.delivery.complete.success", null, LocaleContextHolder.getLocale());
+            redirectAttributes.addFlashAttribute("message", message);
+            log.info("배송 완료 처리됨 - 주문: {}, 관리자: {}", orderSeq, user.getEmail());
+        } catch (DeliveryCompleteException e) {
+            String errorMessage = messageSource.getMessage(e.getMessageKey(), e.getArgs(), LocaleContextHolder.getLocale());
+            redirectAttributes.addFlashAttribute("error", errorMessage);
+            log.warn("배송 완료 처리 실패 - 주문: {}, 오류: {}", orderSeq, e.getMessageKey());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "배송 완료 처리 중 오류가 발생했습니다: " + e.getMessage());
+            String errorMessage = messageSource.getMessage("order.delivery.complete.error", null, LocaleContextHolder.getLocale());
+            redirectAttributes.addFlashAttribute("error", errorMessage);
+            log.error("배송 완료 처리 중 예외 발생 - 주문: {}", orderSeq, e);
         }
 
-        return "redirect:/admin/orders/" + orderSeq;
+        return "redirect:/admin/orders";
     }
 
     /**
@@ -76,6 +91,32 @@ public class AdminOrderController {
             redirectAttributes.addFlashAttribute("error", "배송 시작 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
 
-        return "redirect:/admin/orders/" + orderSeq;
+        return "redirect:/admin/orders";
+    }
+
+    /**
+     * 입금 완료 처리
+     */
+    @PostMapping("/{orderSeq}/complete-payment")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String completePayment(@PathVariable Long orderSeq,
+                                 @AuthenticationPrincipal User user,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            OrderDto order = orderService.completePayment(orderSeq, user);
+            String message = messageSource.getMessage("order.payment.complete.success", null, LocaleContextHolder.getLocale());
+            redirectAttributes.addFlashAttribute("message", message);
+            log.info("입금 완료 처리됨 - 주문: {}, 관리자: {}", orderSeq, user.getEmail());
+        } catch (PaymentCompleteException e) {
+            String errorMessage = messageSource.getMessage(e.getMessageKey(), e.getArgs(), LocaleContextHolder.getLocale());
+            redirectAttributes.addFlashAttribute("error", errorMessage);
+            log.warn("입금 완료 처리 실패 - 주문: {}, 오류: {}", orderSeq, e.getMessageKey());
+        } catch (Exception e) {
+            String errorMessage = messageSource.getMessage("order.payment.complete.error", null, LocaleContextHolder.getLocale());
+            redirectAttributes.addFlashAttribute("error", errorMessage);
+            log.error("입금 완료 처리 중 예외 발생 - 주문: {}", orderSeq, e);
+        }
+
+        return "redirect:/admin/orders";
     }
 }

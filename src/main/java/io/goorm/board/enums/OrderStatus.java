@@ -5,7 +5,8 @@ package io.goorm.board.enums;
  */
 public enum OrderStatus {
     PENDING("대기중"),
-    APPROVED("승인완료");
+    APPROVED("승인완료"),
+    COMPLETED("배송완료");
 
     private final String displayName;
 
