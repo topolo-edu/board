@@ -4,6 +4,7 @@ import io.goorm.board.dto.excel.StockReceivingDto;
 import io.goorm.board.entity.User;
 import io.goorm.board.service.ExcelService;
 import io.goorm.board.service.InventoryService;
+import io.goorm.board.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -31,6 +38,7 @@ public class AdminInventoryController {
 
     private final ExcelService excelService;
     private final InventoryService inventoryService;
+    private final FileUploadUtil fileUploadUtil;
 
     /**
      * 재고 관리 메인 페이지
@@ -96,14 +104,19 @@ public class AdminInventoryController {
         try {
             log.info("엑셀 입고 처리 시작 - User: {}, FileName: {}", user.getEmail(), file.getOriginalFilename());
 
-            // 파일 검증
+            // 파일 검증 (FileUploadUtil을 통한 검증)
             if (file.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "업로드할 파일을 선택해주세요.");
                 return "redirect:/admin/inventory/receiving";
             }
 
-            if (!isExcelFile(file)) {
-                redirectAttributes.addFlashAttribute("errorMessage", "엑셀 파일만 업로드 가능합니다. (.xlsx, .xls)");
+            // 엑셀 파일 저장 (문서 저장소에 저장, 웹에서 직접 접근 불가)
+            FileUploadUtil.FileUploadResult uploadResult;
+            try {
+                uploadResult = fileUploadUtil.uploadFile(file, FileUploadUtil.UploadType.EXCEL_DOCUMENT);
+                log.info("엑셀 파일 저장됨: {}", uploadResult.getFullPath());
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("errorMessage", "파일 업로드 실패: " + e.getMessage());
                 return "redirect:/admin/inventory/receiving";
             }
 
@@ -112,11 +125,16 @@ public class AdminInventoryController {
 
             if (stockList.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "처리할 데이터가 없습니다.");
+                // 빈 파일이면 업로드된 파일 삭제
+                try {
+                    fileUploadUtil.deleteFileByPath(uploadResult.getFullPath());
+                } catch (IOException ignored) {}
                 return "redirect:/admin/inventory/receiving";
             }
 
-            // 입고 처리
-            List<String> errors = inventoryService.processStockReceiving(stockList, user);
+            // 입고 처리 (파일 정보 포함)
+            List<String> errors = inventoryService.processStockReceiving(
+                stockList, user, uploadResult.getFilename(), uploadResult.getFullPath());
 
             // 결과 메시지 설정
             int successCount = stockList.size() - errors.size();
@@ -124,15 +142,17 @@ public class AdminInventoryController {
 
             if (errors.isEmpty()) {
                 redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("입고 처리가 완료되었습니다. (성공: %d건)", successCount));
+                    String.format("입고 처리가 완료되었습니다. (성공: %d건) - 파일: %s",
+                        successCount, uploadResult.getFilename()));
             } else {
                 redirectAttributes.addFlashAttribute("warningMessage",
-                    String.format("입고 처리가 완료되었습니다. (성공: %d건, 실패: %d건)", successCount, errors.size()));
+                    String.format("입고 처리가 완료되었습니다. (성공: %d건, 실패: %d건) - 파일: %s",
+                        successCount, errors.size(), uploadResult.getFilename()));
                 redirectAttributes.addFlashAttribute("errorDetails", errors);
             }
 
-            log.info("엑셀 입고 처리 완료 - 전체: {}건, 성공: {}건, 실패: {}건",
-                    totalCount, successCount, errors.size());
+            log.info("엑셀 입고 처리 완료 - 전체: {}건, 성공: {}건, 실패: {}건, 저장파일: {}",
+                    totalCount, successCount, errors.size(), uploadResult.getFullPath());
 
             return "redirect:/admin/inventory/receiving";
 
@@ -143,14 +163,4 @@ public class AdminInventoryController {
         }
     }
 
-    /**
-     * 엑셀 파일 확장자 검증
-     */
-    private boolean isExcelFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        if (fileName == null) return false;
-
-        String extension = fileName.toLowerCase();
-        return extension.endsWith(".xlsx") || extension.endsWith(".xls");
-    }
 }

@@ -3,15 +3,19 @@ package io.goorm.board.service;
 import io.goorm.board.dto.excel.StockReceivingDto;
 import io.goorm.board.entity.Inventory;
 import io.goorm.board.entity.Product;
+import io.goorm.board.entity.StockReceiving;
 import io.goorm.board.entity.User;
 import io.goorm.board.exception.InsufficientStockException;
+import io.goorm.board.mapper.CategoryMapper;
 import io.goorm.board.mapper.InventoryMapper;
 import io.goorm.board.mapper.ProductMapper;
+import io.goorm.board.mapper.StockReceivingMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +28,8 @@ public class InventoryService {
 
     private final InventoryMapper inventoryMapper;
     private final ProductMapper productMapper;
+    private final StockReceivingMapper stockReceivingMapper;
+    private final CategoryMapper categoryMapper;
 
     /**
      * 재고 확인 및 검증
@@ -108,11 +114,12 @@ public class InventoryService {
     }
 
     /**
-     * 엑셀 입고 처리
+     * 엑셀 입고 처리 (파일 정보 포함)
      */
     @Transactional
-    public List<String> processStockReceiving(List<StockReceivingDto> stockList, User user) {
+    public List<String> processStockReceiving(List<StockReceivingDto> stockList, User user, String excelFilename, String excelFilepath) {
         List<String> errors = new ArrayList<>();
+        LocalDateTime processedAt = LocalDateTime.now();
 
         for (StockReceivingDto dto : stockList) {
             try {
@@ -123,13 +130,29 @@ public class InventoryService {
                             dto.getRowNumber(), dto.getProductName(), dto.getCategoryName()));
                     continue;
                 }
-                dto.setProductSeq(product.getProductSeq());
 
                 // 2. 재고 업데이트
                 updateStock(product.getProductSeq(), dto.getQuantity());
 
-                log.info("입고 처리 완료 - {}행: {} ({}) +{}",
-                        dto.getRowNumber(), dto.getProductName(), dto.getCategoryName(), dto.getQuantity());
+                // 3. 입고 이력 저장
+                StockReceiving stockReceiving = new StockReceiving();
+                stockReceiving.setProductSeq(product.getProductSeq());
+                stockReceiving.setCategorySeq(product.getCategorySeq());
+                stockReceiving.setQuantity(dto.getQuantity());
+                stockReceiving.setUnitPrice(dto.getUnitPrice());
+                stockReceiving.setTotalAmount(dto.getUnitPrice().multiply(java.math.BigDecimal.valueOf(dto.getQuantity())));
+                stockReceiving.setNote(dto.getNote());
+                stockReceiving.setProcessedBySeq(user.getUserSeq());
+                stockReceiving.setExcelFilename(excelFilename);
+                stockReceiving.setExcelFilepath(excelFilepath);
+                stockReceiving.setExcelRowNum(dto.getRowNumber());
+                stockReceiving.setProcessedAt(processedAt);
+
+                stockReceivingMapper.insert(stockReceiving);
+
+                log.info("입고 처리 완료 - {}행: {} ({}) +{} (이력ID: {})",
+                        dto.getRowNumber(), dto.getProductName(), dto.getCategoryName(), dto.getQuantity(),
+                        stockReceiving.getReceivingSeq());
 
             } catch (Exception e) {
                 String errorMsg = String.format("%d행: %s", dto.getRowNumber(), e.getMessage());
@@ -138,10 +161,18 @@ public class InventoryService {
             }
         }
 
-        log.info("엑셀 입고 처리 완료 - 총 {}건, 성공 {}건, 실패 {}건",
-                stockList.size(), stockList.size() - errors.size(), errors.size());
+        log.info("엑셀 입고 처리 완료 - 총 {}건, 성공 {}건, 실패 {}건, 파일: {}",
+                stockList.size(), stockList.size() - errors.size(), errors.size(), excelFilename);
 
         return errors;
+    }
+
+    /**
+     * 엑셀 입고 처리 (기존 호환성 유지)
+     */
+    @Transactional
+    public List<String> processStockReceiving(List<StockReceivingDto> stockList, User user) {
+        return processStockReceiving(stockList, user, "unknown.xlsx", "");
     }
 
     /**

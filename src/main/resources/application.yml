@@ -43,4 +43,7 @@ logging:
 # 애플리케이션 설정
 app:
   upload:
-    root: /src/main/resources/static/uploads
+    # 웹에서 접근 가능한 파일들 (이미지 등)
+    web-root: /src/main/resources/static/uploads
+    # 웹에서 접근 불가능한 문서들 (엑셀 등)
+    document-root: /app/documents
