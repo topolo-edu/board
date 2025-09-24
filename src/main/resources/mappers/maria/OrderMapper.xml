@@ -40,6 +40,19 @@
         )
     </insert>
 
+    <!-- 발주 수정 -->
+    <update id="update" parameterType="io.goorm.board.entity.Order">
+        UPDATE orders SET
+            status = #{status},
+            delivery_status = #{deliveryStatus},
+            approved_by = #{approvedBy},
+            approved_at = #{approvedAt},
+            notes = #{notes},
+            updated_at = #{updatedAt},
+            version = version + 1
+        WHERE order_seq = #{orderSeq}
+          AND version = #{version}
+    </update>
 
     <!-- 발주 단건 조회 -->
     <select id="findById" parameterType="long" resultMap="OrderResultMap">

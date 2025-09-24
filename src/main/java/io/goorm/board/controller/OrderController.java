@@ -7,10 +7,14 @@ import io.goorm.board.entity.User;
 import io.goorm.board.service.OrderService;
 import io.goorm.board.service.ProductService;
 import io.goorm.board.service.DiscountService;
+import io.goorm.board.service.InvoiceService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +32,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final ProductService productService;
+    private final InvoiceService invoiceService;
     private final DiscountService discountService;
 
     @GetMapping
@@ -89,6 +94,44 @@ public class OrderController {
         OrderDto order = orderService.findById(orderSeq);
         model.addAttribute("order", order);
         return "buyer/orders/detail";
+    }
+
+    @GetMapping("/{orderSeq}/invoice")
+    @PreAuthorize("hasRole('BUYER')")
+    public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long orderSeq,
+                                                 @AuthenticationPrincipal User user) {
+        try {
+            log.info("인보이스 다운로드 요청 - OrderSeq: {}, User: {}", orderSeq, user.getEmail());
+
+            // 주문 정보 확인 (본인 회사 주문인지 검증)
+            OrderDto order = orderService.findById(orderSeq);
+            if (!order.getCompanySeq().equals(user.getCompanySeq())) {
+                log.warn("권한 없는 인보이스 다운로드 시도 - OrderSeq: {}, UserCompany: {}, OrderCompany: {}",
+                        orderSeq, user.getCompanySeq(), order.getCompanySeq());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            // PDF 생성
+            byte[] pdfBytes = invoiceService.generateInvoicePdf(orderSeq, user);
+
+            // 파일명 생성
+            String fileName = invoiceService.generateFileName(order);
+
+            // 응답 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("attachment", fileName);
+            headers.setContentLength(pdfBytes.length);
+
+            log.info("인보이스 다운로드 성공 - OrderSeq: {}, FileName: {}", orderSeq, fileName);
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(pdfBytes);
+
+        } catch (Exception e) {
+            log.error("인보이스 다운로드 실패 - OrderSeq: {}, Error: {}", orderSeq, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }

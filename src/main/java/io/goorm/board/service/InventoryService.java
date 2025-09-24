@@ -60,4 +60,45 @@ public class InventoryService {
 
         log.info("재고 차감 완료 - 상품: {}, 수량: {}", productSeq, quantity);
     }
+
+    /**
+     * 재고 예약 (주문 시)
+     */
+    @Transactional
+    public void reserveStock(Long productSeq, Integer quantity) {
+        int updatedRows = inventoryMapper.reserveStock(productSeq, quantity);
+
+        if (updatedRows == 0) {
+            // 재고 예약 실패 (재고 부족 또는 상품 없음)
+            Product product = productMapper.findById(productSeq).orElse(null);
+            String productName = (product != null) ? product.getName() : "Unknown Product";
+
+            Inventory inventory = inventoryMapper.findByProductSeq(productSeq).orElse(null);
+            int available = (inventory != null && inventory.getAvailableStock() != null)
+                    ? inventory.getAvailableStock() : 0;
+
+            throw new InsufficientStockException(productName, quantity, available);
+        }
+
+        log.info("재고 예약 완료 - 상품: {}, 수량: {}", productSeq, quantity);
+    }
+
+    /**
+     * 재고 소모 처리 (배송 완료 시)
+     */
+    @Transactional
+    public void consumeStock(Long productSeq, Integer quantity) {
+        int updatedRows = inventoryMapper.consumeStock(productSeq, quantity);
+
+        if (updatedRows == 0) {
+            // 재고 소모 실패
+            Product product = productMapper.findById(productSeq).orElse(null);
+            String productName = (product != null) ? product.getName() : "Unknown Product";
+
+            throw new InsufficientStockException(productName, quantity, 0);
+        }
+
+        log.info("재고 소모 완료 - 상품: {}, 수량: {}", productSeq, quantity);
+    }
+
 }

@@ -3,10 +3,12 @@ package io.goorm.board.controller;
 import io.goorm.board.dto.order.OrderDto;
 import io.goorm.board.dto.order.OrderSearchDto;
 import io.goorm.board.entity.Company;
+import io.goorm.board.entity.User;
 import io.goorm.board.service.OrderService;
 import io.goorm.board.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -41,5 +43,39 @@ public class AdminOrderController {
         return "buyer/orders/detail"; // 같은 템플릿 사용
     }
 
+    /**
+     * 배송 완료 처리
+     */
+    @PostMapping("/{orderSeq}/complete-delivery")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String completeDelivery(@PathVariable Long orderSeq,
+                                   @AuthenticationPrincipal User user,
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            OrderDto order = orderService.completeDelivery(orderSeq, user);
+            redirectAttributes.addFlashAttribute("message", "배송이 완료 처리되었습니다. 인보이스가 발행되었습니다.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "배송 완료 처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
 
+        return "redirect:/admin/orders/" + orderSeq;
+    }
+
+    /**
+     * 배송 시작 처리
+     */
+    @PostMapping("/{orderSeq}/start-delivery")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String startDelivery(@PathVariable Long orderSeq,
+                                @AuthenticationPrincipal User user,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            OrderDto order = orderService.startDelivery(orderSeq, user);
+            redirectAttributes.addFlashAttribute("message", "배송이 시작되었습니다.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "배송 시작 처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
+
+        return "redirect:/admin/orders/" + orderSeq;
+    }
 }

@@ -19,6 +19,11 @@ public interface OrderMapper {
      */
     int insert(Order order);
 
+    /**
+     * 발주 수정
+     */
+    int update(Order order);
+
 
     /**
      * 발주 조회 (ID)
