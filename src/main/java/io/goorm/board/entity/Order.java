@@ -49,6 +49,7 @@ public class Order {
 
     // 배송 완료 관련 필드
     private Long deliveryCompletedBySeq;         // 배송 완료 처리자 ID
+    private String deliveryCompletedBy;          // 배송 완료 처리자명
     private LocalDateTime deliveryCompletedAt;   // 배송 완료 시점
 
     // 조인 필드

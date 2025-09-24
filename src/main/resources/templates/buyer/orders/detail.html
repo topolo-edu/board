@@ -191,7 +191,7 @@
                                 <dt class="w-32 font-medium text-gray-700">결제상태:</dt>
                                 <dd>
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                                          th:classappend="${order.paymentStatus.name() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
+                                          th:classappend="${order.paymentStatus != null and order.paymentStatus.name() == 'PENDING'} ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'"
                                           th:text="${paymentStatusDisplay}"></span>
                                 </dd>
                             </div>
@@ -239,7 +239,7 @@
                             </div>
 
                             <!-- 입금완료 표시 -->
-                            <div th:if="${order.paymentStatus.name() == 'COMPLETED'}" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <div th:if="${order.paymentStatus != null and order.paymentStatus.name() == 'COMPLETED'}" class="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0">
                                         <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">

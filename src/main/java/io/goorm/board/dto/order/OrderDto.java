@@ -47,6 +47,7 @@ public class OrderDto {
     private Long paymentCompletedBySeq;
     private String paymentCompletedBy;
     private Long deliveryCompletedBySeq;
+    private String deliveryCompletedBy;
     private LocalDateTime deliveryCompletedAt;
 
     // 조인 정보
@@ -83,6 +84,7 @@ public class OrderDto {
                 .paymentCompletedBySeq(order.getPaymentCompletedBySeq())
                 .paymentCompletedBy(order.getPaymentCompletedBy())
                 .deliveryCompletedBySeq(order.getDeliveryCompletedBySeq())
+                .deliveryCompletedBy(order.getDeliveryCompletedBy())
                 .deliveryCompletedAt(order.getDeliveryCompletedAt())
                 .companyName(order.getCompanyName())
                 .userName(order.getUserName())

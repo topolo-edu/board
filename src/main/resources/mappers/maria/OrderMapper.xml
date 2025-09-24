@@ -29,6 +29,7 @@
         <result property="paymentCompletedBySeq" column="payment_completed_by_seq"/>
         <result property="paymentCompletedBy" column="payment_completed_by"/>
         <result property="deliveryCompletedBySeq" column="delivery_completed_by_seq"/>
+        <result property="deliveryCompletedBy" column="delivery_completed_by"/>
         <result property="deliveryCompletedAt" column="delivery_completed_at"/>
         <!-- 조인 정보 -->
         <result property="companyName" column="company_name"/>
@@ -82,10 +83,12 @@
                o.payment_status, o.payment_due_date, o.payment_completed_date,
                o.invoice_generated_at, o.payment_completed_by_seq, o.payment_completed_by,
                o.delivery_completed_by_seq, o.delivery_completed_at,
-               c.company_name, u.nickname as user_name, u.email as user_email
+               c.company_name, u.nickname as user_name, u.email as user_email,
+               du.nickname as delivery_completed_by
         FROM orders o
         LEFT JOIN companies c ON o.company_seq = c.company_seq
         LEFT JOIN users u ON o.user_seq = u.user_seq
+        LEFT JOIN users du ON o.delivery_completed_by_seq = du.user_seq
         WHERE o.order_seq = #{orderSeq}
     </select>
 
