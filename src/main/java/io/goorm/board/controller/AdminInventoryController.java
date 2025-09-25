@@ -1,7 +1,12 @@
 package io.goorm.board.controller;
 
-import io.goorm.board.dto.excel.StockReceivingDto;
+import io.goorm.board.dto.excel.ExcelStockDto;
+import io.goorm.board.dto.inventory.InventoryTransactionSearchDto;
+import io.goorm.board.dto.supplier.SupplierDto;
+import io.goorm.board.entity.InventoryTransaction;
 import io.goorm.board.entity.User;
+import io.goorm.board.mapper.InventoryTransactionMapper;
+import io.goorm.board.mapper.SupplierMapper;
 import io.goorm.board.service.ExcelService;
 import io.goorm.board.service.InventoryService;
 import io.goorm.board.util.FileUploadUtil;
@@ -39,6 +44,8 @@ public class AdminInventoryController {
     private final ExcelService excelService;
     private final InventoryService inventoryService;
     private final FileUploadUtil fileUploadUtil;
+    private final InventoryTransactionMapper inventoryTransactionMapper;
+    private final SupplierMapper supplierMapper;
 
     /**
      * 재고 관리 메인 페이지
@@ -52,7 +59,10 @@ public class AdminInventoryController {
      * 엑셀 입고 처리 페이지
      */
     @GetMapping("/receiving")
-    public String receivingForm() {
+    public String receivingForm(Model model) {
+        // 활성 공급업체 목록 조회
+        List<SupplierDto> suppliers = supplierMapper.findAllActive();
+        model.addAttribute("suppliers", suppliers);
         return "admin/inventory/receiving";
     }
 
@@ -95,14 +105,43 @@ public class AdminInventoryController {
     }
 
     /**
+     * 입출고 이력 조회
+     */
+    @GetMapping("/transactions")
+    public String transactionHistory(Model model, InventoryTransactionSearchDto searchDto) {
+        try {
+            List<InventoryTransaction> transactions = inventoryTransactionMapper.findAll(searchDto);
+            int totalCount = inventoryTransactionMapper.countAll(searchDto);
+
+            model.addAttribute("transactions", transactions);
+            model.addAttribute("totalCount", totalCount);
+            model.addAttribute("searchDto", searchDto);
+
+            return "admin/inventory/transactions";
+        } catch (Exception e) {
+            log.error("입출고 이력 조회 실패", e);
+            model.addAttribute("errorMessage", "입출고 이력 조회 중 오류가 발생했습니다.");
+            return "admin/inventory/transactions";
+        }
+    }
+
+    /**
      * 엑셀 파일 업로드 및 입고 처리
      */
     @PostMapping("/receiving/upload")
     public String uploadAndProcess(@RequestParam("file") MultipartFile file,
+                                  @RequestParam("supplierSeq") Long supplierSeq,
                                   @AuthenticationPrincipal User user,
                                   RedirectAttributes redirectAttributes) {
         try {
-            log.info("엑셀 입고 처리 시작 - User: {}, FileName: {}", user.getEmail(), file.getOriginalFilename());
+            log.info("엑셀 입고 처리 시작 - User: {}, FileName: {}, SupplierSeq: {}",
+                user.getEmail(), file.getOriginalFilename(), supplierSeq);
+
+            // 공급업체 선택 여부 확인 (필수)
+            if (supplierSeq == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "공급업체를 선택해주세요.");
+                return "redirect:/admin/inventory/receiving";
+            }
 
             // 파일 검증 (FileUploadUtil을 통한 검증)
             if (file.isEmpty()) {
@@ -121,7 +160,7 @@ public class AdminInventoryController {
             }
 
             // 엑셀 파싱
-            List<StockReceivingDto> stockList = excelService.parseStockReceivingExcel(file);
+            List<ExcelStockDto> stockList = excelService.parseStockReceivingExcel(file);
 
             if (stockList.isEmpty()) {
                 redirectAttributes.addFlashAttribute("errorMessage", "처리할 데이터가 없습니다.");
@@ -132,9 +171,9 @@ public class AdminInventoryController {
                 return "redirect:/admin/inventory/receiving";
             }
 
-            // 입고 처리 (파일 정보 포함)
+            // 입고 처리 (파일 정보 및 공급업체 정보 포함)
             List<String> errors = inventoryService.processStockReceiving(
-                stockList, user, uploadResult.getFilename(), uploadResult.getFullPath());
+                stockList, supplierSeq, user, uploadResult.getFilename(), uploadResult.getFullPath());
 
             // 결과 메시지 설정
             int successCount = stockList.size() - errors.size();
