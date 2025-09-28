@@ -15,8 +15,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.goorm.board.controller.rest.responseentity.ResponseEntityGlobalExceptionHandler.createSuccessResponse;
 
 @Slf4j
 @RestController
@@ -51,23 +54,21 @@ public class ResponseEntityAuthController {
             User user = (User) authentication.getPrincipal();
 
             // 성공 응답
-            response.put("success", true);
-            response.put("message", "로그인 성공");
-            response.put("sessionId", session.getId());
-            response.put("user", Map.of(
-                    "id", user.getUserSeq(),
-                    "username", user.getUsername(),
-                    "email", user.getEmail(),
-                    "role", user.getRole().toString()
-            ));
-
+            Map<String, Object> data = Map.of(
+                    "sessionId", session.getId(),
+                    "user", Map.of(
+                            "id", user.getUserSeq(),
+                            "username", user.getUsername(),
+                            "email", user.getEmail(),
+                            "role", user.getRole().toString()
+                    )
+            );
+            response = createSuccessResponse("로그인 성공", data);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            // 실패 응답
-            response.put("success", false);
-            response.put("message", "로그인 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            // 실패 응답은 GlobalExceptionHandler에서 처리
+            throw new RuntimeException("로그인 실패: " + e.getMessage(), e);
         }
     }
 
@@ -85,14 +86,12 @@ public class ResponseEntityAuthController {
             // SecurityContext 클리어
             SecurityContextHolder.clearContext();
 
-            response.put("success", true);
-            response.put("message", "로그아웃 성공");
+            response = createSuccessResponse("로그아웃 성공");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            response.put("success", false);
-            response.put("message", "로그아웃 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            // 실패 응답은 GlobalExceptionHandler에서 처리
+            throw new RuntimeException("로그아웃 실패: " + e.getMessage(), e);
         }
     }
 
@@ -106,25 +105,25 @@ public class ResponseEntityAuthController {
             if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
                 User user = (User) auth.getPrincipal();
 
-                response.put("authenticated", true);
-                response.put("sessionId", request.getSession().getId());
-                response.put("user", Map.of(
-                        "id", user.getUserSeq(),
-                        "username", user.getUsername(),
-                        "email", user.getEmail(),
-                        "role", user.getRole().toString()
-                ));
+                Map<String, Object> data = Map.of(
+                        "authenticated", true,
+                        "sessionId", request.getSession().getId(),
+                        "user", Map.of(
+                                "id", user.getUserSeq(),
+                                "username", user.getUsername(),
+                                "email", user.getEmail(),
+                                "role", user.getRole().toString()
+                        )
+                );
+                response = createSuccessResponse("세션 확인 성공", data);
                 return ResponseEntity.ok(response);
             } else {
-                response.put("authenticated", false);
-                response.put("message", "인증되지 않은 사용자");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+                throw new RuntimeException("인증되지 않은 사용자");
             }
 
         } catch (Exception e) {
-            response.put("authenticated", false);
-            response.put("message", "세션 확인 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            // 실패 응답은 GlobalExceptionHandler에서 처리
+            throw new RuntimeException("세션 확인 실패: " + e.getMessage(), e);
         }
     }
 }

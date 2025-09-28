@@ -82,16 +82,32 @@ public class ResponseEntityGlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
+    // 공통 성공 응답 생성
+    public static Map<String, Object> createSuccessResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", message);
+        response.put("timestamp", LocalDateTime.now());
+        return response;
+    }
+
+    // 공통 성공 응답 생성 (추가 데이터 포함)
+    public static Map<String, Object> createSuccessResponse(String message, Map<String, Object> data) {
+        Map<String, Object> response = createSuccessResponse(message);
+        response.putAll(data);
+        return response;
+    }
+
     // 공통 에러 응답 생성
     private Map<String, Object> createErrorResponse(HttpStatus status, String code, String message) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("success", false);
-        errorResponse.put("error", Map.of(
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", false);
+        response.put("error", Map.of(
             "code", code,
             "message", message,
             "status", status.value(),
             "timestamp", LocalDateTime.now()
         ));
-        return errorResponse;
+        return response;
     }
 }

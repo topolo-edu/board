@@ -11,9 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static io.goorm.board.controller.rest.responseentity.ResponseEntityGlobalExceptionHandler.createSuccessResponse;
 
 @Slf4j
 @RestController
@@ -56,19 +57,13 @@ public class ResponseEntityPostController {
             post.setAuthor(user);
             postService.save(post);
 
-            // 성공 응답 생성
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "게시글이 성공적으로 작성되었습니다.");
-
+            // 정형화된 성공 응답
+            Map<String, Object> response = createSuccessResponse("게시글이 성공적으로 작성되었습니다.");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (Exception e) {
             log.error("게시글 생성 실패", e);
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "게시글 작성에 실패했습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            throw new RuntimeException("게시글 작성에 실패했습니다.", e);
         }
     }
 
@@ -79,20 +74,14 @@ public class ResponseEntityPostController {
         try {
             postService.update(seq, post);
 
-            // 성공 응답 생성
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "게시글이 성공적으로 수정되었습니다.");
-            response.put("updatedSeq", seq);
-
+            // 정형화된 성공 응답 (추가 데이터 포함)
+            Map<String, Object> data = Map.of("updatedSeq", seq);
+            Map<String, Object> response = createSuccessResponse("게시글이 성공적으로 수정되었습니다.", data);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("게시글 수정 실패 - seq: {}", seq, e);
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "게시글 수정에 실패했습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            throw new RuntimeException("게시글 수정에 실패했습니다.", e);
         }
     }
 
@@ -102,20 +91,14 @@ public class ResponseEntityPostController {
         try {
             postService.delete(seq);
 
-            // 삭제 성공 응답 생성
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "게시글이 성공적으로 삭제되었습니다.");
-            response.put("deletedSeq", seq);
-
+            // 정형화된 성공 응답 (추가 데이터 포함)
+            Map<String, Object> data = Map.of("deletedSeq", seq);
+            Map<String, Object> response = createSuccessResponse("게시글이 성공적으로 삭제되었습니다.", data);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             log.error("게시글 삭제 실패 - seq: {}", seq, e);
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("message", "게시글 삭제에 실패했습니다.");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            throw new RuntimeException("게시글 삭제에 실패했습니다.", e);
         }
     }
 }
