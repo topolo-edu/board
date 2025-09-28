@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,6 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
+                // 기존 MVC 경로
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/buyer/**").hasRole("BUYER")
                 .requestMatchers("/", "/posts", "/auth/signup", "/auth/login").permitAll()
@@ -32,7 +35,15 @@ public class SecurityConfig {
                 .requestMatchers("/posts/[0-9]+").permitAll()
                 .requestMatchers("/posts/new", "/posts/*/edit", "/posts/*/delete").authenticated()
                 .requestMatchers("/auth/profile").authenticated()
+
+                // REST API 경로
+                .requestMatchers("/api/*/auth/**").permitAll()  // 모든 API 인증 엔드포인트 공개
+                .requestMatchers("/api/**").authenticated()     // 나머지 API는 인증 필요
+
                 .anyRequest().authenticated()
+            )
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**")  // API 경로는 CSRF 비활성화
             )
             .exceptionHandling(ex -> ex
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -62,5 +73,12 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+        return authenticationManagerBuilder.build();
     }
 }
