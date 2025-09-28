@@ -1,72 +1,52 @@
 package io.goorm.board.dto.inventory;
 
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 /**
- * 재고 거래 이력 검색 DTO
+ * 재고 거래 내역 검색 DTO
  */
 @Data
 public class InventoryTransactionSearchDto {
 
-    // 기본 검색 조건
-    private String keyword;                 // 검색 키워드 (상품명, 상품코드, 처리자명 등)
-    private Long productSeq;               // 상품 시퀀스
-    private Long categorySeq;              // 카테고리 시퀀스
-    private Long processedBySeq;           // 처리자 시퀀스
-    private String excelFilename;          // 엑셀 파일명
+    private String transactionType;  // 거래 타입 (IN, OUT)
+    private Long productSeq;         // 상품 번호
+    private String productCode;      // 상품 코드
+    private String productName;      // 상품명
+    private Long supplierSeq;        // 공급업체 번호
+    private String startDate;        // 시작일
+    private String endDate;          // 종료일
+    private String createdBy;        // 생성자
 
-    // 날짜 검색
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startDate;           // 시작일
+    // 페이징 관련
+    private int page = 1;            // 현재 페이지 (기본값: 1)
+    private int pageSize = 20;       // 페이지 크기 (기본값: 20)
+    private int offset;              // OFFSET 값
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate endDate;             // 종료일
-
-    // 페이징
-    private int page = 0;                  // 페이지 번호 (0부터 시작)
-    private int size = 20;                 // 페이지 크기
-    private int offset;                    // 오프셋 (계산됨)
-
-    // 정렬
-    private String sortBy = "processedAt"; // 정렬 기준
-    private String sortDir = "DESC";       // 정렬 방향 (ASC, DESC)
+    // 정렬 관련
+    private String orderBy = "created_at";  // 정렬 기준 (기본값: 생성일)
+    private String orderDirection = "DESC"; // 정렬 방향 (기본값: 내림차순)
 
     /**
-     * 오프셋 계산
+     * OFFSET 계산
      */
     public int getOffset() {
-        return page * size;
+        return (page - 1) * pageSize;
     }
 
     /**
-     * 시작일시 반환 (LocalDateTime 변환)
+     * 유효한 페이지 번호인지 확인
      */
-    public LocalDateTime getStartDateTime() {
-        return startDate != null ? startDate.atStartOfDay() : null;
-    }
-
-    /**
-     * 종료일시 반환 (LocalDateTime 변환 - 해당일의 마지막 시간)
-     */
-    public LocalDateTime getEndDateTime() {
-        return endDate != null ? endDate.atTime(LocalTime.MAX) : null;
-    }
-
-    /**
-     * 검색 조건 존재 여부
-     */
-    public boolean hasSearchCondition() {
-        return (keyword != null && !keyword.trim().isEmpty()) ||
-               productSeq != null ||
-               categorySeq != null ||
-               processedBySeq != null ||
-               (excelFilename != null && !excelFilename.trim().isEmpty()) ||
-               startDate != null ||
-               endDate != null;
+    public void validatePage() {
+        if (page < 1) {
+            page = 1;
+        }
+        if (pageSize < 1) {
+            pageSize = 20;
+        }
+        if (pageSize > 100) {
+            pageSize = 100;
+        }
     }
 }
