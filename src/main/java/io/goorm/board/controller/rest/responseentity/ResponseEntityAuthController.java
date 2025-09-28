@@ -1,5 +1,6 @@
 package io.goorm.board.controller.rest.responseentity;
 
+import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -15,11 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.goorm.board.controller.rest.responseentity.ResponseEntityGlobalExceptionHandler.createSuccessResponse;
 
 @Slf4j
 @RestController
@@ -30,8 +28,8 @@ public class ResponseEntityAuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest,
-                                                    HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody Map<String, String> loginRequest,
+                                                                  HttpServletRequest request) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
 
@@ -63,8 +61,8 @@ public class ResponseEntityAuthController {
                             "role", user.getRole().toString()
                     )
             );
-            response = createSuccessResponse("로그인 성공", data);
-            return ResponseEntity.ok(response);
+            ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success("로그인 성공", data);
+            return ResponseEntity.ok(apiResponse);
 
         } catch (Exception e) {
             // 실패 응답은 GlobalExceptionHandler에서 처리
@@ -73,7 +71,7 @@ public class ResponseEntityAuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -86,8 +84,8 @@ public class ResponseEntityAuthController {
             // SecurityContext 클리어
             SecurityContextHolder.clearContext();
 
-            response = createSuccessResponse("로그아웃 성공");
-            return ResponseEntity.ok(response);
+            ApiResponse<Void> apiResponse = ApiResponse.success("로그아웃 성공");
+            return ResponseEntity.ok(apiResponse);
 
         } catch (Exception e) {
             // 실패 응답은 GlobalExceptionHandler에서 처리
@@ -96,7 +94,7 @@ public class ResponseEntityAuthController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<Map<String, Object>> checkSession(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> checkSession(HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -115,8 +113,8 @@ public class ResponseEntityAuthController {
                                 "role", user.getRole().toString()
                         )
                 );
-                response = createSuccessResponse("세션 확인 성공", data);
-                return ResponseEntity.ok(response);
+                ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success("세션 확인 성공", data);
+                return ResponseEntity.ok(apiResponse);
             } else {
                 throw new RuntimeException("인증되지 않은 사용자");
             }
