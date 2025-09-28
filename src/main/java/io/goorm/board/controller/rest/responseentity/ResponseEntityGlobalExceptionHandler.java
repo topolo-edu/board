@@ -2,6 +2,7 @@ package io.goorm.board.controller.rest.responseentity;
 
 import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.dto.ErrorResponse;
+import io.goorm.board.exception.PostNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,23 @@ import java.util.Map;
 @RestControllerAdvice(basePackages = "io.goorm.board.controller.rest.responseentity")
 public class ResponseEntityGlobalExceptionHandler {
 
-    // 404 - 리소스를 찾을 수 없음
+    // 404 - 게시글을 찾을 수 없음
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePostNotFound(PostNotFoundException ex) {
+        log.error("PostNotFoundException: postId={}", ex.getPostId());
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+            "POST_NOT_FOUND",
+            "seq " + ex.getPostId() + "에 해당하는 게시글을 찾을 수 없습니다.",
+            HttpStatus.NOT_FOUND.value()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    // 404 - 일반적인 리소스를 찾을 수 없음
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(EntityNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
         log.error("EntityNotFoundException: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.of(

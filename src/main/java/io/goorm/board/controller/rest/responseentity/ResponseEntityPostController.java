@@ -3,6 +3,7 @@ package io.goorm.board.controller.rest.responseentity;
 import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.entity.Post;
 import io.goorm.board.entity.User;
+import io.goorm.board.exception.PostNotFoundException;
 import io.goorm.board.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +26,21 @@ public class ResponseEntityPostController {
 
     // 게시글 목록 조회
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
+    public ResponseEntity<ApiResponse<List<Post>>> getAllPosts() {
         List<Post> posts = postService.findAll();
-        return ResponseEntity.ok(posts);
+        ApiResponse<List<Post>> response = ApiResponse.success("게시글 목록 조회 성공", posts);
+        return ResponseEntity.ok(response);
     }
 
     // 게시글 상세 조회
     @GetMapping("/{seq}")
-    public ResponseEntity<Post> getPost(@PathVariable Long seq) {
+    public ResponseEntity<ApiResponse<Post>> getPost(@PathVariable Long seq) {
         Post post = postService.findBySeq(seq);
-        return ResponseEntity.ok(post);
+        if (post == null) {
+            throw new PostNotFoundException(seq);
+        }
+        ApiResponse<Post> response = ApiResponse.success("게시글 조회 성공", post);
+        return ResponseEntity.ok(response);
     }
 
     // 게시글 생성
@@ -52,6 +58,12 @@ public class ResponseEntityPostController {
     @PutMapping("/{seq}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> updatePost(@PathVariable Long seq,
                                                                        @Valid @RequestBody Post post) {
+        // 수정하려는 게시글이 존재하는지 확인
+        Post existingPost = postService.findBySeq(seq);
+        if (existingPost == null) {
+            throw new PostNotFoundException(seq);
+        }
+
         postService.update(seq, post);
 
         Map<String, Object> data = Map.of("updatedSeq", seq);
@@ -62,6 +74,12 @@ public class ResponseEntityPostController {
     // 게시글 삭제
     @DeleteMapping("/{seq}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> deletePost(@PathVariable Long seq) {
+        // 삭제하려는 게시글이 존재하는지 확인
+        Post existingPost = postService.findBySeq(seq);
+        if (existingPost == null) {
+            throw new PostNotFoundException(seq);
+        }
+
         postService.delete(seq);
 
         Map<String, Object> data = Map.of("deletedSeq", seq);

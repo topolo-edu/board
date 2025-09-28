@@ -53,7 +53,27 @@ public class SecurityConfig {
                     log.warn("Access denied for user: {} to URL: {}",
                         request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
                         request.getRequestURI());
-                    response.sendRedirect("/error/403");
+
+                    // REST API 경로는 JSON 응답
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        response.setStatus(403);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write("{\"success\":false,\"error\":{\"code\":\"ACCESS_DENIED\",\"message\":\"접근 권한이 없습니다.\",\"status\":403,\"timestamp\":\"" + java.time.LocalDateTime.now() + "\"}}");
+                    } else {
+                        response.sendRedirect("/error/403");
+                    }
+                })
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("Authentication required for URL: {}", request.getRequestURI());
+
+                    // REST API 경로는 JSON 응답
+                    if (request.getRequestURI().startsWith("/api/")) {
+                        response.setStatus(401);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.getWriter().write("{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"인증이 필요합니다.\",\"status\":401,\"timestamp\":\"" + java.time.LocalDateTime.now() + "\"}}");
+                    } else {
+                        response.sendRedirect("/auth/login");
+                    }
                 })
             )
             .formLogin(form -> form
