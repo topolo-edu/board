@@ -426,4 +426,17 @@ public class GlobalExceptionHandler {
 
         return "error/500";
     }
+
+    @ExceptionHandler(UnauthenticatedException.class)
+    public ResponseEntity<io.goorm.board.dto.ErrorResponse> handleUnauthenticatedException(UnauthenticatedException e) {
+        log.warn("User unauthenticated: {}", e.getMessage());
+
+        io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of(
+            "UNAUTHENTICATED",
+            e.getMessage(),
+            401
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
 }

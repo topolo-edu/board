@@ -3,6 +3,7 @@ package io.goorm.board.controller.rest.responseentity;
 import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.dto.ErrorResponse;
 import io.goorm.board.exception.PostNotFoundException;
+import io.goorm.board.exception.UnauthenticatedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -118,6 +119,20 @@ public class ResponseEntityGlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    // 401 - 인증되지 않은 사용자
+    @ExceptionHandler(UnauthenticatedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthenticated(UnauthenticatedException ex) {
+        log.error("UnauthenticatedException: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.of(
+            "UNAUTHENTICATED",
+            ex.getMessage(),
+            HttpStatus.UNAUTHORIZED.value()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
     }
 
 }
