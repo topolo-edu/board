@@ -1,6 +1,10 @@
 package io.goorm.board.controller.rest.json;
 
+import io.goorm.board.exception.PostNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -12,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,18 +25,41 @@ import java.util.stream.Collectors;
  * rest.json 패키지에만 적용
  */
 @Slf4j
+@RequiredArgsConstructor
 @RestControllerAdvice(basePackages = "io.goorm.board.controller.rest.json")
 public class JsonGlobalExceptionHandler {
+
+    private final MessageSource messageSource;
+
+    /**
+     * 게시글을 찾을 수 없는 경우 (404)
+     */
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePostNotFound(PostNotFoundException ex) {
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("post.not.found", new Object[]{ex.getPostId()}, locale);
+
+        Map<String, Object> errorResponse = createErrorResponse(
+                HttpStatus.NOT_FOUND,
+                "POST_NOT_FOUND",
+                message
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 
     /**
      * 엔티티를 찾을 수 없는 경우 (404)
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleEntityNotFound(EntityNotFoundException ex) {
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.general", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.NOT_FOUND,
                 "RESOURCE_NOT_FOUND",
-                ex.getMessage()
+                message
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
@@ -50,10 +78,13 @@ public class JsonGlobalExceptionHandler {
                         FieldError::getDefaultMessage
                 ));
 
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.validation.failed", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 "VALIDATION_FAILED",
-                "입력값 검증에 실패했습니다."
+                message
         );
         errorResponse.put("fieldErrors", fieldErrors);
 
@@ -73,10 +104,13 @@ public class JsonGlobalExceptionHandler {
                         FieldError::getDefaultMessage
                 ));
 
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.validation.failed", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.BAD_REQUEST,
                 "BINDING_FAILED",
-                "요청 파라미터 바인딩에 실패했습니다."
+                message
         );
         errorResponse.put("fieldErrors", fieldErrors);
 
@@ -104,10 +138,13 @@ public class JsonGlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleAccessDenied(
             org.springframework.security.access.AccessDeniedException ex) {
 
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.access.denied", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.FORBIDDEN,
                 "ACCESS_DENIED",
-                "접근 권한이 없습니다."
+                message
         );
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
@@ -120,10 +157,13 @@ public class JsonGlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleAuthentication(
             org.springframework.security.core.AuthenticationException ex) {
 
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.authentication.required", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.UNAUTHORIZED,
                 "AUTHENTICATION_FAILED",
-                "인증이 필요합니다."
+                message
         );
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
@@ -136,10 +176,13 @@ public class JsonGlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
         log.error("예상하지 못한 런타임 예외 발생", ex);
 
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.server.internal", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "INTERNAL_ERROR",
-                "서버 내부 오류가 발생했습니다."
+                message
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -152,10 +195,13 @@ public class JsonGlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         log.error("예상하지 못한 예외 발생", ex);
 
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("error.server.internal", null, locale);
+
         Map<String, Object> errorResponse = createErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "UNEXPECTED_ERROR",
-                "예상하지 못한 오류가 발생했습니다."
+                message
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);

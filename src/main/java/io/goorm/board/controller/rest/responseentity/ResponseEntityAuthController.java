@@ -1,11 +1,14 @@
 package io.goorm.board.controller.rest.responseentity;
 
 import io.goorm.board.dto.ApiResponse;
+import io.goorm.board.dto.ErrorResponse;
 import io.goorm.board.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +20,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @Slf4j
@@ -26,6 +30,7 @@ import java.util.Map;
 public class ResponseEntityAuthController {
 
     private final AuthenticationManager authenticationManager;
+    private final MessageSource messageSource;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, Object>>> login(@RequestBody Map<String, String> loginRequest,
@@ -61,7 +66,10 @@ public class ResponseEntityAuthController {
                             "role", user.getRole().toString()
                     )
             );
-            ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success("로그인 성공", data);
+
+            Locale locale = LocaleContextHolder.getLocale();
+            String message = messageSource.getMessage("auth.login.success", null, locale);
+            ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success(message, data);
             return ResponseEntity.ok(apiResponse);
 
         } catch (Exception e) {
@@ -71,9 +79,7 @@ public class ResponseEntityAuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<ApiResponse<Map<String, Object>>> logout(HttpServletRequest request) {
         try {
             // 세션 무효화
             HttpSession session = request.getSession(false);
@@ -84,7 +90,11 @@ public class ResponseEntityAuthController {
             // SecurityContext 클리어
             SecurityContextHolder.clearContext();
 
-            ApiResponse<Void> apiResponse = ApiResponse.success("로그아웃 성공");
+            Locale locale = LocaleContextHolder.getLocale();
+            String message = messageSource.getMessage("auth.logout.success", null, locale);
+
+            Map<String, Object> data = Map.of("success", true);
+            ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success(message, data);
             return ResponseEntity.ok(apiResponse);
 
         } catch (Exception e) {
@@ -94,9 +104,7 @@ public class ResponseEntityAuthController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> checkSession(HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
-
+    public ResponseEntity<?> checkSession(HttpServletRequest request) {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
@@ -113,15 +121,27 @@ public class ResponseEntityAuthController {
                                 "role", user.getRole().toString()
                         )
                 );
-                ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success("세션 확인 성공", data);
+
+                Locale locale = LocaleContextHolder.getLocale();
+                String message = messageSource.getMessage("auth.session.check.success", null, locale);
+                ApiResponse<Map<String, Object>> apiResponse = ApiResponse.success(message, data);
                 return ResponseEntity.ok(apiResponse);
             } else {
-                throw new RuntimeException("인증되지 않은 사용자");
+                // 인증되지 않은 경우 에러 응답
+                Locale locale = LocaleContextHolder.getLocale();
+                String message = messageSource.getMessage("auth.user.unauthenticated", null, locale);
+
+                ErrorResponse errorResponse = ErrorResponse.of("UNAUTHENTICATED", message, 401);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
             }
 
         } catch (Exception e) {
-            // 실패 응답은 GlobalExceptionHandler에서 처리
-            throw new RuntimeException("세션 확인 실패: " + e.getMessage(), e);
+            // 서버 오류
+            Locale locale = LocaleContextHolder.getLocale();
+            String message = messageSource.getMessage("auth.session.check.failed", null, locale);
+
+            ErrorResponse errorResponse = ErrorResponse.of("SESSION_CHECK_FAILED", message, 500);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }

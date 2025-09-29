@@ -5,11 +5,14 @@ import io.goorm.board.entity.User;
 import io.goorm.board.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @RestController
@@ -18,6 +21,7 @@ import java.util.Map;
 public class JsonPostController {
 
     private final PostService postService;
+    private final MessageSource messageSource;
 
     // 게시글 목록 조회
     @GetMapping
@@ -39,10 +43,14 @@ public class JsonPostController {
         post.setAuthor(user);
         postService.save(post);
 
+        // 다국어 메시지 조회
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("post.create.success", null, locale);
+
         // 성공 응답 생성
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "게시글이 성공적으로 작성되었습니다.");
+        response.put("message", message);
         return response;
     }
 
@@ -50,12 +58,16 @@ public class JsonPostController {
     @PutMapping("/{seq}")
     public Map<String, Object> updatePost(@PathVariable Long seq,
                                          @Valid @RequestBody Post post) {
-        postService.update(seq, post);
+        postService.update(seq, post); // 서비스에서 예외 처리
+
+        // 다국어 메시지 조회
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("post.update.success", null, locale);
 
         // 성공 응답 생성
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "게시글이 성공적으로 수정되었습니다.");
+        response.put("message", message);
         response.put("updatedSeq", seq);
         return response;
     }
@@ -63,12 +75,16 @@ public class JsonPostController {
     // 게시글 삭제
     @DeleteMapping("/{seq}")
     public Map<String, Object> deletePost(@PathVariable Long seq) {
-        postService.delete(seq);
+        postService.delete(seq); // 서비스에서 예외 처리
+
+        // 다국어 메시지 조회
+        Locale locale = LocaleContextHolder.getLocale();
+        String message = messageSource.getMessage("post.delete.success", null, locale);
 
         // 삭제 성공 응답 생성
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("message", "게시글이 성공적으로 삭제되었습니다.");
+        response.put("message", message);
         response.put("deletedSeq", seq);
         return response;
     }

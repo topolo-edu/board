@@ -23,8 +23,90 @@ public class SecurityConfig {
 
     private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     
+    // Fetch 전용 SecurityFilterChain
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @org.springframework.core.annotation.Order(1)
+    public SecurityFilterChain fetchSecurityChain(HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/fetch/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/fetch/auth/**").permitAll()
+                .requestMatchers("/fetch/**").authenticated()
+            )
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("Fetch authentication required for URL: {}", request.getRequestURI());
+                    response.sendRedirect("/fetch/auth/login");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("Fetch access denied for user: {} to URL: {}",
+                        request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                        request.getRequestURI());
+                    response.sendRedirect("/fetch/auth/login?error=access");
+                })
+            )
+            .formLogin(form -> form
+                .loginPage("/fetch/auth/login")
+                .loginProcessingUrl("/fetch/auth/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/fetch/posts", true)
+                .failureUrl("/fetch/auth/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/fetch/auth/logout")
+                .logoutSuccessUrl("/fetch/auth/login?logout=true")
+                .permitAll()
+            )
+            .build();
+    }
+
+    // Axios 전용 SecurityFilterChain
+    @Bean
+    @org.springframework.core.annotation.Order(2)
+    public SecurityFilterChain axiosSecurityChain(HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/axios/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/axios/auth/**").permitAll()
+                .requestMatchers("/axios/**").authenticated()
+            )
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("Axios authentication required for URL: {}", request.getRequestURI());
+                    response.sendRedirect("/axios/auth/login");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("Axios access denied for user: {} to URL: {}",
+                        request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                        request.getRequestURI());
+                    response.sendRedirect("/axios/auth/login?error=access");
+                })
+            )
+            .formLogin(form -> form
+                .loginPage("/axios/auth/login")
+                .loginProcessingUrl("/axios/auth/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/axios/post/list", true)
+                .failureUrl("/axios/auth/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/axios/auth/logout")
+                .logoutSuccessUrl("/axios/auth/login?logout=true")
+                .permitAll()
+            )
+            .build();
+    }
+
+    // 기본 MVC SecurityFilterChain
+    @Bean
+    @org.springframework.core.annotation.Order(3)
+    public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 // 기존 MVC 경로
@@ -36,8 +118,10 @@ public class SecurityConfig {
                 .requestMatchers("/posts/new", "/posts/*/edit", "/posts/*/delete").authenticated()
                 .requestMatchers("/auth/profile").authenticated()
 
+
                 // REST API 경로
                 .requestMatchers("/api/*/auth/**").permitAll()  // 모든 API 인증 엔드포인트 공개
+                .requestMatchers("/api/responseentity/auth/**").permitAll()  // ResponseEntity 인증 엔드포인트 명시적 허용
                 .requestMatchers("/api/**").authenticated()     // 나머지 API는 인증 필요
 
                 // Swagger UI 경로
@@ -58,7 +142,8 @@ public class SecurityConfig {
                     if (request.getRequestURI().startsWith("/api/")) {
                         response.setStatus(403);
                         response.setContentType("application/json;charset=UTF-8");
-                        response.getWriter().write("{\"success\":false,\"error\":{\"code\":\"ACCESS_DENIED\",\"message\":\"접근 권한이 없습니다.\",\"status\":403,\"timestamp\":\"" + java.time.LocalDateTime.now() + "\"}}");
+                        io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("ACCESS_DENIED", "접근 권한이 없습니다.", 403);
+                        response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
                     } else {
                         response.sendRedirect("/error/403");
                     }
@@ -70,7 +155,8 @@ public class SecurityConfig {
                     if (request.getRequestURI().startsWith("/api/")) {
                         response.setStatus(401);
                         response.setContentType("application/json;charset=UTF-8");
-                        response.getWriter().write("{\"success\":false,\"error\":{\"code\":\"UNAUTHORIZED\",\"message\":\"인증이 필요합니다.\",\"status\":401,\"timestamp\":\"" + java.time.LocalDateTime.now() + "\"}}");
+                        io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("UNAUTHORIZED", "인증이 필요합니다.", 401);
+                        response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
                     } else {
                         response.sendRedirect("/auth/login");
                     }
@@ -89,7 +175,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/")
                 .permitAll()
             );
-        
+
         return http.build();
     }
     

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header" class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <a href="/fetch/posts" class="text-2xl font-bold text-blue-600">Fetch Board</a>
+        <nav class="space-x-4 flex items-center">
+            <a href="/fetch/posts" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">게시판</a>
+
+            <!-- 로그인하지 않은 경우 -->
+            <div id="anonymousMenu" class="space-x-4 hidden">
+                <a href="/fetch/auth/login" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">로그인</a>
+            </div>
+
+            <!-- 로그인한 경우 -->
+            <div id="authenticatedMenu" class="flex items-center space-x-4 hidden">
+                <span id="userGreeting" class="text-gray-700"></span>
+                <button id="logoutBtn" type="button" class="px-4 py-2 text-gray-600 hover:text-blue-600 font-medium">로그아웃</button>
+            </div>
+
+            <!-- 언어 변경 -->
+            <div class="flex items-center space-x-2 ml-4">
+                <button onclick="changeLanguage('ko')"
+                        class="px-2 py-1 text-sm text-gray-600 hover:text-blue-600"
+                        id="langKo">한국어</button>
+                <span class="text-gray-400">|</span>
+                <button onclick="changeLanguage('en')"
+                        class="px-2 py-1 text-sm text-gray-600 hover:text-blue-600"
+                        id="langEn">English</button>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<script>
+// 언어 변경 함수
+function changeLanguage(lang) {
+    localStorage.setItem('language', lang);
+    location.reload();
+}
+
+// 페이지 로드 시 언어 설정 적용
+document.addEventListener('DOMContentLoaded', function() {
+    const lang = localStorage.getItem('language') || 'ko';
+    const langButtons = document.querySelectorAll('#langKo, #langEn');
+    langButtons.forEach(btn => btn.classList.remove('font-bold', 'text-blue-600'));
+
+    if (lang === 'ko') {
+        document.getElementById('langKo').classList.add('font-bold', 'text-blue-600');
+    } else {
+        document.getElementById('langEn').classList.add('font-bold', 'text-blue-600');
+    }
+});
+</script>
+</body>
+</html>
