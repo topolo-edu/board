@@ -4,6 +4,12 @@ import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.entity.Post;
 import io.goorm.board.entity.User;
 import io.goorm.board.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +28,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/responseentity/posts")
 @RequiredArgsConstructor
+@Tag(name = "Post API", description = "게시글 관련 API")
 public class ResponseEntityPostController {
 
     private final PostService postService;
     private final MessageSource messageSource;
 
-    // 게시글 목록 조회
+    @Operation(summary = "게시글 목록 조회", description = "모든 게시글 목록을 조회합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = Post.class)))
+    })
     @GetMapping
     public ResponseEntity<ApiResponse<List<Post>>> getAllPosts() {
         List<Post> posts = postService.findAll();
@@ -39,9 +50,15 @@ public class ResponseEntityPostController {
         return ResponseEntity.ok(response);
     }
 
-    // 게시글 상세 조회
+    @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = Post.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
     @GetMapping("/{seq}")
-    public ResponseEntity<ApiResponse<Post>> getPost(@PathVariable Long seq) {
+    public ResponseEntity<ApiResponse<Post>> getPost(
+            @Parameter(description = "게시글 번호", required = true) @PathVariable Long seq) {
         Post post = postService.findBySeq(seq); // 서비스에서 예외 처리
 
         Locale locale = LocaleContextHolder.getLocale();
@@ -51,10 +68,16 @@ public class ResponseEntityPostController {
         return ResponseEntity.ok(response);
     }
 
-    // 게시글 생성
+    @Operation(summary = "게시글 생성", description = "새로운 게시글을 생성합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "생성 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요")
+    })
     @PostMapping
-    public ResponseEntity<ApiResponse<Map<String, Object>>> createPost(@Valid @RequestBody Post post,
-                                                        @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createPost(
+            @Parameter(description = "게시글 정보", required = true) @Valid @RequestBody Post post,
+            @AuthenticationPrincipal User user) {
         post.setAuthor(user);
         postService.save(post);
 
@@ -66,10 +89,18 @@ public class ResponseEntityPostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // 게시글 수정
+    @Operation(summary = "게시글 수정", description = "기존 게시글을 수정합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "권한 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
     @PutMapping("/{seq}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> updatePost(@PathVariable Long seq,
-                                                                       @Valid @RequestBody Post post) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updatePost(
+            @Parameter(description = "게시글 번호", required = true) @PathVariable Long seq,
+            @Parameter(description = "수정할 게시글 정보", required = true) @Valid @RequestBody Post post) {
         postService.update(seq, post); // 서비스에서 예외 처리
 
         Locale locale = LocaleContextHolder.getLocale();
@@ -80,9 +111,16 @@ public class ResponseEntityPostController {
         return ResponseEntity.ok(response);
     }
 
-    // 게시글 삭제
+    @Operation(summary = "게시글 삭제", description = "기존 게시글을 삭제합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "삭제 성공"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "권한 없음"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
+    })
     @DeleteMapping("/{seq}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> deletePost(@PathVariable Long seq) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> deletePost(
+            @Parameter(description = "게시글 번호", required = true) @PathVariable Long seq) {
         postService.delete(seq); // 서비스에서 예외 처리
 
         Locale locale = LocaleContextHolder.getLocale();

@@ -9,6 +9,12 @@ import io.goorm.board.dto.response.UserResponse;
 import io.goorm.board.entity.User;
 import io.goorm.board.exception.UnauthenticatedException;
 import io.goorm.board.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,14 +33,23 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/api/responseentity/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth API", description = "사용자 인증 관련 API")
 public class ResponseEntityAuthController {
 
     private final UserService userService;
     private final MessageSource messageSource;
 
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인을 수행합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(schema = @Schema(implementation = LoginResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패")
+    })
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginDto loginRequest,
-                                                           HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @Parameter(description = "로그인 정보", required = true) @Valid @RequestBody LoginDto loginRequest,
+            HttpServletRequest request) {
         // UserService를 통한 인증
         User user = userService.authenticate(loginRequest);
 
@@ -60,6 +75,11 @@ public class ResponseEntityAuthController {
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
 
+    @Operation(summary = "로그아웃", description = "사용자 세션을 종료하고 로그아웃을 수행합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그아웃 성공",
+                    content = @Content(schema = @Schema(implementation = LogoutResponse.class)))
+    })
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<LogoutResponse>> logout(HttpServletRequest request) {
         // 세션 무효화 및 SecurityContext 정리
@@ -77,6 +97,12 @@ public class ResponseEntityAuthController {
         return ResponseEntity.ok(ApiResponse.success(response.getMessage(), response));
     }
 
+    @Operation(summary = "세션 확인", description = "현재 사용자의 인증 상태와 세션 정보를 확인합니다.")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "인증된 사용자",
+                    content = @Content(schema = @Schema(implementation = SessionResponse.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증되지 않은 사용자")
+    })
     @GetMapping("/check")
     public ResponseEntity<ApiResponse<SessionResponse>> checkSession(HttpServletRequest request) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
