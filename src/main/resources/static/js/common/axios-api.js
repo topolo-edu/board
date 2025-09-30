@@ -14,9 +14,6 @@ const axiosAPI = axios.create({
 // 요청 인터셉터
 axiosAPI.interceptors.request.use(
     config => {
-        // 로딩 표시
-        showLoading();
-
         // 언어 설정 추가
         const language = localStorage.getItem('language') || 'ko';
         config.headers['Accept-Language'] = language;
@@ -29,7 +26,6 @@ axiosAPI.interceptors.request.use(
         return config;
     },
     error => {
-        hideLoading();
         console.error('[Axios Request Error]', error);
         return Promise.reject(error);
     }
@@ -38,8 +34,6 @@ axiosAPI.interceptors.request.use(
 // 응답 인터셉터
 axiosAPI.interceptors.response.use(
     response => {
-        hideLoading();
-
         // 응답 로깅 (개발 환경)
         if (console && console.log) {
             console.log(`[Axios Response] ${response.status}`, response.data);
@@ -48,8 +42,6 @@ axiosAPI.interceptors.response.use(
         return response;
     },
     error => {
-        hideLoading();
-
         // 에러 로깅
         console.error('[Axios Response Error]', error);
 

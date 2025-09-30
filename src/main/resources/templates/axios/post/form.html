@@ -4,7 +4,7 @@
       layout:decorate="~{layout/axios-layout}">
 
 <head>
-    <title th:text="${mode == 'edit'} ? '게시글 수정 - Axios' : '게시글 작성 - Axios'">게시글 작성 - Axios</title>
+    <title th:text="${editMode} ? '게시글 수정 - Axios' : '게시글 작성 - Axios'">게시글 작성 - Axios</title>
 </head>
 
 <body>
@@ -12,11 +12,11 @@
         <div class="max-w-4xl mx-auto px-4 py-8">
             <!-- 헤더 섹션 -->
             <div class="mb-6">
-                <h1 class="text-2xl font-bold text-gray-900" th:text="${mode == 'edit'} ? '게시글 수정' : '게시글 작성'">게시글 작성</h1>
+                <h1 class="text-2xl font-bold text-gray-900" th:text="${editMode} ? '게시글 수정' : '게시글 작성'">게시글 작성</h1>
                 <nav class="text-sm text-gray-500 mt-2">
                     <a href="/axios/posts" class="hover:text-blue-600">게시글 목록</a>
                     <span class="mx-2">></span>
-                    <span th:text="${mode == 'edit'} ? '수정' : '작성'">작성</span>
+                    <span th:text="${editMode} ? '수정' : '작성'">작성</span>
                 </nav>
             </div>
 
@@ -56,7 +56,7 @@
                         </a>
                         <button type="submit"
                                 class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200">
-                            <span th:text="${mode == 'edit'} ? '수정하기' : '작성하기'">작성하기</span>
+                            <span th:text="${editMode} ? '수정하기' : '작성하기'">작성하기</span>
                         </button>
                     </div>
                 </form>

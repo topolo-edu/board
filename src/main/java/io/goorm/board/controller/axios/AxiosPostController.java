@@ -27,7 +27,6 @@ public class AxiosPostController {
     public String newPost(@AuthenticationPrincipal User user, Model model) {
         log.debug("Axios 게시글 작성 페이지 요청 - 사용자: {}", user.getEmail());
         model.addAttribute("user", user);
-        model.addAttribute("mode", "new");
         return "axios/post/form";
     }
 
@@ -44,7 +43,7 @@ public class AxiosPostController {
         log.debug("Axios 게시글 수정 페이지 요청 - 게시글 ID: {}, 사용자: {}", id, user.getEmail());
         model.addAttribute("user", user);
         model.addAttribute("postId", id);
-        model.addAttribute("mode", "edit");
+        model.addAttribute("editMode", true);
         return "axios/post/form";
     }
 }

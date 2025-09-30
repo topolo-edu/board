@@ -1,4 +1,4 @@
-// Axios 게시글 관리 기능
+// Axios 게시판 기능
 
 document.addEventListener('DOMContentLoaded', function() {
     const path = window.location.pathname;
@@ -285,17 +285,11 @@ async function checkUserSession() {
 // 사용자 정보 UI 업데이트
 function updateUserInfo(user) {
     const userGreeting = document.getElementById('userGreeting');
-    const mobileUserGreeting = document.getElementById('mobileUserGreeting');
     const anonymousMenu = document.getElementById('anonymousMenu');
     const authenticatedMenu = document.getElementById('authenticatedMenu');
-    const mobileAnonymousMenu = document.getElementById('mobileAnonymousMenu');
-    const mobileAuthenticatedMenu = document.getElementById('mobileAuthenticatedMenu');
 
     if (userGreeting && user) {
         userGreeting.textContent = `${user.username}님`;
-    }
-    if (mobileUserGreeting && user) {
-        mobileUserGreeting.textContent = `${user.username}님`;
     }
 
     if (anonymousMenu && authenticatedMenu) {
@@ -305,16 +299,6 @@ function updateUserInfo(user) {
         } else {
             anonymousMenu.classList.remove('hidden');
             authenticatedMenu.classList.add('hidden');
-        }
-    }
-
-    if (mobileAnonymousMenu && mobileAuthenticatedMenu) {
-        if (user) {
-            mobileAnonymousMenu.classList.add('hidden');
-            mobileAuthenticatedMenu.classList.remove('hidden');
-        } else {
-            mobileAnonymousMenu.classList.remove('hidden');
-            mobileAuthenticatedMenu.classList.add('hidden');
         }
     }
 }
