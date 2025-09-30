@@ -65,9 +65,49 @@ public class SecurityConfig {
     }
 
 
-    // 기본 MVC SecurityFilterChain
+    // Axios 전용 SecurityFilterChain
     @Bean
     @org.springframework.core.annotation.Order(2)
+    public SecurityFilterChain axiosSecurityChain(HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/axios/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/axios/auth/**").permitAll()
+                .requestMatchers("/axios/**").authenticated()
+            )
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("Axios authentication required for URL: {}", request.getRequestURI());
+                    response.sendRedirect("/axios/auth/login");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("Axios access denied for user: {} to URL: {}",
+                        request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                        request.getRequestURI());
+                    response.sendRedirect("/axios/auth/login?error=access");
+                })
+            )
+            .formLogin(form -> form
+                .loginPage("/axios/auth/login")
+                .loginProcessingUrl("/axios/auth/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .defaultSuccessUrl("/axios/posts", true)
+                .failureUrl("/axios/auth/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/axios/auth/logout")
+                .logoutSuccessUrl("/axios/auth/login?logout=true")
+                .permitAll()
+            )
+            .build();
+    }
+
+    // 기본 MVC SecurityFilterChain
+    @Bean
+    @org.springframework.core.annotation.Order(3)
     public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
