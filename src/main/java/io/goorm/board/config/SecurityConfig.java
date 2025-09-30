@@ -134,9 +134,38 @@ public class SecurityConfig {
             .build();
     }
 
-    // 기본 MVC SecurityFilterChain
+    // REST API 전용 SecurityFilterChain (세션 기반)
     @Bean
     @org.springframework.core.annotation.Order(4)
+    public SecurityFilterChain apiSecurityChain(HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/api/**")
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/*/auth/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json;charset=UTF-8");
+                    io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("UNAUTHORIZED", "인증이 필요합니다", 401);
+                    response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(403);
+                    response.setContentType("application/json;charset=UTF-8");
+                    io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("ACCESS_DENIED", "접근 권한이 없습니다", 403);
+                    response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
+                }))
+            .build();
+    }
+
+    // 기본 MVC SecurityFilterChain
+    @Bean
+    @org.springframework.core.annotation.Order(5)
     public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
@@ -150,10 +179,6 @@ public class SecurityConfig {
                 .requestMatchers("/auth/profile").authenticated()
 
 
-                // REST API 경로
-                .requestMatchers("/api/*/auth/**").permitAll()  // 모든 API 인증 엔드포인트 공개
-                .requestMatchers("/api/responseentity/auth/**").permitAll()  // ResponseEntity 인증 엔드포인트 명시적 허용
-                .requestMatchers("/api/**").authenticated()     // 나머지 API는 인증 필요
 
                 // Swagger UI 경로
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -161,7 +186,6 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**")  // API 경로는 CSRF 비활성화
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             .sessionManagement(session -> session
@@ -174,29 +198,11 @@ public class SecurityConfig {
                     log.warn("Access denied for user: {} to URL: {}",
                         request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
                         request.getRequestURI());
-
-                    // REST API 경로는 JSON 응답
-                    if (request.getRequestURI().startsWith("/api/")) {
-                        response.setStatus(403);
-                        response.setContentType("application/json;charset=UTF-8");
-                        io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("ACCESS_DENIED", "접근 권한이 없습니다.", 403);
-                        response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
-                    } else {
-                        response.sendRedirect("/error/403");
-                    }
+                    response.sendRedirect("/error/403");
                 })
                 .authenticationEntryPoint((request, response, authException) -> {
                     log.warn("Authentication required for URL: {}", request.getRequestURI());
-
-                    // REST API 경로는 JSON 응답
-                    if (request.getRequestURI().startsWith("/api/")) {
-                        response.setStatus(401);
-                        response.setContentType("application/json;charset=UTF-8");
-                        io.goorm.board.dto.ErrorResponse errorResponse = io.goorm.board.dto.ErrorResponse.of("UNAUTHORIZED", "인증이 필요합니다.", 401);
-                        response.getWriter().write(new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(errorResponse));
-                    } else {
-                        response.sendRedirect("/auth/login");
-                    }
+                    response.sendRedirect("/auth/login");
                 })
             )
             .formLogin(form -> form
