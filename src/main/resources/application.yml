@@ -40,6 +40,12 @@ logging:
     console: UTF-8
     file: UTF-8
 
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:myVeryLongSecretKeyThatIsAtLeast256BitsLong123456789}
+  access-token-expiration: ${JWT_ACCESS_EXPIRATION:900000}    # 15분 (밀리초)
+  refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7일 (밀리초)
+
 # 애플리케이션 설정
 app:
   upload:

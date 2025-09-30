@@ -1,18 +1,24 @@
 package io.goorm.board.config;
 
+import io.goorm.board.exception.JwtAccessDeniedHandler;
+import io.goorm.board.exception.JwtAuthenticationEntryPoint;
+import io.goorm.board.filter.JwtAuthenticationFilter;
 import io.goorm.board.security.CustomAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Slf4j
@@ -23,6 +29,9 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
 
     private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     
     // Fetch 전용 SecurityFilterChain
     @Bean
@@ -105,9 +114,29 @@ public class SecurityConfig {
             .build();
     }
 
-    // 기본 MVC SecurityFilterChain
+    // JWT 전용 SecurityFilterChain
     @Bean
     @org.springframework.core.annotation.Order(3)
+    public SecurityFilterChain jwtSecurityChain(HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/jwt/**")
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/jwt/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/jwt/posts/**").permitAll()
+                .anyRequest().authenticated())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler))
+            .build();
+    }
+
+    // 기본 MVC SecurityFilterChain
+    @Bean
+    @org.springframework.core.annotation.Order(4)
     public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth

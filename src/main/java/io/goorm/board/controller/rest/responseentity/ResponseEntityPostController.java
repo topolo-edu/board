@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/responseentity/posts")
 @RequiredArgsConstructor
-@Tag(name = "Post API", description = "게시글 관련 API")
+@Tag(name = "Post API (Session)", description = "세션 기반 게시글 관련 API")
+@SecurityRequirement(name = "sessionAuth")
 public class ResponseEntityPostController {
 
     private final PostService postService;

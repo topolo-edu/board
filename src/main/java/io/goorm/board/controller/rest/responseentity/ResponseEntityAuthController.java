@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -33,7 +34,8 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/api/responseentity/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth API", description = "사용자 인증 관련 API")
+@Tag(name = "Auth API (Session)", description = "세션 기반 사용자 인증 관련 API")
+@SecurityRequirement(name = "sessionAuth")
 public class ResponseEntityAuthController {
 
     private final UserService userService;
