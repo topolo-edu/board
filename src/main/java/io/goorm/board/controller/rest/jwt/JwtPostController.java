@@ -1,4 +1,4 @@
-package io.goorm.board.controller.jwt;
+package io.goorm.board.controller.rest.jwt;
 
 import io.goorm.board.dto.ApiResponse;
 import io.goorm.board.entity.Post;
@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -115,152 +116,50 @@ public class JwtPostController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @PostMapping
-    public ResponseEntity<ApiResponse<Post>> createPost(
-            @Parameter(description = "게시글 정보") @Valid @RequestBody Post post,
+    public ResponseEntity<ApiResponse<Map<String, Object>>> createPost(
+            @Parameter(description = "게시글 정보", required = true) @Valid @RequestBody Post post,
             @AuthenticationPrincipal User user) {
+        post.setAuthor(user);
+        postService.save(post);
 
-        try {
-            post.setAuthor(user);
-            postService.save(post);
-
-            ApiResponse<Post> response = ApiResponse.<Post>builder()
-                    .success(true)
-                    .message("게시글 작성 성공")
-                    .data(post)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            log.info("게시글 작성 성공 - 사용자: {}, 제목: {}", user.getEmail(), post.getTitle());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (Exception e) {
-            log.error("게시글 작성 실패 - 사용자: {}: {}", user.getEmail(), e.getMessage());
-
-            ApiResponse<Post> response = ApiResponse.<Post>builder()
-                    .success(false)
-                    .message("게시글 작성 실패: " + e.getMessage())
-                    .data(null)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        Map<String, Object> data = Map.of("success", true);
+        ApiResponse<Map<String, Object>> response = ApiResponse.success("게시글 작성 성공", data);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "게시글 수정", description = "게시글을 수정합니다 (작성자만 가능)")
+    @Operation(summary = "게시글 수정", description = "기존 게시글을 수정합니다.")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공",
-                    content = @Content(schema = @Schema(implementation = Post.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "권한 없음"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글 없음"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
     @PutMapping("/{seq}")
-    public ResponseEntity<ApiResponse<Post>> updatePost(
-            @Parameter(description = "게시글 번호") @PathVariable Long seq,
-            @Parameter(description = "수정할 게시글 정보") @Valid @RequestBody Post post,
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> updatePost(
+            @Parameter(description = "게시글 번호", required = true) @PathVariable Long seq,
+            @Parameter(description = "수정할 게시글 정보", required = true) @Valid @RequestBody Post post) {
+        postService.update(seq, post);
 
-        try {
-            Post existingPost = postService.findBySeq(seq);
-
-            // 작성자 권한 확인
-            if (!existingPost.getAuthor().getUserSeq().equals(user.getUserSeq()) &&
-                !user.getRole().toString().equals("ADMIN")) {
-
-                ApiResponse<Post> response = ApiResponse.<Post>builder()
-                        .success(false)
-                        .message("게시글 수정 권한이 없습니다.")
-                        .data(null)
-                        .timestamp(LocalDateTime.now())
-                        .build();
-
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-
-            post.setSeq(seq);
-            post.setAuthor(existingPost.getAuthor());
-            postService.update(seq, post);
-
-            ApiResponse<Post> response = ApiResponse.<Post>builder()
-                    .success(true)
-                    .message("게시글 수정 성공")
-                    .data(post)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            log.info("게시글 수정 성공 - 사용자: {}, 게시글 ID: {}", user.getEmail(), seq);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("게시글 수정 실패 - 사용자: {}, 게시글 ID: {}: {}", user.getEmail(), seq, e.getMessage());
-
-            ApiResponse<Post> response = ApiResponse.<Post>builder()
-                    .success(false)
-                    .message("게시글 수정 실패: " + e.getMessage())
-                    .data(null)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        Map<String, Object> data = Map.of("updatedSeq", seq);
+        ApiResponse<Map<String, Object>> response = ApiResponse.success("게시글 수정 성공", data);
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다 (작성자만 가능)")
+    @Operation(summary = "게시글 삭제", description = "기존 게시글을 삭제합니다.")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "삭제 성공"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 필요"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "권한 없음"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글 없음"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음")
     })
     @DeleteMapping("/{seq}")
-    public ResponseEntity<ApiResponse<String>> deletePost(
-            @Parameter(description = "게시글 번호") @PathVariable Long seq,
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> deletePost(
+            @Parameter(description = "게시글 번호", required = true) @PathVariable Long seq) {
+        postService.delete(seq);
 
-        try {
-            Post existingPost = postService.findBySeq(seq);
-
-            // 작성자 권한 확인
-            if (!existingPost.getAuthor().getUserSeq().equals(user.getUserSeq()) &&
-                !user.getRole().toString().equals("ADMIN")) {
-
-                ApiResponse<String> response = ApiResponse.<String>builder()
-                        .success(false)
-                        .message("게시글 삭제 권한이 없습니다.")
-                        .data(null)
-                        .timestamp(LocalDateTime.now())
-                        .build();
-
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
-            }
-
-            postService.delete(seq);
-
-            ApiResponse<String> response = ApiResponse.<String>builder()
-                    .success(true)
-                    .message("게시글 삭제 성공")
-                    .data("게시글이 성공적으로 삭제되었습니다.")
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            log.info("게시글 삭제 성공 - 사용자: {}, 게시글 ID: {}", user.getEmail(), seq);
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("게시글 삭제 실패 - 사용자: {}, 게시글 ID: {}: {}", user.getEmail(), seq, e.getMessage());
-
-            ApiResponse<String> response = ApiResponse.<String>builder()
-                    .success(false)
-                    .message("게시글 삭제 실패: " + e.getMessage())
-                    .data(null)
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
+        Map<String, Object> data = Map.of("deletedSeq", seq);
+        ApiResponse<Map<String, Object>> response = ApiResponse.success("게시글 삭제 성공", data);
+        return ResponseEntity.ok(response);
     }
 }

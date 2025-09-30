@@ -4,6 +4,7 @@ import io.goorm.board.exception.JwtAccessDeniedHandler;
 import io.goorm.board.exception.JwtAuthenticationEntryPoint;
 import io.goorm.board.filter.JwtAuthenticationFilter;
 import io.goorm.board.security.CustomAuthenticationSuccessHandler;
+import io.goorm.board.service.JwtUserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtUserDetailsServiceImpl jwtUserDetailsService;
     
     // Fetch 전용 SecurityFilterChain
     @Bean
@@ -231,6 +233,9 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
             http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
+            .userDetailsService(jwtUserDetailsService)
+            .passwordEncoder(passwordEncoder);
         return authenticationManagerBuilder.build();
     }
 }

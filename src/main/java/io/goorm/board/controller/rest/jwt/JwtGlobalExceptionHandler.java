@@ -1,4 +1,4 @@
-package io.goorm.board.exception;
+package io.goorm.board.controller.rest.jwt;
 
 import io.goorm.board.dto.ApiResponse;
 import io.jsonwebtoken.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
 
 @Slf4j
-@ControllerAdvice(basePackages = "io.goorm.board.controller.jwt")
+@ControllerAdvice(basePackages = "io.goorm.board.controller.rest.jwt")
 public class JwtGlobalExceptionHandler {
 
     @ExceptionHandler(JwtException.class)
