@@ -100,9 +100,16 @@ public class JwtUtil {
     }
 
     /**
-     * 토큰 만료 시간 반환 (초 단위)
+     * Access Token 만료 시간 반환 (초 단위)
      */
     public long getAccessTokenExpirationInSeconds() {
         return accessTokenExpiration / 1000;
+    }
+
+    /**
+     * Refresh Token 만료 시간 반환 (초 단위)
+     */
+    public long getRefreshTokenExpirationInSeconds() {
+        return refreshTokenExpiration / 1000;
     }
 }

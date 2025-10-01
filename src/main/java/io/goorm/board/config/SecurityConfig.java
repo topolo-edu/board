@@ -116,10 +116,37 @@ public class SecurityConfig {
             .build();
     }
 
-    // JWT 전용 SecurityFilterChain
+    // JWT 페이지 전용 SecurityFilterChain (웹 페이지)
     @Bean
     @org.springframework.core.annotation.Order(3)
-    public SecurityFilterChain jwtSecurityChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain jwtPagesSecurityChain(HttpSecurity http) throws Exception {
+        return http
+            .securityMatcher("/pages/**")
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/pages/**").permitAll()     // 모든 페이지 허용 (클라이언트에서 제어)
+            )
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    log.warn("Pages authentication required for URL: {}", request.getRequestURI());
+                    response.sendRedirect("/pages/auth/login");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    log.warn("Pages access denied for user: {} to URL: {}",
+                        request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "anonymous",
+                        request.getRequestURI());
+                    response.sendRedirect("/pages/auth/login?error=access");
+                }))
+            .build();
+    }
+
+    // JWT API 전용 SecurityFilterChain
+    @Bean
+    @org.springframework.core.annotation.Order(4)
+    public SecurityFilterChain jwtApiSecurityChain(HttpSecurity http) throws Exception {
         return http
             .securityMatcher("/jwt/**")
             .sessionManagement(session -> session
@@ -138,7 +165,7 @@ public class SecurityConfig {
 
     // REST API 전용 SecurityFilterChain (세션 기반)
     @Bean
-    @org.springframework.core.annotation.Order(4)
+    @org.springframework.core.annotation.Order(5)
     public SecurityFilterChain apiSecurityChain(HttpSecurity http) throws Exception {
         return http
             .securityMatcher("/api/**")
@@ -167,7 +194,7 @@ public class SecurityConfig {
 
     // 기본 MVC SecurityFilterChain
     @Bean
-    @org.springframework.core.annotation.Order(5)
+    @org.springframework.core.annotation.Order(6)
     public SecurityFilterChain defaultSecurityChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth

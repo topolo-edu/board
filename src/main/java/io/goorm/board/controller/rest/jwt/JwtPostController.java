@@ -44,7 +44,9 @@ public class JwtPostController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<Post>>> getAllPosts() {
         try {
+            log.info("📋 JWT 게시글 목록 조회 시작");
             List<Post> posts = postService.findAll();
+            log.info("📋 JWT 게시글 목록 조회 완료: {}개 게시글", posts.size());
 
             ApiResponse<List<Post>> response = ApiResponse.<List<Post>>builder()
                     .success(true)
@@ -56,7 +58,7 @@ public class JwtPostController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("게시글 목록 조회 실패: {}", e.getMessage());
+            log.error("❌ JWT 게시글 목록 조회 실패: {}", e.getMessage());
 
             ApiResponse<List<Post>> response = ApiResponse.<List<Post>>builder()
                     .success(false)
@@ -119,8 +121,10 @@ public class JwtPostController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> createPost(
             @Parameter(description = "게시글 정보", required = true) @Valid @RequestBody Post post,
             @AuthenticationPrincipal User user) {
+        log.info("✍️ JWT 게시글 작성 시작: 제목='{}', 작성자={}", post.getTitle(), user.getEmail());
         post.setAuthor(user);
         postService.save(post);
+        log.info("✅ JWT 게시글 작성 완료: seq={}, 제목='{}'", post.getSeq(), post.getTitle());
 
         Map<String, Object> data = Map.of("success", true);
         ApiResponse<Map<String, Object>> response = ApiResponse.success("게시글 작성 성공", data);
